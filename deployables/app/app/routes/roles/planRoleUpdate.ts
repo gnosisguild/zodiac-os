@@ -1,23 +1,30 @@
 import { dbClient, getRole } from '@zodiac/db'
 import { UUID } from 'crypto'
-import { planApplyAccounts } from 'ser-kit'
+import { planApplyAccounts, resolveAccounts } from 'ser-kit'
 import { getMemberSafes } from './getMemberSafes'
-import { getRoleMods } from './getRoleMods'
+import { getRolesMods } from './getRolesMods'
 
 export const planRoleUpdate = async (roleId: UUID) => {
   const role = await getRole(dbClient(), roleId)
 
   const { safes, issues: memberIssues } = await getMemberSafes(role)
-  const { rolesMods, issues: roleIssues } = await getRoleMods(role, {
-    members: safes,
+  const resolvedSafes = await resolveAccounts({
+    updatesOrCreations: safes,
   })
 
-  const plan = await planApplyAccounts({
-    desired: [...safes, ...rolesMods],
+  const { rolesMods, issues: roleIssues } = await getRolesMods(role, {
+    members: resolvedSafes.desired,
+  })
+
+  const resolvedRolesMods = await resolveAccounts({
+    updatesOrCreations: rolesMods,
   })
 
   return {
     issues: [...roleIssues, ...memberIssues],
-    plan: plan.filter(({ steps }) => steps.length > 0),
+    plan: await planApplyAccounts({
+      current: [...resolvedSafes.current, ...resolvedSafes.current],
+      desired: [...resolvedSafes.desired, ...resolvedRolesMods.desired],
+    }),
   }
 }

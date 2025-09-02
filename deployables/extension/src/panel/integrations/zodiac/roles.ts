@@ -1,10 +1,10 @@
 import { getStorageEntry, saveStorageEntry } from '@/storage'
 import { getRolesAppUrl } from '@zodiac/env'
-import { decodeRoleKey } from '@zodiac/modules'
 import { jsonStringify, type MetaTransactionRequest } from '@zodiac/schema'
 import { useEffect, useState } from 'react'
 import { type PrefixedAddress } from 'ser-kit'
 import { z } from 'zod'
+import { decodeKey as decodeRoleKey } from 'zodiac-roles-sdk'
 
 /**
  * Record calls to the Zodiac Roles app, so the user can update their role's permissions.

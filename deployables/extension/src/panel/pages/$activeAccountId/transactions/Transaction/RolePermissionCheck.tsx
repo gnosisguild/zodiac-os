@@ -8,7 +8,6 @@ import { recordCalls, useRoleRecordLink } from '@/zodiac'
 import { invariant } from '@epic-web/invariant'
 import { EOA_ZERO_ADDRESS } from '@zodiac/chains'
 import { getRolesAppUrl } from '@zodiac/env'
-import { decodeRoleKey } from '@zodiac/modules'
 import type { ExecutionRoute } from '@zodiac/schema'
 import {
   errorToast,
@@ -32,6 +31,7 @@ import {
   PermissionViolation,
   type Route as SerRoute,
 } from 'ser-kit'
+import { decodeKey as decodeRoleKey } from 'zodiac-roles-sdk'
 
 const extractRoles = (route: ExecutionRoute | null) => {
   if (route == null) {

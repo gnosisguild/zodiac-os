@@ -6,7 +6,6 @@ import { invariant, invariantResponse } from '@epic-web/invariant'
 import { verifyChainId } from '@zodiac/chains'
 import { dbClient, getAccounts, getWorkspace } from '@zodiac/db'
 import { Account } from '@zodiac/db/schema'
-import { decodeRoleKey } from '@zodiac/modules'
 import { isUUID, verifyHexAddress } from '@zodiac/schema'
 import {
   Card,
@@ -19,6 +18,7 @@ import {
 } from '@zodiac/ui'
 import { Address } from '@zodiac/web3'
 import { prefixAddress, PrefixedAddress } from 'ser-kit'
+import { decodeKey as decodeRoleKey } from 'zodiac-roles-sdk'
 import { Route } from './+types/on-chain'
 
 export const loader = (args: Route.LoaderArgs) =>

@@ -14,7 +14,7 @@ import {
   walletFactory,
 } from '@zodiac/db/test-utils'
 import { createMockSafeAccount } from '@zodiac/modules/test-utils'
-import { AccountType, prefixAddress, queryAccounts } from 'ser-kit'
+import { AccountType, prefixAddress, resolveAccounts } from 'ser-kit'
 import { beforeEach, describe, expect, vi } from 'vitest'
 import { getMemberSafes } from './getMemberSafes'
 import { predictMemberSafeAddress } from './predictMemberSafeAddress'
@@ -25,15 +25,18 @@ vi.mock('ser-kit', async (importOriginal) => {
   return {
     ...module,
 
-    queryAccounts: vi.fn(),
+    resolveAccounts: vi.fn(),
   }
 })
 
-const mockQueryAccounts = vi.mocked(queryAccounts)
+const mockResolveAccounts = vi.mocked(resolveAccounts)
 
 describe('getMemberSafes', () => {
   beforeEach(() => {
-    mockQueryAccounts.mockResolvedValue([])
+    mockResolveAccounts.mockResolvedValue({
+      current: [],
+      desired: [],
+    })
   })
 
   dbIt('creates safes for members', async () => {
@@ -206,7 +209,10 @@ describe('getMemberSafes', () => {
       address,
     })
 
-    mockQueryAccounts.mockResolvedValue([existingSafe])
+    mockResolveAccounts.mockResolvedValue({
+      current: [],
+      desired: [existingSafe],
+    })
 
     const { safes } = await getMemberSafes(role)
 

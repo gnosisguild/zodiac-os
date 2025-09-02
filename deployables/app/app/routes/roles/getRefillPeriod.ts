@@ -9,13 +9,13 @@ export const getRefillPeriod = (interval: AllowanceInterval): bigint => {
       return getRefillPeriod(AllowanceInterval.Daily) * 7n
     }
     case AllowanceInterval.Monthly: {
-      return getRefillPeriod(AllowanceInterval.Weekly) * 30n
+      return getRefillPeriod(AllowanceInterval.Daily) * 30n
     }
     case AllowanceInterval.Quarterly: {
-      return getRefillPeriod(AllowanceInterval.Monthly) * 3n
+      return getRefillPeriod(AllowanceInterval.Yearly) / 4n
     }
     case AllowanceInterval.Yearly: {
-      return getRefillPeriod(AllowanceInterval.Quarterly) * 4n
+      return getRefillPeriod(AllowanceInterval.Daily) * 365n
     }
   }
 }

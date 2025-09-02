@@ -1,6 +1,5 @@
 import { RoleActionAsset } from '@zodiac/db/schema'
-import { encodeRoleKey } from '@zodiac/modules'
-import { Permission } from 'zodiac-roles-sdk'
+import { Permission, encodeKey as encodeRoleKey } from 'zodiac-roles-sdk'
 import { allowCowOrderSigning } from 'zodiac-roles-sdk/swaps'
 
 export const computeSwapPermissions = (

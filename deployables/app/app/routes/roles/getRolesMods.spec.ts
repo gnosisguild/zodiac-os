@@ -15,7 +15,6 @@ import {
   userFactory,
   walletFactory,
 } from '@zodiac/db/test-utils'
-import { encodeRoleKey } from '@zodiac/modules'
 import {
   createMockEoaAccount,
   createMockRole,
@@ -24,9 +23,10 @@ import {
 import { AllowanceInterval } from '@zodiac/schema'
 import { AccountType, prefixAddress, queryAccounts } from 'ser-kit'
 import { beforeEach, describe, expect, vi } from 'vitest'
+import { encodeKey as encodeRoleKey } from 'zodiac-roles-sdk'
 import { getRefillPeriod } from './getRefillPeriod'
-import { getRoleMods } from './getRoleMods'
-import { predictRolesModAddress } from './predictRolesModAddress'
+import { getRolesMods } from './getRolesMods'
+import { predictRolesModAddress } from './predictAddress'
 
 vi.mock('ser-kit', async (importOriginal) => {
   const module = await importOriginal<typeof import('ser-kit')>()
@@ -57,7 +57,7 @@ describe('getRoleMods', () => {
 
     await setActiveAccounts(dbClient(), role, [account.id])
 
-    const { rolesMods } = await getRoleMods(role, { members: [] })
+    const { rolesMods } = await getRolesMods(role, { members: [] })
 
     expect(rolesMods).toHaveLength(1)
 
@@ -100,7 +100,7 @@ describe('getRoleMods', () => {
 
       const {
         rolesMods: [mod],
-      } = await getRoleMods(role, { members: [] })
+      } = await getRolesMods(role, { members: [] })
 
       expect(mod).toHaveProperty('allowances', [
         {
@@ -129,7 +129,7 @@ describe('getRoleMods', () => {
 
       const {
         rolesMods: [mod],
-      } = await getRoleMods(role, { members: [] })
+      } = await getRolesMods(role, { members: [] })
 
       expect(mod).toHaveProperty('roles', [
         {
@@ -165,7 +165,7 @@ describe('getRoleMods', () => {
 
       const {
         rolesMods: [mod],
-      } = await getRoleMods(role, { members: [] })
+      } = await getRolesMods(role, { members: [] })
 
       expect(mod).toHaveProperty('roles', [
         existingRole,
@@ -201,7 +201,7 @@ describe('getRoleMods', () => {
 
         const {
           rolesMods: [mod],
-        } = await getRoleMods(role, {
+        } = await getRolesMods(role, {
           members: [createMockEoaAccount({ address: wallet.address })],
         })
 

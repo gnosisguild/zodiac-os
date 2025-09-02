@@ -5,17 +5,15 @@ import {
   getRoleMembers,
 } from '@zodiac/db'
 import { Role, RoleDeploymentIssue } from '@zodiac/db/schema'
-import {
-  Account,
-  AccountType,
-  queryAccounts,
-  withPredictedAddress,
-} from 'ser-kit'
+import { AccountType, type NewAccount, type UpdateAccount } from 'ser-kit'
 
-type Safe = Extract<Account, { type: AccountType.SAFE }>
+type UpdateOrNewSafe = Extract<
+  UpdateAccount | NewAccount,
+  { type: AccountType.SAFE }
+>
 
 type Result = {
-  safes: Account[]
+  safes: UpdateOrNewSafe[]
   issues: RoleDeploymentIssue[]
 }
 
@@ -42,7 +40,7 @@ export const getMemberSafes = async (role: Role): Promise<Result> => {
     new Set(accounts.map((account) => account.chainId)),
   )
 
-  const safes: Account[] = []
+  const safes: UpdateOrNewSafe[] = []
   const issues: RoleDeploymentIssue[] = []
 
   for (const member of members) {
@@ -57,24 +55,14 @@ export const getMemberSafes = async (role: Role): Promise<Result> => {
         continue
       }
 
-      const safe = withPredictedAddress<Safe>(
-        {
-          type: AccountType.SAFE,
-          chain: chainId,
-          modules: [],
-          owners: [defaultWallets[chainId].address],
-          threshold: 1,
-        },
-        member.nonce,
-      )
-
-      const [existingSafe] = await queryAccounts([safe.prefixedAddress])
-
-      if (existingSafe == null) {
-        safes.push(safe)
-      } else {
-        safes.push(existingSafe)
-      }
+      safes.push({
+        type: AccountType.SAFE,
+        chain: chainId,
+        modules: [],
+        owners: [defaultWallets[chainId].address],
+        threshold: 1,
+        nonce: member.nonce,
+      })
     }
   }
 
