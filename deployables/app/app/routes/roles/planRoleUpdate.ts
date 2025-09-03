@@ -23,7 +23,7 @@ export const planRoleUpdate = async (roleId: UUID) => {
   return {
     issues: [...roleIssues, ...memberIssues],
     plan: await planApplyAccounts({
-      current: [...resolvedSafes.current, ...resolvedSafes.current],
+      current: [...resolvedSafes.current, ...resolvedRolesMods.current],
       desired: [...resolvedSafes.desired, ...resolvedRolesMods.desired],
     }),
   }

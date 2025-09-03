@@ -241,12 +241,13 @@ const DeployRole = ({
         <ProvideRoleLabels labels={roleLabels}>
           <ProvideAddressLabels labels={addressLabels}>
             {steps.length === 0 ? (
-              <Info title="Nothing to deploy">No changes to be applied.</Info>
+              <Info title="Nothing to deploy">
+                All updates have been applied onchain.
+              </Info>
             ) : (
               <div className="flex flex-col gap-8">
                 <Info>
                   The following changes need to be applied to deploy this role.
-                  Please execute one transaction after the other.
                 </Info>
 
                 {steps.map((step) => (
