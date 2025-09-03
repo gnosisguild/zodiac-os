@@ -177,8 +177,8 @@ const CreateRole = ({
           <FormLayout>
             <FormLayout.Section title="Actions">
               <Info title="Create role to add actions">
-                You can add actions to this role once you've created the initial
-                version of the role
+                You can add actions once you've created the initial version of
+                the role
               </Info>
 
               <FormLayout.Actions>

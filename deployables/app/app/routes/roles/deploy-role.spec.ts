@@ -224,7 +224,7 @@ describe('Deploy Role', () => {
 
           const transaction = createMockTransactionRequest()
           await roleDeploymentStepFactory.create(user, deployment, {
-            targetAccount: account.address,
+            from: account.address,
             transactionBundle: [transaction],
           })
 
@@ -296,7 +296,7 @@ describe('Deploy Role', () => {
             user,
             deployment,
             {
-              targetAccount: account.address,
+              from: account.address,
               transactionBundle: [transaction],
             },
           )
@@ -360,7 +360,7 @@ describe('Deploy Role', () => {
 
         const transaction = createMockTransactionRequest()
         const step = await roleDeploymentStepFactory.create(user, deployment, {
-          targetAccount: account.address,
+          from: account.address,
           transactionBundle: [transaction],
         })
 

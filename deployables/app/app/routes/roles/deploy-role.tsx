@@ -135,7 +135,7 @@ export const action = (args: Route.ActionArgs) =>
 
       const account = await getAccountByAddress(dbClient(), {
         tenantId: tenant.id,
-        prefixedAddress: getPrefixedAddress(data, 'targetAccount'),
+        prefixedAddress: getPrefixedAddress(data, 'from'),
       })
 
       const deploymentStep = await getRoleDeploymentStep(
@@ -330,7 +330,7 @@ const Deploy = ({ deploymentStep, roleId, disabled }: DeployProps) => {
     (data) => data.get('roleDeploymentStepId') === deploymentStep.id,
   )
 
-  if (deploymentStep.targetAccount == null) {
+  if (deploymentStep.from == null) {
     const [transaction] = deploymentStep.transactionBundle
 
     return (
@@ -371,10 +371,7 @@ const Deploy = ({ deploymentStep, roleId, disabled }: DeployProps) => {
     <InlineForm
       context={{
         roleDeploymentStepId: deploymentStep.id,
-        targetAccount: prefixAddress(
-          deploymentStep.chainId,
-          deploymentStep.targetAccount,
-        ),
+        from: prefixAddress(deploymentStep.chainId, deploymentStep.from),
       }}
     >
       <SecondaryButton

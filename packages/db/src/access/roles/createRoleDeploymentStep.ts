@@ -11,18 +11,13 @@ type CreateRoleDeploymentStepOptions = {
   account: Account
   calls: AccountBuilderCall[]
   transactionBundle: MetaTransactionRequest[]
-  targetAccount: HexAddress | null
+  from: HexAddress | null
 }
 
 export const createRoleDeploymentStep = async (
   db: DBClient,
   roleDeployment: ActiveRoleDeployment,
-  {
-    account,
-    calls,
-    transactionBundle,
-    targetAccount,
-  }: CreateRoleDeploymentStepOptions,
+  { account, calls, transactionBundle, from }: CreateRoleDeploymentStepOptions,
 ) => {
   const previousStep = await db.query.roleDeploymentStep.findFirst({
     where(fields, { eq }) {
@@ -39,6 +34,6 @@ export const createRoleDeploymentStep = async (
     tenantId: roleDeployment.tenantId,
     transactionBundle: safeJson(transactionBundle),
     workspaceId: roleDeployment.workspaceId,
-    targetAccount,
+    from,
   })
 }

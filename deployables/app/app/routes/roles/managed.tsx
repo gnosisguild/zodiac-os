@@ -16,7 +16,7 @@ import {
 } from '@zodiac/db'
 import { getEnumValue, getUUID } from '@zodiac/form-data'
 import { useAfterSubmit, useIsPending } from '@zodiac/hooks'
-import { HexAddress, isUUID } from '@zodiac/schema'
+import { isUUID } from '@zodiac/schema'
 import {
   DateValue,
   Empty,
@@ -116,27 +116,12 @@ export const action = (args: Route.ActionArgs) =>
               issues,
             })
 
-            for (const { steps, account } of plan) {
-              const targetAccount = steps.reduce<HexAddress | null>(
-                (result, { from }) => {
-                  if (result != null) {
-                    return result
-                  }
-
-                  if (from == null) {
-                    return null
-                  }
-
-                  return from
-                },
-                null,
-              )
-
+            for (const { steps, account, from } of plan) {
               await createRoleDeploymentStep(tx, deployment, {
                 account,
                 calls: steps.map(({ call }) => call),
                 transactionBundle: steps.map(({ transaction }) => transaction),
-                targetAccount,
+                from: from ?? null,
               })
             }
 

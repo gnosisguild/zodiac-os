@@ -839,8 +839,7 @@ export const RoleDeploymentStepTable = pgTable(
     account: jsonb().notNull().$type<SerAccount>(),
     calls: jsonb().notNull().$type<AccountBuilderCall[]>(),
     transactionBundle: jsonb().notNull().$type<MetaTransactionRequest[]>(),
-
-    targetAccount: text().$type<HexAddress>(),
+    from: text().$type<HexAddress>(),
 
     transactionHash: text().$type<Hex>(),
 
