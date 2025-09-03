@@ -15,18 +15,13 @@ import {
   userFactory,
   walletFactory,
 } from '@zodiac/db/test-utils'
-import {
-  createMockEoaAccount,
-  createMockRole,
-  createMockRolesAccount,
-} from '@zodiac/modules/test-utils'
+import { createMockEoaAccount } from '@zodiac/modules/test-utils'
 import { AllowanceInterval } from '@zodiac/schema'
-import { AccountType, prefixAddress, queryAccounts } from 'ser-kit'
+import { AccountType, resolveAccounts } from 'ser-kit'
 import { beforeEach, describe, expect, vi } from 'vitest'
-import { encodeKey as encodeRoleKey } from 'zodiac-roles-sdk'
+import { encodeKey } from 'zodiac-roles-sdk'
 import { getRefillPeriod } from './getRefillPeriod'
 import { getRolesMods } from './getRolesMods'
-import { predictRolesModAddress } from './predictAddress'
 
 vi.mock('ser-kit', async (importOriginal) => {
   const module = await importOriginal<typeof import('ser-kit')>()
@@ -34,15 +29,18 @@ vi.mock('ser-kit', async (importOriginal) => {
   return {
     ...module,
 
-    queryAccounts: vi.fn(),
+    resolveAccounts: vi.fn(),
   }
 })
 
-const mockQueryAccounts = vi.mocked(queryAccounts)
+const mockResolveAccounts = vi.mocked(resolveAccounts)
 
 describe('getRoleMods', () => {
   beforeEach(() => {
-    mockQueryAccounts.mockResolvedValue([])
+    mockResolveAccounts.mockResolvedValue({
+      current: [],
+      desired: [],
+    })
 
     vi.setSystemTime(new Date())
   })
@@ -63,20 +61,13 @@ describe('getRoleMods', () => {
 
     const [mod] = rolesMods
 
-    const address = predictRolesModAddress(account)
-
     expect(mod).toEqual({
       type: AccountType.ROLES,
-      version: 2,
-      address,
-      prefixedAddress: prefixAddress(account.chainId, address),
-      allowances: [],
+      allowances: {},
       avatar: account.address,
       target: account.address,
       owner: account.address,
       chain: account.chainId,
-      modules: [],
-      multisend: [],
       nonce: account.nonce,
       roles: expect.anything(),
     })
@@ -102,18 +93,17 @@ describe('getRoleMods', () => {
         rolesMods: [mod],
       } = await getRolesMods(role, { members: [] })
 
-      expect(mod).toHaveProperty('allowances', [
-        {
+      expect(mod).toHaveProperty('allowances', {
+        [encodeKey(asset.allowanceKey)]: {
           balance: 1000n,
           maxRefill: 1000n,
           period: getRefillPeriod(AllowanceInterval.Daily),
           refill: 1000n,
-          timestamp: BigInt(new Date().getTime()),
-          key: encodeRoleKey(asset.allowanceKey),
+          timestamp: 0n,
+          key: encodeKey(asset.allowanceKey),
         },
-      ])
+      })
     })
-    dbIt.todo('keeps existing allowances')
   })
 
   describe('Roles', () => {
@@ -131,51 +121,14 @@ describe('getRoleMods', () => {
         rolesMods: [mod],
       } = await getRolesMods(role, { members: [] })
 
-      expect(mod).toHaveProperty('roles', [
-        {
-          key: encodeRoleKey(role.key),
+      expect(mod).toHaveProperty('roles', {
+        [encodeKey(role.key)]: {
+          key: encodeKey(role.key),
           annotations: [],
           targets: [],
           members: [],
         },
-      ])
-    })
-
-    dbIt('keeps existing roles', async () => {
-      const user = await userFactory.create()
-      const tenant = await tenantFactory.create(user)
-
-      const account = await accountFactory.create(tenant, user)
-
-      const address = predictRolesModAddress(account)
-
-      const existingRole = createMockRole()
-
-      mockQueryAccounts.mockResolvedValue([
-        createMockRolesAccount({
-          address,
-          avatar: account.address,
-          roles: [existingRole],
-        }),
-      ])
-
-      const role = await roleFactory.create(tenant, user)
-
-      await setActiveAccounts(dbClient(), role, [account.id])
-
-      const {
-        rolesMods: [mod],
-      } = await getRolesMods(role, { members: [] })
-
-      expect(mod).toHaveProperty('roles', [
-        existingRole,
-        {
-          key: encodeRoleKey(role.key),
-          annotations: [],
-          targets: [],
-          members: [],
-        },
-      ])
+      })
     })
 
     describe('Members', () => {
@@ -205,9 +158,11 @@ describe('getRoleMods', () => {
           members: [createMockEoaAccount({ address: wallet.address })],
         })
 
-        expect(mod).toHaveProperty('roles', [
-          expect.objectContaining({ members: [wallet.address] }),
-        ])
+        expect(mod).toHaveProperty('roles', {
+          [encodeKey(role.key)]: expect.objectContaining({
+            members: [wallet.address],
+          }),
+        })
       })
     })
   })
