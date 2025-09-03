@@ -21,7 +21,7 @@
     "@safe-global/protocol-kit": "6.1.1",
     "@zodiac/chains": "workspace:*",
     "@zodiac/schema": "workspace:*",
-    "ser-kit": "3.12.0"
+    "ser-kit": "link:~/gnosisguild/ser-kit"
   },
   "devDependencies": {
     "@types/node": "22.14.1",
