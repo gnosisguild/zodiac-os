@@ -498,6 +498,13 @@
       "when": 1756896210982,
       "tag": "0070_rename target account to from",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1756910537387,
+      "tag": "0071_deployment steps to slices",
+      "breakpoints": true
     }
   ]
 }
