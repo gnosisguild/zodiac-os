@@ -1,4 +1,7 @@
-import { RoleDeploymentStepTable, RoleDeploymentTable } from '@zodiac/db/schema'
+import {
+  RoleDeploymentSliceTable,
+  RoleDeploymentTable,
+} from '@zodiac/db/schema'
 import { UUID } from 'crypto'
 import { and, count, eq, isNull } from 'drizzle-orm'
 import { DBClient } from '../../dbClient'
@@ -9,11 +12,11 @@ export const completeRoleDeploymentIfNeeded = async (
 ) => {
   const [pendingSteps] = await db
     .select({ count: count() })
-    .from(RoleDeploymentStepTable)
+    .from(RoleDeploymentSliceTable)
     .where(
       and(
-        eq(RoleDeploymentStepTable.roleDeploymentId, roleDeploymentId),
-        isNull(RoleDeploymentStepTable.completedAt),
+        eq(RoleDeploymentSliceTable.roleDeploymentId, roleDeploymentId),
+        isNull(RoleDeploymentSliceTable.completedAt),
       ),
     )
 

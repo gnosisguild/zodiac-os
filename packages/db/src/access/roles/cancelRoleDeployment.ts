@@ -2,7 +2,7 @@ import { invariant } from '@epic-web/invariant'
 import {
   ActiveRoleDeployment,
   CancelledRoleDeployment,
-  RoleDeploymentStepTable,
+  RoleDeploymentSliceTable,
   RoleDeploymentTable,
   User,
 } from '@zodiac/db/schema'
@@ -33,9 +33,9 @@ export const cancelRoleDeployment = async (
     )
 
     await tx
-      .update(RoleDeploymentStepTable)
+      .update(RoleDeploymentSliceTable)
       .set({ cancelledAt, cancelledById })
-      .where(eq(RoleDeploymentStepTable.roleDeploymentId, activeDeployment.id))
+      .where(eq(RoleDeploymentSliceTable.roleDeploymentId, activeDeployment.id))
 
     return { cancelledAt, cancelledById, completedAt, ...deployment }
   })

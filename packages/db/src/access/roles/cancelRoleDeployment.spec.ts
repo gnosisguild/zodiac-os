@@ -1,7 +1,7 @@
 import {
   dbIt,
   roleDeploymentFactory,
-  roleDeploymentStepFactory,
+  roleDeploymentSliceFactory,
   roleFactory,
   tenantFactory,
   userFactory,
@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, vi } from 'vitest'
 import { dbClient } from '../../dbClient'
 import { assertActiveRoleDeployment } from './assertActiveRoleDeployment'
 import { cancelRoleDeployment } from './cancelRoleDeployment'
-import { getRoleDeploymentStep } from './getRoleDeploymentStep'
+import { getRoleDeploymentSlice } from './getRoleDeploymentSlice'
 
 describe('Cancel role deployment', () => {
   beforeEach(() => {
@@ -23,14 +23,14 @@ describe('Cancel role deployment', () => {
 
     const role = await roleFactory.create(tenant, user)
     const deployment = await roleDeploymentFactory.create(user, role)
-    const step = await roleDeploymentStepFactory.create(user, deployment)
+    const step = await roleDeploymentSliceFactory.create(user, deployment)
 
     assertActiveRoleDeployment(deployment)
 
     await cancelRoleDeployment(dbClient(), user, deployment)
 
     await expect(
-      getRoleDeploymentStep(dbClient(), step.id),
+      getRoleDeploymentSlice(dbClient(), step.id),
     ).resolves.toMatchObject({
       cancelledAt: new Date(),
       cancelledById: user.id,
