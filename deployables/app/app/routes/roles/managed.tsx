@@ -1,5 +1,6 @@
 import { authorizedAction, authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
+import { ZERO_ADDRESS } from '@zodiac/chains'
 import {
   assertActiveRoleDeployment,
   cancelRoleDeployment,
@@ -101,7 +102,7 @@ export const action = (args: Route.ActionArgs) =>
             return { pendingDeploymentId: pendingDeployment.id, roleId }
           }
 
-          const { slices, issues } = await planRoleUpdate(roleId)
+          const { slices, issues } = await planRoleUpdate(roleId, ZERO_ADDRESS) // TODO: pass the user's personal safe instead of ZERO_ADDRESS to enable setting up circular account topologies
 
           if (issues.length > 0 && intent !== Intent.AcceptWarnings) {
             return { issues, roleId }

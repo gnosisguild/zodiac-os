@@ -10,13 +10,16 @@ import {
 import { getMemberSafes } from './getMemberSafes'
 import { getRolesMods } from './getRolesMods'
 
-export const planRoleUpdate = async (roleId: UUID) => {
+export const planRoleUpdate = async (
+  roleId: UUID,
+  accountForSetup: HexAddress,
+) => {
   const role = await getRole(dbClient(), roleId)
 
   const { safes, issues: memberIssues } = await getMemberSafes(role)
   const resolvedSafes = await resolveAccounts({
     updatesOrCreations: safes,
-    accountForSetup: user.personalSafe,
+    accountForSetup,
   })
 
   const { rolesMods, issues: roleIssues } = await getRolesMods(role, {
@@ -30,12 +33,12 @@ export const planRoleUpdate = async (roleId: UUID) => {
   const result = await planApplyAccounts({
     current: [...resolvedSafes.current, ...resolvedRolesMods.current],
     desired: [...resolvedSafes.desired, ...resolvedRolesMods.desired],
-    accountForSetup: user.personalSafe,
+    accountForSetup,
   })
 
   return {
     issues: [...roleIssues, ...memberIssues],
-    slices: groupByFrom(result, user.personalSafe),
+    slices: groupByFrom(result, accountForSetup),
   }
 }
 
