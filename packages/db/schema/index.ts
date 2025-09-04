@@ -32,7 +32,7 @@ import {
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core'
 import { createSelectSchema } from 'drizzle-zod'
-import { AccountBuilderCall, Account as SerAccount } from 'ser-kit'
+import { AccountBuilderStep, Account as SerAccount } from 'ser-kit'
 import { z } from 'zod'
 import { createRandomString } from './createRandomString'
 import { enumToPgEnum } from './enumToPgEnum'
@@ -722,7 +722,7 @@ export const ActionAssetTable = pgTable(
     allowSell: boolean().notNull(),
 
     ...roleReference,
-    ...chainReference,
+    ...chainReference, // TODO: should be lifted to the Role table
     ...createdTimestamp,
     ...updatedTimestamp,
     ...tenantReference,
@@ -818,11 +818,17 @@ export type RoleDeployment =
   | CompletedRoleDeployment
   | CancelledRoleDeployment
 
-export const RoleDeploymentStepTable = pgTable(
-  'RoleDeploymentStep',
+export type StepsByAccount = {
+  /** The account that is being created/updated by the steps */
+  account: SerAccount
+  steps: AccountBuilderStep[]
+}
+
+export const RoleDeploymentSliceTable = pgTable(
+  'RoleDeploymentSlice',
   {
     id: uuid().notNull().$type<UUID>().defaultRandom().primaryKey(),
-    index: integer().notNull(),
+    index: integer().notNull(), // TODO: we can potentially drop this column (to confirm with Cris, but it's looking like the execution order doesn't matter)
 
     proposedTransactionId: uuid().references(
       () => ProposedTransactionTable.id,
@@ -834,12 +840,10 @@ export const RoleDeploymentStepTable = pgTable(
       onDelete: 'set null',
     }),
 
-    ...chainReference,
+    ...chainReference, // TODO: should be lifted to the Role table
 
-    account: jsonb().notNull().$type<SerAccount>(),
-    calls: jsonb().notNull().$type<AccountBuilderCall[]>(),
-    transactionBundle: jsonb().notNull().$type<MetaTransactionRequest[]>(),
-    from: text().$type<HexAddress>(),
+    steps: jsonb().notNull().$type<StepsByAccount[]>(),
+    from: text().notNull().$type<HexAddress>(),
 
     transactionHash: text().$type<Hex>(),
 
@@ -874,9 +878,9 @@ export const RoleDeploymentStepTable = pgTable(
   ],
 )
 
-export type RoleDeploymentStep = typeof RoleDeploymentStepTable.$inferSelect
-export type RoleDeploymentStepCreateInput =
-  typeof RoleDeploymentStepTable.$inferInsert
+export type RoleDeploymentSlice = typeof RoleDeploymentSliceTable.$inferSelect
+export type RoleDeploymentSliceCreateInput =
+  typeof RoleDeploymentSliceTable.$inferInsert
 
 export const schema = {
   tenant: TenantTable,
@@ -901,7 +905,7 @@ export const schema = {
   roleActionAsset: ActionAssetTable,
   defaultWallet: DefaultWalletTable,
   roleDeployment: RoleDeploymentTable,
-  roleDeploymentStep: RoleDeploymentStepTable,
+  roleDeploymentSlice: RoleDeploymentSliceTable,
 
   TenantRelations,
   FeatureRelations,

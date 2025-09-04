@@ -505,6 +505,13 @@
       "when": 1756910537387,
       "tag": "0071_deployment steps to slices",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1756981001895,
+      "tag": "0072_slice from non-nullable",
+      "breakpoints": true
     }
   ]
 }
