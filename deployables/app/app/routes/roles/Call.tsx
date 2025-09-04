@@ -13,7 +13,7 @@ import {
 import { AccountBuilderCall, AccountType } from 'ser-kit'
 import { LabeledAddress } from './AddressLabelContext'
 import { FeedEntry, LabeledItem } from './FeedEntry'
-import { parseRefillPeriod } from './getRefillPeriod'
+import { parseRefillPeriod } from './planRoleUpdate/getRefillPeriod'
 import { LabeledRoleKey } from './RoleLabelContext'
 
 type CallProps = { chainId: ChainId; callData: AccountBuilderCall }
