@@ -6,7 +6,7 @@ import {
   dbClient,
   getRoleDeployment,
   getRoleDeployments,
-  getRoleDeploymentSteps,
+  getRoleDeploymentSlices,
   setActiveAccounts,
   setDefaultWallet,
   setRoleMembers,
@@ -44,7 +44,7 @@ describe('Managed roles', () => {
   beforeEach(() => {
     mockPlanRoleUpdate.mockResolvedValue({
       issues: [],
-      plan: [],
+      slices: [],
     })
 
     vi.setSystemTime(new Date())
@@ -59,7 +59,12 @@ describe('Managed roles', () => {
 
       mockPlanRoleUpdate.mockResolvedValue({
         issues: [],
-        plan: [{ account: createMockSafeAccount(), steps: [] }],
+        slices: [
+          {
+            from: randomAddress(),
+            steps: [{ account: createMockSafeAccount(), steps: [] }],
+          },
+        ],
       })
 
       await render(
@@ -86,7 +91,7 @@ describe('Managed roles', () => {
       )
     })
 
-    dbIt('creates all necessary steps for the deployment', async () => {
+    dbIt('creates all necessary slices for the deployment', async () => {
       const user = await userFactory.create()
       const tenant = await tenantFactory.create(user)
 
@@ -96,7 +101,7 @@ describe('Managed roles', () => {
       const call = {
         call: 'createNode',
         accountType: AccountType.SAFE,
-        args: { owners: [], threshold: 1 },
+        args: { owners: [], threshold: 1, modules: [] },
         creationNonce: 1n,
         deploymentAddress: randomAddress(),
       } satisfies AccountBuilderCall
@@ -104,14 +109,19 @@ describe('Managed roles', () => {
 
       mockPlanRoleUpdate.mockResolvedValue({
         issues: [],
-        plan: [
+        slices: [
           {
-            account,
+            from: randomAddress(),
             steps: [
               {
-                from: undefined,
-                call,
-                transaction,
+                account,
+                steps: [
+                  {
+                    from: undefined,
+                    call,
+                    transaction,
+                  },
+                ],
               },
             ],
           },
@@ -132,13 +142,12 @@ describe('Managed roles', () => {
       await waitForPendingActions()
 
       const [deployment] = await getRoleDeployments(dbClient(), role.id)
-      const [step] = await getRoleDeploymentSteps(dbClient(), deployment.id)
+      const [slice] = await getRoleDeploymentSlices(dbClient(), deployment.id)
 
-      expect(step).toMatchObject({
+      expect(slice).toMatchObject({
         index: 0,
-        calls: [call],
         account,
-        transactionBundle: [transaction],
+        steps: [{ call, transaction }],
       })
     })
 
@@ -153,7 +162,7 @@ describe('Managed roles', () => {
 
           mockPlanRoleUpdate.mockResolvedValue({
             issues: [RoleDeploymentIssue.MissingDefaultWallet],
-            plan: [],
+            slices: [],
           })
 
           await render(
@@ -187,7 +196,7 @@ describe('Managed roles', () => {
 
         mockPlanRoleUpdate.mockResolvedValue({
           issues: [RoleDeploymentIssue.MissingDefaultWallet],
-          plan: [],
+          slices: [],
         })
 
         await render(

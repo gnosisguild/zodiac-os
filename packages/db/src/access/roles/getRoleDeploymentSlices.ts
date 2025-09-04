@@ -19,7 +19,7 @@ export const getRoleDeploymentSlices = async (
   return slices.map(({ steps, ...slice }) => {
     return {
       ...slice,
-      steps: jsonParse<StepsByAccount>(steps),
+      steps: jsonParse<StepsByAccount[]>(steps),
     }
   })
 }

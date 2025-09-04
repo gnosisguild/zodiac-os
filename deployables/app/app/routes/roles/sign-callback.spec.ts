@@ -1,10 +1,10 @@
 import { post } from '@/test-utils'
-import { dbClient, getRoleDeployment, getRoleDeploymentStep } from '@zodiac/db'
+import { dbClient, getRoleDeployment, getRoleDeploymentSlice } from '@zodiac/db'
 import {
   accountFactory,
   dbIt,
   roleDeploymentFactory,
-  roleDeploymentStepFactory,
+  roleDeploymentSliceFactory,
   roleFactory,
   routeFactory,
   signedTransactionFactory,
@@ -23,7 +23,7 @@ describe('Sign callback', () => {
     vi.setSystemTime(new Date())
   })
 
-  dbIt('stores the transaction hash on the deployment step', async () => {
+  dbIt('stores the transaction hash on the deployment slice', async () => {
     const user = await userFactory.create()
     const tenant = await tenantFactory.create(user)
 
@@ -49,7 +49,7 @@ describe('Sign callback', () => {
       },
     )
 
-    const step = await roleDeploymentStepFactory.create(user, deployment, {
+    const slice = await roleDeploymentSliceFactory.create(user, deployment, {
       proposedTransactionId: proposal.id,
     })
 
@@ -57,11 +57,11 @@ describe('Sign callback', () => {
 
     await post(
       href(
-        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback',
+        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
-          deploymentStepId: step.id,
+          deploymentSliceId: slice.id,
           roleId: role.id,
         },
       ),
@@ -69,11 +69,11 @@ describe('Sign callback', () => {
     )
 
     await expect(
-      getRoleDeploymentStep(dbClient(), step.id),
+      getRoleDeploymentSlice(dbClient(), slice.id),
     ).resolves.toHaveProperty('transactionHash', transactionHash)
   })
 
-  dbIt('records who completed the step when', async () => {
+  dbIt('records who completed the slice when', async () => {
     const user = await userFactory.create()
     const tenant = await tenantFactory.create(user)
 
@@ -96,7 +96,7 @@ describe('Sign callback', () => {
       { signedTransactionId: transaction.id },
     )
 
-    const step = await roleDeploymentStepFactory.create(user, deployment, {
+    const slice = await roleDeploymentSliceFactory.create(user, deployment, {
       proposedTransactionId: proposal.id,
     })
 
@@ -104,11 +104,11 @@ describe('Sign callback', () => {
 
     await post(
       href(
-        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback',
+        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
-          deploymentStepId: step.id,
+          deploymentSliceId: slice.id,
           roleId: role.id,
         },
       ),
@@ -117,7 +117,7 @@ describe('Sign callback', () => {
     )
 
     await expect(
-      getRoleDeploymentStep(dbClient(), step.id),
+      getRoleDeploymentSlice(dbClient(), slice.id),
     ).resolves.toMatchObject({
       completedAt: new Date(),
       completedById: user.id,
@@ -125,7 +125,7 @@ describe('Sign callback', () => {
   })
 
   dbIt(
-    'completes the deployment if all steps have been completed',
+    'completes the deployment if all slices have been completed',
     async () => {
       const user = await userFactory.create()
       const tenant = await tenantFactory.create(user)
@@ -149,7 +149,7 @@ describe('Sign callback', () => {
         { signedTransactionId: transaction.id },
       )
 
-      const step = await roleDeploymentStepFactory.create(user, deployment, {
+      const slice = await roleDeploymentSliceFactory.create(user, deployment, {
         proposedTransactionId: proposal.id,
       })
 
@@ -157,11 +157,11 @@ describe('Sign callback', () => {
 
       await post(
         href(
-          '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback',
+          '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
           {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
-            deploymentStepId: step.id,
+            deploymentSliceId: slice.id,
             roleId: role.id,
           },
         ),
@@ -200,7 +200,7 @@ describe('Sign callback', () => {
       { signedTransactionId: transaction.id },
     )
 
-    const step = await roleDeploymentStepFactory.create(user, deployment, {
+    const slice = await roleDeploymentSliceFactory.create(user, deployment, {
       proposedTransactionId: proposal.id,
     })
 
@@ -208,11 +208,11 @@ describe('Sign callback', () => {
 
     const response = await post(
       href(
-        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback',
+        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
-          deploymentStepId: step.id,
+          deploymentSliceId: slice.id,
           roleId: role.id,
         },
       ),

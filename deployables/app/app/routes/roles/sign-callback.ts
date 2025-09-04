@@ -2,10 +2,10 @@ import { authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
 import {
   completeRoleDeploymentIfNeeded,
-  completeRoleDeploymentStep,
+  completeRoleDeploymentSlice,
   dbClient,
   getProposedTransaction,
-  getRoleDeploymentStep,
+  getRoleDeploymentSlice,
   getSignedTransaction,
   getUser,
 } from '@zodiac/db'
@@ -19,11 +19,11 @@ export const action = (args: Route.LoaderArgs) =>
     args,
     async ({
       request,
-      params: { workspaceId, deploymentId, roleId, deploymentStepId },
+      params: { workspaceId, deploymentId, roleId, deploymentSliceId },
     }) => {
       invariantResponse(
-        isUUID(deploymentStepId),
-        '"deploymentStepId" is not a UUID',
+        isUUID(deploymentSliceId),
+        '"deploymentSliceId" is not a UUID',
       )
       invariantResponse(isUUID(deploymentId), '"deploymentId" is not a UUID')
 
@@ -46,8 +46,8 @@ export const action = (args: Route.LoaderArgs) =>
       const user = await getUser(dbClient(), transaction.userId)
 
       await dbClient().transaction(async (tx) => {
-        await completeRoleDeploymentStep(tx, user, {
-          roleDeploymentStepId: deploymentStepId,
+        await completeRoleDeploymentSlice(tx, user, {
+          roleDeploymentSliceId: deploymentSliceId,
           transactionHash: getHexString(data, 'transactionHash'),
         })
 
@@ -69,7 +69,7 @@ export const action = (args: Route.LoaderArgs) =>
       ensureSignedIn: false,
       async hasAccess({
         request,
-        params: { deploymentId, workspaceId, deploymentStepId },
+        params: { deploymentId, workspaceId, deploymentSliceId },
       }) {
         const data = await request.formData()
 
@@ -85,19 +85,19 @@ export const action = (args: Route.LoaderArgs) =>
         }
 
         invariantResponse(
-          isUUID(deploymentStepId),
-          '"deploymentStepId" is not a UUID',
+          isUUID(deploymentSliceId),
+          '"deploymentSliceId" is not a UUID',
         )
 
-        const deploymentStep = await getRoleDeploymentStep(
+        const deploymentSlice = await getRoleDeploymentSlice(
           dbClient(),
-          deploymentStepId,
+          deploymentSliceId,
         )
 
         return (
-          deploymentStep.tenantId === proposal.tenantId &&
-          deploymentStep.roleDeploymentId === deploymentId &&
-          deploymentStep.workspaceId === workspaceId
+          deploymentSlice.tenantId === proposal.tenantId &&
+          deploymentSlice.roleDeploymentId === deploymentId &&
+          deploymentSlice.workspaceId === workspaceId
         )
       },
     },

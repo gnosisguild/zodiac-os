@@ -80,7 +80,7 @@ export const Description = ({ account }: { account: Account }) => {
       return (
         <div className="flex flex-col items-start gap-2 text-sm">
           <div className="font-semibold">
-            Setup <span className="underline">Roles mod</span>{' '}
+            Setup <span className="underline">Roles Mod</span>{' '}
           </div>
 
           <div className="flex items-center gap-2">

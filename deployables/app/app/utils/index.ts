@@ -1,6 +1,7 @@
 export { validateAddress } from '@zodiac/schema'
 export * from './dryRun'
 export { editRoute } from './editRoute'
+export { groupBy } from './groupBy'
 export { jsonRpcProvider } from './jsonRpcProvider'
 export { parseRouteData } from './parseRouteData'
 export { routeTitle } from './routeTitle'

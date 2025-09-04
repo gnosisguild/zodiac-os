@@ -9,32 +9,29 @@ import {
   getRole,
   getRoleActionAssets,
   getRoleDeployment,
-  getRoleDeploymentStep,
-  getRoleDeploymentSteps,
+  getRoleDeploymentSlice,
+  getRoleDeploymentSlices,
   getRoleMembers,
   getUser,
   proposeTransaction,
-  updateRoleDeploymentStep,
+  updateRoleDeploymentSlice,
 } from '@zodiac/db'
-import { RoleDeploymentStep } from '@zodiac/db/schema'
-import { formData, getPrefixedAddress, getUUID } from '@zodiac/form-data'
+import { RoleDeploymentSlice } from '@zodiac/db/schema'
+import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
 import { useIsPending } from '@zodiac/hooks'
 import { isUUID } from '@zodiac/schema'
 import {
   Card,
   Collapsible,
   DateValue,
+  Divider,
   Info,
   InlineForm,
   PrimaryLinkButton,
   SecondaryButton,
 } from '@zodiac/ui'
-import {
-  ConnectWalletButton,
-  TransactionStatus,
-  useSendTransaction,
-} from '@zodiac/web3'
-import { randomUUID, UUID } from 'crypto'
+import { Address, ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
+import { randomUUID } from 'crypto'
 import { href, redirect } from 'react-router'
 import { prefixAddress } from 'ser-kit'
 import { Route } from './+types/deploy-role'
@@ -80,11 +77,10 @@ export const loader = (args: Route.LoaderArgs) =>
         {},
       )
 
-      const steps = await getRoleDeploymentSteps(dbClient(), deploymentId)
+      const slices = await getRoleDeploymentSlices(dbClient(), deploymentId)
 
       return {
-        steps,
-        roleId,
+        slices,
         addressLabels: {
           ...accountLabels,
           ...walletLabels,
@@ -138,36 +134,41 @@ export const action = (args: Route.ActionArgs) =>
         prefixedAddress: getPrefixedAddress(data, 'from'),
       })
 
-      const deploymentStep = await getRoleDeploymentStep(
+      const deploymentSlice = await getRoleDeploymentSlice(
         dbClient(),
-        getUUID(data, 'roleDeploymentStepId'),
+        getUUID(data, 'roleDeploymentSliceId'),
       )
 
       const transactionProposal = await dbClient().transaction(async (tx) => {
         const callbackUrl = new URL(
           href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback',
+            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
             {
               workspaceId,
               roleId,
               deploymentId,
-              deploymentStepId: deploymentStep.id,
+              deploymentSliceId: deploymentSlice.id,
             },
           ),
           url.origin,
         )
 
+        const transactionBundle = deploymentSlice.steps.flatMap(
+          (stepsByAccount) =>
+            stepsByAccount.steps.map((step) => step.transaction),
+        )
+
         const transactionProposal = await proposeTransaction(tx, {
           userId: user.id,
-          tenantId: deploymentStep.tenantId,
-          workspaceId: deploymentStep.workspaceId,
+          tenantId: deploymentSlice.tenantId,
+          workspaceId: deploymentSlice.workspaceId,
           accountId: account.id,
-          transaction: deploymentStep.transactionBundle,
+          transaction: transactionBundle,
           callbackUrl,
           callbackState: randomUUID(),
         })
 
-        await updateRoleDeploymentStep(tx, deploymentStep.id, {
+        await updateRoleDeploymentSlice(tx, deploymentSlice.id, {
           proposedTransactionId: transactionProposal.id,
         })
 
@@ -190,15 +191,15 @@ export const action = (args: Route.ActionArgs) =>
       }) {
         const data = await request.formData()
 
-        const deploymentStep = await getRoleDeploymentStep(
+        const deploymentSlice = await getRoleDeploymentSlice(
           dbClient(),
-          getUUID(data, 'roleDeploymentStepId'),
+          getUUID(data, 'roleDeploymentSliceId'),
         )
 
         return (
-          deploymentStep.tenantId === tenant.id &&
-          deploymentStep.workspaceId === workspaceId &&
-          deploymentStep.roleDeploymentId === deploymentId
+          deploymentSlice.tenantId === tenant.id &&
+          deploymentSlice.workspaceId === workspaceId &&
+          deploymentSlice.roleDeploymentId === deploymentId
         )
       },
     },
@@ -206,15 +207,13 @@ export const action = (args: Route.ActionArgs) =>
 
 const DeployRole = ({
   loaderData: {
-    steps,
+    slices,
     addressLabels,
     roleLabels,
     issues,
     cancelledAt,
     cancelledBy,
-    roleId,
   },
-  params: { workspaceId },
 }: Route.ComponentProps) => {
   return (
     <Page>
@@ -240,7 +239,7 @@ const DeployRole = ({
 
         <ProvideRoleLabels labels={roleLabels}>
           <ProvideAddressLabels labels={addressLabels}>
-            {steps.length === 0 ? (
+            {slices.length === 0 ? (
               <Info title="Nothing to deploy">
                 All updates have been applied onchain.
               </Info>
@@ -250,59 +249,39 @@ const DeployRole = ({
                   The following changes need to be applied to deploy this role.
                 </Info>
 
-                {steps.map((step) => (
-                  <Card key={step.id}>
-                    <Collapsible
-                      header={
-                        <div className="flex flex-1 items-center justify-between gap-8">
-                          <Description account={step.account} />
-
-                          <div className="flex items-center gap-2">
-                            {step.transactionHash != null && (
-                              <TransactionStatus hash={step.transactionHash}>
-                                Deployed
-                              </TransactionStatus>
-                            )}
-
-                            <Deploy
-                              disabled={
-                                step.transactionHash != null ||
-                                cancelledAt != null
-                              }
-                              deploymentStep={step}
-                              roleId={roleId}
-                            />
-
-                            {step.proposedTransactionId &&
-                              cancelledAt == null && (
-                                <PrimaryLinkButton
-                                  size="small"
-                                  to={href(
-                                    '/workspace/:workspaceId/submit/proposal/:proposalId',
-                                    {
-                                      workspaceId,
-                                      proposalId: step.proposedTransactionId,
-                                    },
-                                  )}
-                                >
-                                  Show transaction
-                                </PrimaryLinkButton>
-                              )}
+                {slices.map((slice) => (
+                  <Card key={slice.from}>
+                    {slice.steps.map(({ account, steps }) => (
+                      <Collapsible
+                        key={account.address}
+                        header={
+                          <div className="flex flex-1 items-center justify-between gap-8">
+                            <Description account={account} />
+                            <span className="text-xs">
+                              {steps.length === 1
+                                ? '1 call'
+                                : `${steps.length} calls`}
+                            </span>
                           </div>
+                        }
+                      >
+                        <div className="flex flex-col gap-4 divide-y divide-zinc-700 pt-4">
+                          {steps.map((step, index) => (
+                            <div key={index} className="not-last:pb-4">
+                              <Call
+                                callData={step.call}
+                                chainId={slice.chainId}
+                              />
+                            </div>
+                          ))}
                         </div>
-                      }
-                    >
-                      <div className="flex flex-col gap-4 divide-y divide-zinc-700 pt-4">
-                        {step.calls.map((call, index) => (
-                          <div
-                            key={`${step.id}-${index}`}
-                            className="not-last:pb-4"
-                          >
-                            <Call callData={call} chainId={step.chainId} />
-                          </div>
-                        ))}
-                      </div>
-                    </Collapsible>
+                      </Collapsible>
+                    ))}
+                    <Divider />
+                    <Deploy
+                      slice={slice}
+                      deploymentCancelled={cancelledAt != null}
+                    />
                   </Card>
                 ))}
               </div>
@@ -317,73 +296,57 @@ const DeployRole = ({
 export default DeployRole
 
 type DeployProps = {
-  deploymentStep: RoleDeploymentStep
-  roleId: UUID
-  disabled: boolean
+  slice: RoleDeploymentSlice
+  deploymentCancelled: boolean
 }
 
-const Deploy = ({ deploymentStep, roleId, disabled }: DeployProps) => {
-  const { sendTransaction, isPending } = useSendTransaction()
-
+const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
   const pending = useIsPending(
     Intent.ExecuteTransaction,
-    (data) => data.get('roleDeploymentStepId') === deploymentStep.id,
+    (data) => data.get('roleDeploymentSliceId') === slice.id,
   )
 
-  if (deploymentStep.from == null) {
-    const [transaction] = deploymentStep.transactionBundle
+  return (
+    <div className="flex flex-1 items-center justify-between gap-8">
+      <Address>{slice.from}</Address>
 
-    return (
-      <InlineForm
-        intent={Intent.ExecuteTransaction}
-        context={{ roleDeploymentStepId: deploymentStep.id }}
-        action={href(
-          '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback',
-          {
-            workspaceId: deploymentStep.workspaceId,
-            deploymentId: deploymentStep.roleDeploymentId,
-            deploymentStepId: deploymentStep.id,
-            roleId,
-          },
+      <div className="flex items-center gap-2">
+        {slice.transactionHash != null && (
+          <TransactionStatus hash={slice.transactionHash}>
+            Deployed
+          </TransactionStatus>
         )}
-      >
-        {({ submit }) => (
+
+        <InlineForm
+          context={{
+            roleDeploymentSliceId: slice.id,
+            from: prefixAddress(slice.chainId, slice.from),
+          }}
+        >
           <SecondaryButton
+            submit
             size="small"
-            disabled={disabled}
-            busy={pending || isPending}
-            onClick={() =>
-              sendTransaction(transaction, {
-                onSuccess(transactionHash) {
-                  submit(formData({ transactionHash }))
-                },
-              })
-            }
+            disabled={deploymentCancelled || slice.transactionHash != null}
+            intent={Intent.ExecuteTransaction}
+            busy={pending}
+            onClick={(event) => event.stopPropagation()}
           >
             Deploy
           </SecondaryButton>
-        )}
-      </InlineForm>
-    )
-  }
+        </InlineForm>
 
-  return (
-    <InlineForm
-      context={{
-        roleDeploymentStepId: deploymentStep.id,
-        from: prefixAddress(deploymentStep.chainId, deploymentStep.from),
-      }}
-    >
-      <SecondaryButton
-        submit
-        size="small"
-        disabled={disabled}
-        intent={Intent.ExecuteTransaction}
-        busy={pending}
-        onClick={(event) => event.stopPropagation()}
-      >
-        Deploy
-      </SecondaryButton>
-    </InlineForm>
+        {slice.proposedTransactionId && slice.cancelledAt == null && (
+          <PrimaryLinkButton
+            size="small"
+            to={href('/workspace/:workspaceId/submit/proposal/:proposalId', {
+              workspaceId: slice.workspaceId,
+              proposalId: slice.proposedTransactionId,
+            })}
+          >
+            Show transaction
+          </PrimaryLinkButton>
+        )}
+      </div>
+    </div>
   )
 }

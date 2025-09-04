@@ -4,7 +4,7 @@ import {
   assertActiveRoleDeployment,
   cancelRoleDeployment,
   createRoleDeployment,
-  createRoleDeploymentStep,
+  createRoleDeploymentSlice,
   dbClient,
   findPendingRoleDeployment,
   getActivatedAccounts,
@@ -101,13 +101,13 @@ export const action = (args: Route.ActionArgs) =>
             return { pendingDeploymentId: pendingDeployment.id, roleId }
           }
 
-          const { plan, issues } = await planRoleUpdate(roleId)
+          const { slices, issues } = await planRoleUpdate(roleId)
 
           if (issues.length > 0 && intent !== Intent.AcceptWarnings) {
             return { issues, roleId }
           }
 
-          if (plan.length === 0 && intent !== Intent.AcceptWarnings) {
+          if (slices.length === 0 && intent !== Intent.AcceptWarnings) {
             return { emptyDeployment: true }
           }
 
@@ -116,13 +116,8 @@ export const action = (args: Route.ActionArgs) =>
               issues,
             })
 
-            for (const { steps, account, from } of plan) {
-              await createRoleDeploymentStep(tx, deployment, {
-                account,
-                calls: steps.map(({ call }) => call),
-                transactionBundle: steps.map(({ transaction }) => transaction),
-                from: from ?? null,
-              })
+            for (const slice of slices) {
+              await createRoleDeploymentSlice(tx, deployment, slice)
             }
 
             return deployment

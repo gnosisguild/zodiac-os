@@ -393,7 +393,7 @@ describe('Deploy Role', () => {
 
         expect(transactionProposal).toHaveProperty(
           'callbackUrl',
-          `http://localhost${href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback', { workspaceId: tenant.defaultWorkspaceId, roleId: role.id, deploymentId: deployment.id, deploymentStepId: step.id })}`,
+          `http://localhost${href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback', { workspaceId: tenant.defaultWorkspaceId, roleId: role.id, deploymentId: deployment.id, deploymentStepId: step.id })}`,
         )
       })
 

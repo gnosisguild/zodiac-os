@@ -1,4 +1,4 @@
-import { ChainId } from '@zodiac/chains'
+import { invariant } from '@epic-web/invariant'
 import {
   ActiveRoleDeployment,
   RoleDeploymentSliceTable,
@@ -8,7 +8,6 @@ import { HexAddress, safeJson } from '@zodiac/schema'
 import { DBClient } from '../../dbClient'
 
 type CreateRoleDeploymentSliceOptions = {
-  chainId: ChainId
   steps: StepsByAccount[]
   from: HexAddress
 }
@@ -16,7 +15,7 @@ type CreateRoleDeploymentSliceOptions = {
 export const createRoleDeploymentSlice = async (
   db: DBClient,
   roleDeployment: ActiveRoleDeployment,
-  { chainId, steps, from }: CreateRoleDeploymentSliceOptions,
+  { steps, from }: CreateRoleDeploymentSliceOptions,
 ) => {
   const previousSlice = await db.query.roleDeploymentSlice.findFirst({
     // TODO: is findFirst correct here? don't we have to look for the highest index?
@@ -24,6 +23,9 @@ export const createRoleDeploymentSlice = async (
       return eq(fields.roleDeploymentId, roleDeployment.id)
     },
   })
+
+  invariant(steps.length > 0, 'steps must not be empty')
+  const chainId = steps[0].account.chain
 
   return db.insert(RoleDeploymentSliceTable).values({
     chainId: chainId,

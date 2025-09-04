@@ -22,7 +22,7 @@ export const getRoleDeploymentSlice = async (
   const { steps, ...rest } = step
 
   return {
-    steps: jsonParse<StepsByAccount>(steps),
+    steps: jsonParse<StepsByAccount[]>(steps),
     ...rest,
   }
 }
