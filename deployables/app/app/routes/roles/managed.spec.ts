@@ -1,4 +1,4 @@
-import { render } from '@/test-utils'
+import { createMockStepsByAccount, render } from '@/test-utils'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Chain } from '@zodiac/chains'
@@ -21,17 +21,13 @@ import {
   userFactory,
   walletFactory,
 } from '@zodiac/db/test-utils'
-import {
-  createMockSafeAccount,
-  createMockTransactionRequest,
-} from '@zodiac/modules/test-utils'
+import { createMockSafeAccount } from '@zodiac/modules/test-utils'
 import {
   expectRouteToBe,
   randomAddress,
   waitForPendingActions,
 } from '@zodiac/test-utils'
 import { href } from 'react-router'
-import { AccountBuilderCall, AccountType } from 'ser-kit'
 import { beforeEach, describe, expect, vi } from 'vitest'
 import { Intent } from './intents'
 import { planRoleUpdate } from './planRoleUpdate'
@@ -97,35 +93,14 @@ describe('Managed roles', () => {
 
       const role = await roleFactory.create(tenant, user)
 
-      const account = createMockSafeAccount()
-      const call = {
-        call: 'createNode',
-        accountType: AccountType.SAFE,
-        args: { owners: [], threshold: 1, modules: [] },
-        creationNonce: 1n,
-        deploymentAddress: randomAddress(),
-      } satisfies AccountBuilderCall
-      const transaction = createMockTransactionRequest()
+      const slice = {
+        from: randomAddress(),
+        steps: [createMockStepsByAccount()],
+      }
 
       mockPlanRoleUpdate.mockResolvedValue({
         issues: [],
-        slices: [
-          {
-            from: randomAddress(),
-            steps: [
-              {
-                account,
-                steps: [
-                  {
-                    from: undefined,
-                    call,
-                    transaction,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+        slices: [slice],
       })
 
       await render(
@@ -142,13 +117,14 @@ describe('Managed roles', () => {
       await waitForPendingActions()
 
       const [deployment] = await getRoleDeployments(dbClient(), role.id)
-      const [slice] = await getRoleDeploymentSlices(dbClient(), deployment.id)
+      const slices = await getRoleDeploymentSlices(dbClient(), deployment.id)
 
-      expect(slice).toMatchObject({
-        index: 0,
-        account,
-        steps: [{ call, transaction }],
-      })
+      expect(slices).toMatchObject([
+        {
+          index: 0,
+          ...slice,
+        },
+      ])
     })
 
     describe('Issues', () => {

@@ -1,5 +1,9 @@
 import { simulateTransactionBundle } from '@/simulation-server'
-import { createMockExecuteTransactionAction, render } from '@/test-utils'
+import {
+  createMockExecuteTransactionAction,
+  createMockStepsByAccount,
+  render,
+} from '@/test-utils'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Chain } from '@zodiac/chains'
@@ -15,7 +19,7 @@ import {
   setDefaultWallet,
   setRoleMembers,
 } from '@zodiac/db'
-import { RoleDeploymentIssue, StepsByAccount } from '@zodiac/db/schema'
+import { RoleDeploymentIssue } from '@zodiac/db/schema'
 import {
   accountFactory,
   dbIt,
@@ -30,19 +34,13 @@ import {
   walletFactory,
 } from '@zodiac/db/test-utils'
 import {
-  createMockSafeAccount,
-  createMockTransactionRequest,
-} from '@zodiac/modules/test-utils'
-import {
   expectRouteToBe,
-  randomAddress,
   randomHex,
   waitForPendingActions,
 } from '@zodiac/test-utils'
 import { formatDate } from '@zodiac/ui'
 import { href } from 'react-router'
 import {
-  AccountType,
   checkPermissions,
   planApplyAccounts,
   planExecution,
@@ -629,25 +627,4 @@ describe('Deploy Role', () => {
       ).not.toBeInTheDocument()
     })
   })
-})
-
-export const createMockStepsByAccount = (): StepsByAccount => ({
-  account: createMockSafeAccount(),
-  steps: [
-    {
-      from: randomAddress(),
-      call: {
-        call: 'createNode',
-        accountType: AccountType.SAFE,
-        creationNonce: 0n,
-        args: {
-          owners: [],
-          modules: [],
-          threshold: 1,
-        },
-        deploymentAddress: randomAddress(),
-      },
-      transaction: createMockTransactionRequest(),
-    },
-  ],
 })
