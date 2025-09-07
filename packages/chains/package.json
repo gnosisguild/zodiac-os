@@ -18,7 +18,7 @@
   "dependencies": {
     "@epic-web/invariant": "1.0.0",
     "@zodiac/schema": "workspace:*",
-    "viem": "2.37.3"
+    "viem": "2.37.4"
   },
   "peerDependencies": {
     "ser-kit": "3.12.0"
