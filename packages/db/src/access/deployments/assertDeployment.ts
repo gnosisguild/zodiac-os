@@ -1,9 +1,9 @@
 import { invariant } from '@epic-web/invariant'
-import { BaseRoleDeployment, RoleDeployment } from '@zodiac/db/schema'
+import { BaseDeployment, Deployment } from '@zodiac/db/schema'
 
-export function assertRoleDeployment(
-  deployment: BaseRoleDeployment,
-): asserts deployment is RoleDeployment {
+export function assertDeployment(
+  deployment: BaseDeployment,
+): asserts deployment is Deployment {
   const { cancelledAt, cancelledById, completedAt } = deployment
 
   if (completedAt != null) {

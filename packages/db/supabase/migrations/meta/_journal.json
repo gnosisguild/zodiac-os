@@ -512,6 +512,13 @@
       "when": 1756981001895,
       "tag": "0072_slice from non-nullable",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1757075153747,
+      "tag": "0073_generalized deployment tables",
+      "breakpoints": true
     }
   ]
 }

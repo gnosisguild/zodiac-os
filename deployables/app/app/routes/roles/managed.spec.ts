@@ -4,18 +4,18 @@ import userEvent from '@testing-library/user-event'
 import { Chain } from '@zodiac/chains'
 import {
   dbClient,
-  getRoleDeployment,
-  getRoleDeployments,
-  getRoleDeploymentSlices,
+  getDeployment,
+  getDeployments,
+  getDeploymentSlices,
   setActiveAccounts,
   setDefaultWallet,
   setRoleMembers,
 } from '@zodiac/db'
-import { RoleDeploymentIssue } from '@zodiac/db/schema'
+import { DeploymentIssue } from '@zodiac/db/schema'
 import {
   accountFactory,
   dbIt,
-  roleDeploymentFactory,
+  deploymentFactory,
   roleFactory,
   tenantFactory,
   userFactory,
@@ -76,7 +76,7 @@ describe('Managed roles', () => {
 
       await waitForPendingActions()
 
-      const [deployment] = await getRoleDeployments(dbClient(), role.id)
+      const [deployment] = await getDeployments(dbClient(), role.id)
 
       await expectRouteToBe(
         href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId', {
@@ -116,8 +116,8 @@ describe('Managed roles', () => {
 
       await waitForPendingActions()
 
-      const [deployment] = await getRoleDeployments(dbClient(), role.id)
-      const slices = await getRoleDeploymentSlices(dbClient(), deployment.id)
+      const [deployment] = await getDeployments(dbClient(), role.id)
+      const slices = await getDeploymentSlices(dbClient(), deployment.id)
 
       expect(slices).toMatchObject([
         {
@@ -137,7 +137,7 @@ describe('Managed roles', () => {
           await roleFactory.create(tenant, user)
 
           mockPlanRoleUpdate.mockResolvedValue({
-            issues: [RoleDeploymentIssue.MissingDefaultWallet],
+            issues: [DeploymentIssue.MissingDefaultWallet],
             slices: [],
           })
 
@@ -171,7 +171,7 @@ describe('Managed roles', () => {
         const role = await roleFactory.create(tenant, user)
 
         mockPlanRoleUpdate.mockResolvedValue({
-          issues: [RoleDeploymentIssue.MissingDefaultWallet],
+          issues: [DeploymentIssue.MissingDefaultWallet],
           slices: [],
         })
 
@@ -192,10 +192,10 @@ describe('Managed roles', () => {
 
         await waitForPendingActions()
 
-        const [deployment] = await getRoleDeployments(dbClient(), role.id)
+        const [deployment] = await getDeployments(dbClient(), role.id)
 
         expect(deployment).toHaveProperty('issues', [
-          RoleDeploymentIssue.MissingDefaultWallet,
+          DeploymentIssue.MissingDefaultWallet,
         ])
       })
     })
@@ -206,7 +206,7 @@ describe('Managed roles', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await roleDeploymentFactory.create(user, role)
+        const deployment = await deploymentFactory.create(user, role)
 
         await render(
           href('/workspace/:workspaceId/roles', {
@@ -241,7 +241,7 @@ describe('Managed roles', () => {
           const tenant = await tenantFactory.create(user)
 
           const role = await roleFactory.create(tenant, user)
-          const deployment = await roleDeploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(user, role)
 
           await render(
             href('/workspace/:workspaceId/roles', {
@@ -260,7 +260,7 @@ describe('Managed roles', () => {
           await waitForPendingActions()
 
           await expect(
-            getRoleDeployment(dbClient(), deployment.id),
+            getDeployment(dbClient(), deployment.id),
           ).resolves.toMatchObject({
             cancelledAt: new Date(),
             cancelledById: user.id,
@@ -305,7 +305,7 @@ describe('Managed roles', () => {
           await waitForPendingActions()
 
           await expect(
-            getRoleDeployments(dbClient(), role.id),
+            getDeployments(dbClient(), role.id),
           ).resolves.toHaveLength(0)
         },
       )

@@ -6,17 +6,17 @@ import {
   getAccountByAddress,
   getActivatedAccounts,
   getDefaultWalletLabels,
+  getDeployment,
+  getDeploymentSlice,
+  getDeploymentSlices,
   getRole,
   getRoleActionAssets,
-  getRoleDeployment,
-  getRoleDeploymentSlice,
-  getRoleDeploymentSlices,
   getRoleMembers,
   getUser,
   proposeTransaction,
-  updateRoleDeploymentSlice,
+  updateDeploymentSlice,
 } from '@zodiac/db'
-import { RoleDeploymentSlice } from '@zodiac/db/schema'
+import { DeploymentSlice } from '@zodiac/db/schema'
 import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
 import { useIsPending } from '@zodiac/hooks'
 import { isUUID } from '@zodiac/schema'
@@ -31,7 +31,7 @@ import {
   SecondaryButton,
 } from '@zodiac/ui'
 import { Address, ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
-import { randomUUID } from 'crypto'
+import { randomUUID, UUID } from 'crypto'
 import { href, redirect } from 'react-router'
 import { prefixAddress } from 'ser-kit'
 import { Route } from './+types/deploy-role'
@@ -49,12 +49,16 @@ const contractLabels: Labels = {
 export const loader = (args: Route.LoaderArgs) =>
   authorizedLoader(
     args,
-    async ({ params: { deploymentId, roleId } }) => {
+    async ({ params: { deploymentId } }) => {
       invariantResponse(isUUID(deploymentId), '"deploymentId" is not a UUID')
-      invariantResponse(isUUID(roleId), '"roleId" is not a UUID')
 
-      const deployment = await getRoleDeployment(dbClient(), deploymentId)
-      const role = await getRole(dbClient(), roleId)
+      const deployment = await getDeployment(dbClient(), deploymentId)
+      const roleId =
+        (deployment.reference &&
+          deployment.reference.startsWith('role:') &&
+          (deployment.reference.slice('role:'.length) as UUID)) ||
+        null
+      const role = roleId && (await getRole(dbClient(), roleId))
 
       const assets = await getRoleActionAssets(dbClient(), {
         roleId,
@@ -77,7 +81,7 @@ export const loader = (args: Route.LoaderArgs) =>
         {},
       )
 
-      const slices = await getRoleDeploymentSlices(dbClient(), deploymentId)
+      const slices = await getDeploymentSlices(dbClient(), deploymentId)
 
       return {
         slices,
@@ -99,18 +103,14 @@ export const loader = (args: Route.LoaderArgs) =>
     },
     {
       ensureSignedIn: true,
-      async hasAccess({
-        params: { roleId, workspaceId, deploymentId },
-        tenant,
-      }) {
+      async hasAccess({ params: { workspaceId, deploymentId }, tenant }) {
         invariantResponse(isUUID(deploymentId), '"deploymentId" is no UUID')
 
-        const deployment = await getRoleDeployment(dbClient(), deploymentId)
+        const deployment = await getDeployment(dbClient(), deploymentId)
 
         return (
           deployment.tenantId === tenant.id &&
-          deployment.workspaceId === workspaceId &&
-          deployment.roleId === roleId
+          deployment.workspaceId === workspaceId
         )
       },
     },
@@ -134,9 +134,9 @@ export const action = (args: Route.ActionArgs) =>
         prefixedAddress: getPrefixedAddress(data, 'from'),
       })
 
-      const deploymentSlice = await getRoleDeploymentSlice(
+      const deploymentSlice = await getDeploymentSlice(
         dbClient(),
-        getUUID(data, 'roleDeploymentSliceId'),
+        getUUID(data, 'deploymentSliceId'),
       )
 
       const transactionProposal = await dbClient().transaction(async (tx) => {
@@ -168,7 +168,7 @@ export const action = (args: Route.ActionArgs) =>
           callbackState: randomUUID(),
         })
 
-        await updateRoleDeploymentSlice(tx, deploymentSlice.id, {
+        await updateDeploymentSlice(tx, deploymentSlice.id, {
           proposedTransactionId: transactionProposal.id,
         })
 
@@ -191,15 +191,15 @@ export const action = (args: Route.ActionArgs) =>
       }) {
         const data = await request.formData()
 
-        const deploymentSlice = await getRoleDeploymentSlice(
+        const deploymentSlice = await getDeploymentSlice(
           dbClient(),
-          getUUID(data, 'roleDeploymentSliceId'),
+          getUUID(data, 'deploymentSliceId'),
         )
 
         return (
           deploymentSlice.tenantId === tenant.id &&
           deploymentSlice.workspaceId === workspaceId &&
-          deploymentSlice.roleDeploymentId === deploymentId
+          deploymentSlice.deploymentId === deploymentId
         )
       },
     },
@@ -296,14 +296,14 @@ const DeployRole = ({
 export default DeployRole
 
 type DeployProps = {
-  slice: RoleDeploymentSlice
+  slice: DeploymentSlice
   deploymentCancelled: boolean
 }
 
 const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
   const pending = useIsPending(
     Intent.ExecuteTransaction,
-    (data) => data.get('roleDeploymentSliceId') === slice.id,
+    (data) => data.get('deploymentSliceId') === slice.id,
   )
 
   return (
@@ -319,7 +319,7 @@ const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
 
         <InlineForm
           context={{
-            roleDeploymentSliceId: slice.id,
+            deploymentSliceId: slice.id,
             from: prefixAddress(slice.chainId, slice.from),
           }}
         >

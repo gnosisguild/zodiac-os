@@ -1,7 +1,7 @@
-import { RoleDeploymentIssue } from '@zodiac/db/schema'
+import { DeploymentIssue } from '@zodiac/db/schema'
 import { Error, Warning } from '@zodiac/ui'
 
-export const Issues = ({ issues }: { issues: RoleDeploymentIssue[] }) => {
+export const Issues = ({ issues }: { issues: DeploymentIssue[] }) => {
   if (issues.length === 0) {
     return null
   }
@@ -10,7 +10,7 @@ export const Issues = ({ issues }: { issues: RoleDeploymentIssue[] }) => {
     <div className="flex flex-col gap-4">
       {issues.map((issue) => {
         switch (issue) {
-          case RoleDeploymentIssue.NoActiveAccounts: {
+          case DeploymentIssue.NoActiveAccounts: {
             return (
               <Error key={issue} title="Accounts missing">
                 You have not selected any accounts that this role should be
@@ -18,7 +18,7 @@ export const Issues = ({ issues }: { issues: RoleDeploymentIssue[] }) => {
               </Error>
             )
           }
-          case RoleDeploymentIssue.NoActiveMembers: {
+          case DeploymentIssue.NoActiveMembers: {
             return (
               <Warning key={issue} title="Members missing">
                 You have not selected any members that should be part of this
@@ -26,7 +26,7 @@ export const Issues = ({ issues }: { issues: RoleDeploymentIssue[] }) => {
               </Warning>
             )
           }
-          case RoleDeploymentIssue.MissingDefaultWallet: {
+          case DeploymentIssue.MissingDefaultWallet: {
             return (
               <Warning key={issue} title="Members missing">
                 Not all members have selected a default safes for the chains

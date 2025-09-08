@@ -1,27 +1,27 @@
 import { invariant } from '@epic-web/invariant'
 import {
-  ActiveRoleDeployment,
+  ActiveDeployment,
+  DeploymentIssue,
+  DeploymentTable,
   Role,
-  RoleDeploymentIssue,
-  RoleDeploymentTable,
   User,
 } from '@zodiac/db/schema'
 import { DBClient } from '../../dbClient'
 
-type CreateRoleDeploymentOptions = {
-  issues: RoleDeploymentIssue[]
+type CreateDeploymentOptions = {
+  issues: DeploymentIssue[]
 }
 
 export const createRoleDeployment = async (
   db: DBClient,
   user: User,
   role: Role,
-  { issues }: CreateRoleDeploymentOptions,
-): Promise<ActiveRoleDeployment> => {
+  { issues }: CreateDeploymentOptions,
+): Promise<ActiveDeployment> => {
   const [{ completedAt, cancelledAt, cancelledById, ...deployment }] = await db
-    .insert(RoleDeploymentTable)
+    .insert(DeploymentTable)
     .values({
-      roleId: role.id,
+      reference: `role:${role.id}`,
       workspaceId: role.workspaceId,
       tenantId: role.tenantId,
       createdById: user.id,

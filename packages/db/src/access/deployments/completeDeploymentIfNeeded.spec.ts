@@ -1,16 +1,16 @@
 import {
   dbIt,
-  roleDeploymentFactory,
+  deploymentFactory,
   roleFactory,
   tenantFactory,
   userFactory,
 } from '@zodiac/db/test-utils'
 import { beforeEach, describe, expect, vi } from 'vitest'
 import { dbClient } from '../../dbClient'
-import { assertActiveRoleDeployment } from './assertActiveRoleDeployment'
-import { cancelRoleDeployment } from './cancelRoleDeployment'
-import { completeRoleDeploymentIfNeeded } from './completeRoleDeploymentIfNeeded'
-import { getRoleDeployment } from './getRoleDeployment'
+import { assertActiveDeployment } from './assertActiveDeployment'
+import { cancelDeployment } from './cancelDeployment'
+import { completeDeploymentIfNeeded } from './completeDeploymentIfNeeded'
+import { getDeployment } from './getDeployment'
 
 describe('completeDeploymentIfNeeded', () => {
   beforeEach(() => {
@@ -22,12 +22,12 @@ describe('completeDeploymentIfNeeded', () => {
     const tenant = await tenantFactory.create(user)
 
     const role = await roleFactory.create(tenant, user)
-    const deployment = await roleDeploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(user, role)
 
-    await completeRoleDeploymentIfNeeded(dbClient(), deployment.id)
+    await completeDeploymentIfNeeded(dbClient(), deployment.id)
 
     await expect(
-      getRoleDeployment(dbClient(), deployment.id),
+      getDeployment(dbClient(), deployment.id),
     ).resolves.toHaveProperty('completedAt', new Date())
   })
 
@@ -36,16 +36,16 @@ describe('completeDeploymentIfNeeded', () => {
     const tenant = await tenantFactory.create(user)
 
     const role = await roleFactory.create(tenant, user)
-    const deployment = await roleDeploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(user, role)
 
-    assertActiveRoleDeployment(deployment)
+    assertActiveDeployment(deployment)
 
-    await cancelRoleDeployment(dbClient(), user, deployment)
+    await cancelDeployment(dbClient(), user, deployment)
 
-    await completeRoleDeploymentIfNeeded(dbClient(), deployment.id)
+    await completeDeploymentIfNeeded(dbClient(), deployment.id)
 
     await expect(
-      getRoleDeployment(dbClient(), deployment.id),
+      getDeployment(dbClient(), deployment.id),
     ).resolves.toHaveProperty('completedAt', null)
   })
 })

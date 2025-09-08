@@ -2,15 +2,15 @@ import { authorizedAction, authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
 import { ZERO_ADDRESS } from '@zodiac/chains'
 import {
-  assertActiveRoleDeployment,
-  cancelRoleDeployment,
-  createRoleDeployment,
-  createRoleDeploymentSlice,
+  assertActiveDeployment,
+  cancelDeployment,
+  createDeployment,
+  createDeploymentSlice,
   dbClient,
-  findPendingRoleDeployment,
+  findPendingDeployment,
   getActivatedAccounts,
+  getDeployment,
   getRole,
-  getRoleDeployment,
   getRoleMembers,
   getRoles,
   getWorkspace,
@@ -93,7 +93,7 @@ export const action = (args: Route.ActionArgs) =>
           const roleId = getUUID(data, 'roleId')
           const role = await getRole(dbClient(), roleId)
 
-          const pendingDeployment = await findPendingRoleDeployment(
+          const pendingDeployment = await findPendingDeployment(
             dbClient(),
             roleId,
           )
@@ -113,12 +113,12 @@ export const action = (args: Route.ActionArgs) =>
           }
 
           const deployment = await dbClient().transaction(async (tx) => {
-            const deployment = await createRoleDeployment(tx, user, role, {
+            const deployment = await createDeployment(tx, user, role, {
               issues,
             })
 
             for (const slice of slices) {
-              await createRoleDeploymentSlice(tx, deployment, slice)
+              await createDeploymentSlice(tx, deployment, slice)
             }
 
             return deployment
@@ -136,14 +136,14 @@ export const action = (args: Route.ActionArgs) =>
           )
         }
         case Intent.CancelDeployment: {
-          const deployment = await getRoleDeployment(
+          const deployment = await getDeployment(
             dbClient(),
             getUUID(data, 'deploymentId'),
           )
 
-          assertActiveRoleDeployment(deployment)
+          assertActiveDeployment(deployment)
 
-          await cancelRoleDeployment(dbClient(), user, deployment)
+          await cancelDeployment(dbClient(), user, deployment)
 
           return null
         }
@@ -164,7 +164,7 @@ export const action = (args: Route.ActionArgs) =>
             )
           }
           case Intent.CancelDeployment: {
-            const deployment = await getRoleDeployment(
+            const deployment = await getDeployment(
               dbClient(),
               getUUID(data, 'deploymentId'),
             )

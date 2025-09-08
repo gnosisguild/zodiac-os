@@ -8,23 +8,23 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Chain } from '@zodiac/chains'
 import {
-  assertActiveRoleDeployment,
-  cancelRoleDeployment,
-  completeRoleDeploymentSlice,
+  assertActiveDeployment,
+  cancelDeployment,
+  completeDeploymentSlice,
   dbClient,
+  getDeploymentSlice,
   getProposedTransactions,
-  getRoleDeploymentSlice,
   setActiveAccounts,
   setDefaultRoute,
   setDefaultWallet,
   setRoleMembers,
 } from '@zodiac/db'
-import { RoleDeploymentIssue } from '@zodiac/db/schema'
+import { DeploymentIssue } from '@zodiac/db/schema'
 import {
   accountFactory,
   dbIt,
-  roleDeploymentFactory,
-  roleDeploymentSliceFactory,
+  deploymentFactory,
+  deploymentSliceFactory,
   roleFactory,
   routeFactory,
   signedTransactionFactory,
@@ -106,8 +106,8 @@ describe('Deploy Role', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await roleDeploymentFactory.create(user, role, {
-          issues: [RoleDeploymentIssue.NoActiveMembers],
+        const deployment = await deploymentFactory.create(user, role, {
+          issues: [DeploymentIssue.NoActiveMembers],
         })
 
         await render(
@@ -135,8 +135,8 @@ describe('Deploy Role', () => {
 
         const account = await accountFactory.create(tenant, user)
         const role = await roleFactory.create(tenant, user)
-        const deployment = await roleDeploymentFactory.create(user, role, {
-          issues: [RoleDeploymentIssue.MissingDefaultWallet],
+        const deployment = await deploymentFactory.create(user, role, {
+          issues: [DeploymentIssue.MissingDefaultWallet],
         })
 
         await setActiveAccounts(dbClient(), role, [account.id])
@@ -168,8 +168,8 @@ describe('Deploy Role', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await roleDeploymentFactory.create(user, role, {
-          issues: [RoleDeploymentIssue.NoActiveAccounts],
+        const deployment = await deploymentFactory.create(user, role, {
+          issues: [DeploymentIssue.NoActiveAccounts],
         })
 
         await render(
@@ -223,9 +223,9 @@ describe('Deploy Role', () => {
           await setDefaultRoute(dbClient(), tenant, user, route)
 
           const role = await roleFactory.create(tenant, user)
-          const deployment = await roleDeploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(user, role)
 
-          await roleDeploymentSliceFactory.create(user, deployment, {
+          await deploymentSliceFactory.create(user, deployment, {
             from: account.address,
             steps: [createMockStepsByAccount()],
           })
@@ -291,9 +291,9 @@ describe('Deploy Role', () => {
           await setDefaultRoute(dbClient(), tenant, user, route)
 
           const role = await roleFactory.create(tenant, user)
-          const deployment = await roleDeploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(user, role)
 
-          const deploymentSlice = await roleDeploymentSliceFactory.create(
+          const deploymentSlice = await deploymentSliceFactory.create(
             user,
             deployment,
             {
@@ -330,7 +330,7 @@ describe('Deploy Role', () => {
           )
 
           await expect(
-            getRoleDeploymentSlice(dbClient(), deploymentSlice.id),
+            getDeploymentSlice(dbClient(), deploymentSlice.id),
           ).resolves.toHaveProperty(
             'proposedTransactionId',
             transactionProposal.id,
@@ -357,9 +357,9 @@ describe('Deploy Role', () => {
         await setDefaultRoute(dbClient(), tenant, user, route)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await roleDeploymentFactory.create(user, role)
+        const deployment = await deploymentFactory.create(user, role)
 
-        const step = await roleDeploymentSliceFactory.create(user, deployment, {
+        const step = await deploymentSliceFactory.create(user, deployment, {
           from: account.address,
           steps: [createMockStepsByAccount()],
         })
@@ -422,7 +422,7 @@ describe('Deploy Role', () => {
           await setRoleMembers(dbClient(), role, [user.id])
           await setActiveAccounts(dbClient(), role, [account.id])
 
-          const deployment = await roleDeploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(user, role)
 
           const proposal = await transactionProposalFactory.create(
             tenant,
@@ -430,7 +430,7 @@ describe('Deploy Role', () => {
             account,
           )
 
-          await roleDeploymentSliceFactory.create(user, deployment, {
+          await deploymentSliceFactory.create(user, deployment, {
             proposedTransactionId: proposal.id,
           })
 
@@ -483,7 +483,7 @@ describe('Deploy Role', () => {
           await setRoleMembers(dbClient(), role, [user.id])
           await setActiveAccounts(dbClient(), role, [account.id])
 
-          const deployment = await roleDeploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(user, role)
 
           const transaction = await signedTransactionFactory.create(
             tenant,
@@ -497,17 +497,13 @@ describe('Deploy Role', () => {
             { signedTransactionId: transaction.id },
           )
 
-          const step = await roleDeploymentSliceFactory.create(
-            user,
-            deployment,
-            {
-              proposedTransactionId: proposal.id,
-              signedTransactionId: transaction.id,
-            },
-          )
+          const step = await deploymentSliceFactory.create(user, deployment, {
+            proposedTransactionId: proposal.id,
+            signedTransactionId: transaction.id,
+          })
 
-          await completeRoleDeploymentSlice(dbClient(), user, {
-            roleDeploymentSliceId: step.id,
+          await completeDeploymentSlice(dbClient(), user, {
+            deploymentSliceId: step.id,
             transactionHash: randomHex(18),
           })
 
@@ -537,11 +533,11 @@ describe('Deploy Role', () => {
       const tenant = await tenantFactory.create(user)
 
       const role = await roleFactory.create(tenant, user)
-      const deployment = await roleDeploymentFactory.create(user, role)
+      const deployment = await deploymentFactory.create(user, role)
 
-      assertActiveRoleDeployment(deployment)
+      assertActiveDeployment(deployment)
 
-      const cancelledDeployment = await cancelRoleDeployment(
+      const cancelledDeployment = await cancelDeployment(
         dbClient(),
         user,
         deployment,
@@ -568,13 +564,13 @@ describe('Deploy Role', () => {
       const tenant = await tenantFactory.create(user)
 
       const role = await roleFactory.create(tenant, user)
-      const deployment = await roleDeploymentFactory.create(user, role)
+      const deployment = await deploymentFactory.create(user, role)
 
-      await roleDeploymentSliceFactory.create(user, deployment)
+      await deploymentSliceFactory.create(user, deployment)
 
-      assertActiveRoleDeployment(deployment)
+      assertActiveDeployment(deployment)
 
-      await cancelRoleDeployment(dbClient(), user, deployment)
+      await cancelDeployment(dbClient(), user, deployment)
 
       await render(
         href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId', {
@@ -597,7 +593,7 @@ describe('Deploy Role', () => {
       const account = await accountFactory.create(tenant, user)
 
       const role = await roleFactory.create(tenant, user)
-      const deployment = await roleDeploymentFactory.create(user, role)
+      const deployment = await deploymentFactory.create(user, role)
 
       const proposal = await transactionProposalFactory.create(
         tenant,
@@ -605,13 +601,13 @@ describe('Deploy Role', () => {
         account,
       )
 
-      await roleDeploymentSliceFactory.create(user, deployment, {
+      await deploymentSliceFactory.create(user, deployment, {
         proposedTransactionId: proposal.id,
       })
 
-      assertActiveRoleDeployment(deployment)
+      assertActiveDeployment(deployment)
 
-      await cancelRoleDeployment(dbClient(), user, deployment)
+      await cancelDeployment(dbClient(), user, deployment)
 
       await render(
         href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId', {

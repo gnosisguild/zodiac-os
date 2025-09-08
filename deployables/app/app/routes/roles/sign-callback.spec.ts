@@ -1,10 +1,10 @@
 import { post } from '@/test-utils'
-import { dbClient, getRoleDeployment, getRoleDeploymentSlice } from '@zodiac/db'
+import { dbClient, getDeployment, getDeploymentSlice } from '@zodiac/db'
 import {
   accountFactory,
   dbIt,
-  roleDeploymentFactory,
-  roleDeploymentSliceFactory,
+  deploymentFactory,
+  deploymentSliceFactory,
   roleFactory,
   routeFactory,
   signedTransactionFactory,
@@ -33,7 +33,7 @@ describe('Sign callback', () => {
     const route = await routeFactory.create(account, wallet)
 
     const role = await roleFactory.create(tenant, user)
-    const deployment = await roleDeploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(user, role)
 
     const transaction = await signedTransactionFactory.create(
       tenant,
@@ -49,7 +49,7 @@ describe('Sign callback', () => {
       },
     )
 
-    const slice = await roleDeploymentSliceFactory.create(user, deployment, {
+    const slice = await deploymentSliceFactory.create(user, deployment, {
       proposedTransactionId: proposal.id,
     })
 
@@ -69,7 +69,7 @@ describe('Sign callback', () => {
     )
 
     await expect(
-      getRoleDeploymentSlice(dbClient(), slice.id),
+      getDeploymentSlice(dbClient(), slice.id),
     ).resolves.toHaveProperty('transactionHash', transactionHash)
   })
 
@@ -82,7 +82,7 @@ describe('Sign callback', () => {
     const route = await routeFactory.create(account, wallet)
 
     const role = await roleFactory.create(tenant, user)
-    const deployment = await roleDeploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(user, role)
 
     const transaction = await signedTransactionFactory.create(
       tenant,
@@ -96,7 +96,7 @@ describe('Sign callback', () => {
       { signedTransactionId: transaction.id },
     )
 
-    const slice = await roleDeploymentSliceFactory.create(user, deployment, {
+    const slice = await deploymentSliceFactory.create(user, deployment, {
       proposedTransactionId: proposal.id,
     })
 
@@ -117,7 +117,7 @@ describe('Sign callback', () => {
     )
 
     await expect(
-      getRoleDeploymentSlice(dbClient(), slice.id),
+      getDeploymentSlice(dbClient(), slice.id),
     ).resolves.toMatchObject({
       completedAt: new Date(),
       completedById: user.id,
@@ -135,7 +135,7 @@ describe('Sign callback', () => {
       const route = await routeFactory.create(account, wallet)
 
       const role = await roleFactory.create(tenant, user)
-      const deployment = await roleDeploymentFactory.create(user, role)
+      const deployment = await deploymentFactory.create(user, role)
 
       const transaction = await signedTransactionFactory.create(
         tenant,
@@ -149,7 +149,7 @@ describe('Sign callback', () => {
         { signedTransactionId: transaction.id },
       )
 
-      const slice = await roleDeploymentSliceFactory.create(user, deployment, {
+      const slice = await deploymentSliceFactory.create(user, deployment, {
         proposedTransactionId: proposal.id,
       })
 
@@ -170,7 +170,7 @@ describe('Sign callback', () => {
       )
 
       await expect(
-        getRoleDeployment(dbClient(), deployment.id),
+        getDeployment(dbClient(), deployment.id),
       ).resolves.toMatchObject({
         completedAt: new Date(),
       })
@@ -186,7 +186,7 @@ describe('Sign callback', () => {
     const route = await routeFactory.create(account, wallet)
 
     const role = await roleFactory.create(tenant, user)
-    const deployment = await roleDeploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(user, role)
 
     const transaction = await signedTransactionFactory.create(
       tenant,
@@ -200,7 +200,7 @@ describe('Sign callback', () => {
       { signedTransactionId: transaction.id },
     )
 
-    const slice = await roleDeploymentSliceFactory.create(user, deployment, {
+    const slice = await deploymentSliceFactory.create(user, deployment, {
       proposedTransactionId: proposal.id,
     })
 

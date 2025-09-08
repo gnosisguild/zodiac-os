@@ -746,21 +746,22 @@ const ActionAssetRelations = relations(ActionAssetTable, ({ one }) => ({
   }),
 }))
 
-export enum RoleDeploymentIssue {
+export enum DeploymentIssue {
   NoActiveAccounts = 'NoActiveAccounts',
   NoActiveMembers = 'NoActiveMembers',
   MissingDefaultWallet = 'MissingDefaultWallet',
 }
 
-export const RoleDeploymentIssueEnum = pgEnum(
-  'RoleDeploymentIssue',
-  enumToPgEnum(RoleDeploymentIssue),
+export const DeploymentIssueEnum = pgEnum(
+  'DeploymentIssue',
+  enumToPgEnum(DeploymentIssue),
 )
 
-export const RoleDeploymentTable = pgTable(
-  'RoleDeployment',
+export const DeploymentTable = pgTable(
+  'Deployment',
   {
     id: uuid().notNull().$type<UUID>().defaultRandom().primaryKey(),
+    reference: varchar({ length: 255 }),
 
     completedAt: timestamp({ withTimezone: true }),
 
@@ -771,9 +772,8 @@ export const RoleDeploymentTable = pgTable(
         onDelete: 'set null',
       }),
 
-    issues: RoleDeploymentIssueEnum().array().notNull().default([]),
+    issues: DeploymentIssueEnum().array().notNull().default([]),
 
-    ...roleReference,
     ...createdByReference,
     ...createdTimestamp,
     ...updatedTimestamp,
@@ -781,42 +781,42 @@ export const RoleDeploymentTable = pgTable(
     ...workspaceReference,
   },
   (table) => [
-    index().on(table.roleId),
+    index().on(table.reference),
     index().on(table.createdById),
     index().on(table.tenantId),
     index().on(table.workspaceId),
   ],
 )
 
-const roleDeploymentReference = {
-  roleDeploymentId: uuid()
+const deploymentReference = {
+  deploymentId: uuid()
     .notNull()
     .$type<UUID>()
-    .references(() => RoleDeploymentTable.id, { onDelete: 'cascade' }),
+    .references(() => DeploymentTable.id, { onDelete: 'cascade' }),
 }
 
-export type BaseRoleDeployment = typeof RoleDeploymentTable.$inferSelect
-export type RoleDeploymentCreateInput = typeof RoleDeploymentTable.$inferInsert
+export type BaseDeployment = typeof DeploymentTable.$inferSelect
+export type DeploymentCreateInput = typeof DeploymentTable.$inferInsert
 
-export type ActiveRoleDeployment = NullProperties<
-  BaseRoleDeployment,
+export type ActiveDeployment = NullProperties<
+  BaseDeployment,
   'cancelledAt' | 'cancelledById' | 'completedAt'
 >
 
-export type CompletedRoleDeployment = NonNullableProperties<
-  NullProperties<BaseRoleDeployment, 'cancelledAt' | 'cancelledById'>,
+export type CompletedDeployment = NonNullableProperties<
+  NullProperties<BaseDeployment, 'cancelledAt' | 'cancelledById'>,
   'completedAt'
 >
 
-export type CancelledRoleDeployment = NonNullableProperties<
-  NullProperties<BaseRoleDeployment, 'completedAt'>,
+export type CancelledDeployment = NonNullableProperties<
+  NullProperties<BaseDeployment, 'completedAt'>,
   'cancelledAt' | 'cancelledById'
 >
 
-export type RoleDeployment =
-  | ActiveRoleDeployment
-  | CompletedRoleDeployment
-  | CancelledRoleDeployment
+export type Deployment =
+  | ActiveDeployment
+  | CompletedDeployment
+  | CancelledDeployment
 
 export type StepsByAccount = {
   /** The account that is being created/updated by the steps */
@@ -824,8 +824,8 @@ export type StepsByAccount = {
   steps: AccountBuilderStep[]
 }
 
-export const RoleDeploymentSliceTable = pgTable(
-  'RoleDeploymentSlice',
+export const DeploymentSliceTable = pgTable(
+  'DeploymentSlice',
   {
     id: uuid().notNull().$type<UUID>().defaultRandom().primaryKey(),
     index: integer().notNull(), // TODO: we can potentially drop this column (to confirm with Cris, but it's looking like the execution order doesn't matter)
@@ -861,14 +861,14 @@ export const RoleDeploymentSliceTable = pgTable(
         onDelete: 'set null',
       }),
 
-    ...roleDeploymentReference,
+    ...deploymentReference,
     ...createdTimestamp,
     ...updatedTimestamp,
     ...tenantReference,
     ...workspaceReference,
   },
   (table) => [
-    index().on(table.roleDeploymentId),
+    index().on(table.deploymentId),
     index().on(table.proposedTransactionId),
     index().on(table.signedTransactionId),
     index().on(table.tenantId),
@@ -878,9 +878,9 @@ export const RoleDeploymentSliceTable = pgTable(
   ],
 )
 
-export type RoleDeploymentSlice = typeof RoleDeploymentSliceTable.$inferSelect
-export type RoleDeploymentSliceCreateInput =
-  typeof RoleDeploymentSliceTable.$inferInsert
+export type DeploymentSlice = typeof DeploymentSliceTable.$inferSelect
+export type DeploymentSliceCreateInput =
+  typeof DeploymentSliceTable.$inferInsert
 
 export const schema = {
   tenant: TenantTable,
@@ -904,8 +904,8 @@ export const schema = {
   roleAction: RoleActionTable,
   roleActionAsset: ActionAssetTable,
   defaultWallet: DefaultWalletTable,
-  roleDeployment: RoleDeploymentTable,
-  roleDeploymentSlice: RoleDeploymentSliceTable,
+  deployment: DeploymentTable,
+  deploymentSlice: DeploymentSliceTable,
 
   TenantRelations,
   FeatureRelations,
@@ -920,5 +920,5 @@ export const schema = {
   RoleActionRelations,
   ActionAssetRelations,
   DefaultWalletRelations,
-  RoleDeploymentIssueEnum,
+  DeploymentIssueEnum,
 }

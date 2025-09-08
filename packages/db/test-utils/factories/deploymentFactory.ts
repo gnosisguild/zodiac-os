@@ -1,18 +1,18 @@
 import { invariant } from '@epic-web/invariant'
-import { assertRoleDeployment } from '@zodiac/db'
+import { assertDeployment } from '@zodiac/db'
 import {
+  Deployment,
+  DeploymentCreateInput,
+  DeploymentTable,
   Role,
-  RoleDeployment,
-  RoleDeploymentCreateInput,
-  RoleDeploymentTable,
   User,
 } from '@zodiac/db/schema'
 import { randomUUID } from 'crypto'
 import { createFactory } from './createFactory'
 
-export const roleDeploymentFactory = createFactory<
-  RoleDeploymentCreateInput,
-  RoleDeployment,
+export const deploymentFactory = createFactory<
+  DeploymentCreateInput,
+  Deployment,
   [createdBy: User, role: Role]
 >({
   build(createdBy, role, data) {
@@ -27,11 +27,11 @@ export const roleDeploymentFactory = createFactory<
   },
   async create(db, data) {
     const [deployment] = await db
-      .insert(RoleDeploymentTable)
+      .insert(DeploymentTable)
       .values(data)
       .returning()
 
-    assertRoleDeployment(deployment)
+    assertDeployment(deployment)
 
     return deployment
   },
@@ -82,6 +82,6 @@ export const roleDeploymentFactory = createFactory<
       issues: [],
 
       ...input,
-    } satisfies RoleDeployment
+    } satisfies Deployment
   },
 })

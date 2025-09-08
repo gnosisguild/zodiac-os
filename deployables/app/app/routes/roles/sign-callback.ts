@@ -1,11 +1,11 @@
 import { authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
 import {
-  completeRoleDeploymentIfNeeded,
-  completeRoleDeploymentSlice,
+  completeDeploymentIfNeeded,
+  completeDeploymentSlice,
   dbClient,
+  getDeploymentSlice,
   getProposedTransaction,
-  getRoleDeploymentSlice,
   getSignedTransaction,
   getUser,
 } from '@zodiac/db'
@@ -46,12 +46,12 @@ export const action = (args: Route.LoaderArgs) =>
       const user = await getUser(dbClient(), transaction.userId)
 
       await dbClient().transaction(async (tx) => {
-        await completeRoleDeploymentSlice(tx, user, {
-          roleDeploymentSliceId: deploymentSliceId,
+        await completeDeploymentSlice(tx, user, {
+          deploymentSliceId: deploymentSliceId,
           transactionHash: getHexString(data, 'transactionHash'),
         })
 
-        await completeRoleDeploymentIfNeeded(tx, deploymentId)
+        await completeDeploymentIfNeeded(tx, deploymentId)
       })
 
       return Response.json({
@@ -89,14 +89,14 @@ export const action = (args: Route.LoaderArgs) =>
           '"deploymentSliceId" is not a UUID',
         )
 
-        const deploymentSlice = await getRoleDeploymentSlice(
+        const deploymentSlice = await getDeploymentSlice(
           dbClient(),
           deploymentSliceId,
         )
 
         return (
           deploymentSlice.tenantId === proposal.tenantId &&
-          deploymentSlice.roleDeploymentId === deploymentId &&
+          deploymentSlice.deploymentId === deploymentId &&
           deploymentSlice.workspaceId === workspaceId
         )
       },
