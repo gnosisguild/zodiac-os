@@ -5,6 +5,7 @@ import {
   createMockExecutionRoute,
   createMockRoleWaypoint,
   createMockSafeAccount,
+  createMockSafeExecutionAccount,
   createMockStartingWaypoint,
   createMockWaypoints,
 } from '@/test-utils'
@@ -57,7 +58,7 @@ describe('updateChainId', () => {
         const route = createMockExecutionRoute({
           waypoints: createMockWaypoints({
             start: createMockStartingWaypoint(
-              createMockSafeAccount({ chainId: Chain.ETH }),
+              createMockSafeExecutionAccount({ chainId: Chain.ETH }),
             ),
           }),
         })
