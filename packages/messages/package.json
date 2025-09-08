@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "22.14.1",
-    "@types/chrome": "0.1.6",
+    "@types/chrome": "0.1.9",
     "@types/react": "19.1.12",
     "@zodiac/eslint-config": "workspace:*",
     "@zodiac/typescript-config": "workspace:*",
