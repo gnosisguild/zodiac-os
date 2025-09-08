@@ -90,7 +90,7 @@
     "react-dom": "19.1.1",
     "react-router": "7.8.2",
     "react-stick": "5.0.7",
-    "ser-kit": "3.13.0",
+    "ser-kit": "3.13.1",
     "viem": "2.37.4",
     "zod": "4.1.5",
     "zodiac-roles-sdk": "3.2.5"
