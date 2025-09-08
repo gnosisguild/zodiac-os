@@ -47,7 +47,7 @@
     "drizzle-orm": "0.44.5",
     "drizzle-zod": "0.8.3",
     "postgres": "3.4.7",
-    "ser-kit": "link:~/gnosisguild/ser-kit",
+    "ser-kit": "3.13.0",
     "zod": "4.1.5"
   },
   "devDependencies": {

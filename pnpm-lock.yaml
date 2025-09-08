@@ -197,8 +197,8 @@ importers:
         specifier: 8.8.0
         version: 8.8.0(react-router@7.8.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(zod@4.1.5)
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
       viem:
         specifier: 2.37.4
         version: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
@@ -369,8 +369,8 @@ importers:
         specifier: 5.0.7
         version: 5.0.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
       viem:
         specifier: 2.37.4
         version: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
@@ -636,8 +636,8 @@ importers:
         specifier: 9.35.0
         version: 9.35.0(jiti@2.5.1)
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
 
   packages/db:
     dependencies:
@@ -669,8 +669,8 @@ importers:
         specifier: 19.1.1
         version: 19.1.1
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
       zod:
         specifier: 4.1.5
         version: 4.1.5
@@ -872,8 +872,8 @@ importers:
         specifier: 5.1.5
         version: 5.1.5
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
       zod:
         specifier: 4.1.5
         version: 4.1.5
@@ -921,8 +921,8 @@ importers:
         specifier: workspace:*
         version: link:../schema
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
     devDependencies:
       '@types/node':
         specifier: 22.14.1
@@ -946,8 +946,8 @@ importers:
         specifier: 3.0.0
         version: 3.0.0(typescript@5.9.2)(zod@4.1.5)
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
       viem:
         specifier: 2.37.4
         version: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
@@ -1035,8 +1035,8 @@ importers:
         specifier: 9.35.0
         version: 9.35.0(jiti@2.5.1)
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)
 
   packages/ui:
     dependencies:
@@ -1074,8 +1074,8 @@ importers:
         specifier: 11.0.5
         version: 11.0.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       ser-kit:
-        specifier: link:~/gnosisguild/ser-kit
-        version: link:../../../ser-kit
+        specifier: 3.13.0
+        version: 3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
       viem:
         specifier: 2.37.4
         version: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
@@ -9354,6 +9354,9 @@ packages:
   ser-kit@3.12.0:
     resolution: {integrity: sha512-NCtv2cO6CMI/YIONgF52lweeUIO/m68UAovyi7nzeUhtapl57S+XenO/mQ1AeIIxem53SJCjwFZGVDxhncURlQ==}
 
+  ser-kit@3.13.0:
+    resolution: {integrity: sha512-7xMwCwckf7pyKEnCpEiYh5LlgtabjnET8E5wr+M5T95QrmeTAjy3BHHsR89mh1dIQ+90UPpN9f6vgvc2uaa5bA==}
+
   serve-static@1.16.2:
     resolution: {integrity: sha512-VqpjJZKadQB/PEbEwvFdO43Ax5dFBZ2UECszz8bQ7pi7wt//PWe1P6MN7eCnjsatYtBT6EuiClbjSWP2WrIoTw==}
     engines: {node: '>= 0.8.0'}
@@ -14457,12 +14460,38 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.46.2':
     optional: true
 
+  '@safe-global/api-kit@3.0.2(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@safe-global/protocol-kit': 6.1.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)
+      '@safe-global/types-kit': 2.0.1(typescript@5.9.2)
+      node-fetch: 2.7.0
+      viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.22.4)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+      - zod
+
   '@safe-global/api-kit@3.0.2(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@safe-global/protocol-kit': 6.1.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@safe-global/types-kit': 2.0.1(typescript@5.9.2)(zod@3.25.76)
       node-fetch: 2.7.0
       viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+      - zod
+
+  '@safe-global/api-kit@3.0.2(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)':
+    dependencies:
+      '@safe-global/protocol-kit': 6.1.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
+      '@safe-global/types-kit': 2.0.1(typescript@5.9.2)(zod@4.1.5)
+      node-fetch: 2.7.0
+      viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -14483,6 +14512,23 @@ snapshots:
       - utf-8-validate
       - zod
 
+  '@safe-global/protocol-kit@6.1.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@safe-global/safe-deployments': 1.37.42
+      '@safe-global/safe-modules-deployments': 2.2.14
+      '@safe-global/types-kit': 3.0.0(typescript@5.9.2)(zod@3.25.76)
+      abitype: 1.0.8(typescript@5.9.2)(zod@3.25.76)
+      semver: 7.7.2
+      viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.22.4)
+    optionalDependencies:
+      '@noble/curves': 1.9.6
+      '@peculiar/asn1-schema': 2.3.15
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+
   '@safe-global/protocol-kit@6.1.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@safe-global/safe-deployments': 1.37.42
@@ -14491,6 +14537,23 @@ snapshots:
       abitype: 1.0.8(typescript@5.9.2)(zod@3.25.76)
       semver: 7.7.2
       viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+    optionalDependencies:
+      '@noble/curves': 1.9.6
+      '@peculiar/asn1-schema': 2.3.15
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+
+  '@safe-global/protocol-kit@6.1.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)':
+    dependencies:
+      '@safe-global/safe-deployments': 1.37.42
+      '@safe-global/safe-modules-deployments': 2.2.14
+      '@safe-global/types-kit': 3.0.0(typescript@5.9.2)(zod@4.1.5)
+      abitype: 1.0.8(typescript@5.9.2)(zod@4.1.5)
+      semver: 7.7.2
+      viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
     optionalDependencies:
       '@noble/curves': 1.9.6
       '@peculiar/asn1-schema': 2.3.15
@@ -14528,9 +14591,23 @@ snapshots:
 
   '@safe-global/safe-modules-deployments@2.2.14': {}
 
+  '@safe-global/types-kit@2.0.1(typescript@5.9.2)':
+    dependencies:
+      abitype: 1.1.0(typescript@5.9.2)(zod@3.22.4)
+    transitivePeerDependencies:
+      - typescript
+      - zod
+
   '@safe-global/types-kit@2.0.1(typescript@5.9.2)(zod@3.25.76)':
     dependencies:
       abitype: 1.1.0(typescript@5.9.2)(zod@3.25.76)
+    transitivePeerDependencies:
+      - typescript
+      - zod
+
+  '@safe-global/types-kit@2.0.1(typescript@5.9.2)(zod@4.1.5)':
+    dependencies:
+      abitype: 1.1.0(typescript@5.9.2)(zod@4.1.5)
     transitivePeerDependencies:
       - typescript
       - zod
@@ -20770,6 +20847,54 @@ snapshots:
       '@epic-web/invariant': 1.0.0
       '@safe-global/api-kit': 3.0.2(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
       viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+      zodiac-roles-sdk: 3.2.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - '@gnosis-guild/eth-sdk-client'
+      - bufferutil
+      - encoding
+      - openapi-backend
+      - openapi-types
+      - typescript
+      - utf-8-validate
+      - zod
+
+  ser-kit@3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10):
+    dependencies:
+      '@epic-web/invariant': 1.0.0
+      '@safe-global/api-kit': 3.0.2(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)
+      viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.22.4)
+      zodiac-roles-sdk: 3.2.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - '@gnosis-guild/eth-sdk-client'
+      - bufferutil
+      - encoding
+      - openapi-backend
+      - openapi-types
+      - typescript
+      - utf-8-validate
+      - zod
+
+  ser-kit@3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76):
+    dependencies:
+      '@epic-web/invariant': 1.0.0
+      '@safe-global/api-kit': 3.0.2(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+      viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+      zodiac-roles-sdk: 3.2.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - '@gnosis-guild/eth-sdk-client'
+      - bufferutil
+      - encoding
+      - openapi-backend
+      - openapi-types
+      - typescript
+      - utf-8-validate
+      - zod
+
+  ser-kit@3.13.0(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5):
+    dependencies:
+      '@epic-web/invariant': 1.0.0
+      '@safe-global/api-kit': 3.0.2(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
+      viem: 2.37.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
       zodiac-roles-sdk: 3.2.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - '@gnosis-guild/eth-sdk-client'

@@ -59,6 +59,6 @@
     "@zodiac/eslint-config": "workspace:*",
     "@zodiac/typescript-config": "workspace:*",
     "eslint": "9.35.0",
-    "ser-kit": "link:~/gnosisguild/ser-kit"
+    "ser-kit": "3.13.0"
   }
 }
