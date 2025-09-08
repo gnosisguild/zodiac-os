@@ -15,8 +15,9 @@ import {
   userFactory,
   walletFactory,
 } from '@zodiac/db/test-utils'
-import { createMockEoaAccount } from '@zodiac/modules/test-utils'
+import { createMockSafeAccount } from '@zodiac/modules/test-utils'
 import { AllowanceInterval } from '@zodiac/schema'
+import { randomAddress } from '@zodiac/test-utils'
 import { AccountType, resolveAccounts } from 'ser-kit'
 import { beforeEach, describe, expect, vi } from 'vitest'
 import { encodeKey } from 'zodiac-roles-sdk'
@@ -152,15 +153,16 @@ describe('getRoleMods', () => {
         await setRoleMembers(dbClient(), role, [user.id])
         await setActiveAccounts(dbClient(), role, [account.id])
 
+        const memberAddress = randomAddress()
         const {
           rolesMods: [mod],
         } = await getRolesMods(role, {
-          members: [createMockEoaAccount({ address: wallet.address })],
+          members: [createMockSafeAccount({ address: memberAddress })],
         })
 
         expect(mod).toHaveProperty('roles', {
           [encodeKey(role.key)]: expect.objectContaining({
-            members: [wallet.address],
+            members: [memberAddress],
           }),
         })
       })

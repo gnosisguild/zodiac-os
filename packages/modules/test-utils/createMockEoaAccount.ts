@@ -1,13 +1,8 @@
 import { ZERO_ADDRESS } from '@zodiac/chains'
 import type { HexAddress } from '@zodiac/schema'
-import {
-  AccountType,
-  ExecutionAccount,
-  prefixAddress,
-  type Account,
-} from 'ser-kit'
+import { AccountType, ExecutionAccount, prefixAddress } from 'ser-kit'
 
-type Eoa = Extract<Account, { type: AccountType.EOA }>
+type Eoa = Extract<ExecutionAccount, { type: AccountType.EOA }>
 
 export const createMockEoaAccount = ({
   address = ZERO_ADDRESS,
