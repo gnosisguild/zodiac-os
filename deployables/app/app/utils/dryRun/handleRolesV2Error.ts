@@ -1,4 +1,4 @@
-import { decodeRoleKey } from '@zodiac/modules'
+import { decodeKey as decodeRoleKey } from 'zodiac-roles-sdk'
 import { decodeGenericError, decodeRolesV2Error } from './decodeError'
 import type { JsonRpcError } from './JsonRpcError'
 

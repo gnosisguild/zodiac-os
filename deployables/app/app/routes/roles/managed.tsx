@@ -1,10 +1,11 @@
 import { authorizedAction, authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
+import { ZERO_ADDRESS } from '@zodiac/chains'
 import {
   assertActiveRoleDeployment,
   cancelRoleDeployment,
   createRoleDeployment,
-  createRoleDeploymentStep,
+  createRoleDeploymentSlice,
   dbClient,
   findPendingRoleDeployment,
   getActivatedAccounts,
@@ -16,7 +17,7 @@ import {
 } from '@zodiac/db'
 import { getEnumValue, getUUID } from '@zodiac/form-data'
 import { useAfterSubmit, useIsPending } from '@zodiac/hooks'
-import { HexAddress, isUUID } from '@zodiac/schema'
+import { isUUID } from '@zodiac/schema'
 import {
   DateValue,
   Empty,
@@ -101,13 +102,13 @@ export const action = (args: Route.ActionArgs) =>
             return { pendingDeploymentId: pendingDeployment.id, roleId }
           }
 
-          const { plan, issues } = await planRoleUpdate(roleId)
+          const { slices, issues } = await planRoleUpdate(roleId, ZERO_ADDRESS) // TODO: pass the user's personal safe instead of ZERO_ADDRESS to enable setting up circular account topologies
 
           if (issues.length > 0 && intent !== Intent.AcceptWarnings) {
             return { issues, roleId }
           }
 
-          if (plan.length === 0 && intent !== Intent.AcceptWarnings) {
+          if (slices.length === 0 && intent !== Intent.AcceptWarnings) {
             return { emptyDeployment: true }
           }
 
@@ -116,28 +117,8 @@ export const action = (args: Route.ActionArgs) =>
               issues,
             })
 
-            for (const { steps, account } of plan) {
-              const targetAccount = steps.reduce<HexAddress | null>(
-                (result, { from }) => {
-                  if (result != null) {
-                    return result
-                  }
-
-                  if (from == null) {
-                    return null
-                  }
-
-                  return from
-                },
-                null,
-              )
-
-              await createRoleDeploymentStep(tx, deployment, {
-                account,
-                calls: steps.map(({ call }) => call),
-                transactionBundle: steps.map(({ transaction }) => transaction),
-                targetAccount,
-              })
+            for (const slice of slices) {
+              await createRoleDeploymentSlice(tx, deployment, slice)
             }
 
             return deployment

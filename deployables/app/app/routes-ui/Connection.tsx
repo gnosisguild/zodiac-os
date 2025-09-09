@@ -1,5 +1,4 @@
 import { invariant } from '@epic-web/invariant'
-import { decodeRoleKey } from '@zodiac/modules'
 import type { Account } from '@zodiac/schema'
 import { Info, Popover } from '@zodiac/ui'
 import type { PropsWithChildren } from 'react'
@@ -8,6 +7,7 @@ import {
   ConnectionType,
   type Connection as SerConnection,
 } from 'ser-kit'
+import { decodeKey as decodeRoleKey } from 'zodiac-roles-sdk'
 import { useOrientation } from './Routes'
 
 type ConnectionProps = PropsWithChildren<{

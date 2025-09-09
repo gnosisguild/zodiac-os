@@ -1,5 +1,4 @@
-import { Role } from 'zodiac-roles-sdk'
-import { encodeRoleKey } from '../src'
+import { Role, encodeKey as encodeRoleKey } from 'zodiac-roles-sdk'
 
 export const createMockRole = (role: Partial<Role> = {}): Role => ({
   key: encodeRoleKey('test_role_key'),

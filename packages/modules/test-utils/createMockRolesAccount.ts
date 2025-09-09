@@ -2,7 +2,6 @@ import { Chain, ZERO_ADDRESS } from '@zodiac/chains'
 import type { HexAddress } from '@zodiac/schema'
 import { randomAddress } from '@zodiac/test-utils'
 import { Account, AccountType, ExecutionAccount, prefixAddress } from 'ser-kit'
-import { Role } from 'zodiac-roles-sdk'
 
 type RolesExecutionAccount = Extract<
   ExecutionAccount,
@@ -28,6 +27,7 @@ export const createMockRolesExecutionAccount = ({
 
 export type RolesAccount = Extract<Account, { type: AccountType.ROLES }>
 
+type Role = RolesAccount['roles'][number]
 type CreateMockRolesAccountOptions = CreateMockRolesExecutionAccountOptions & {
   avatar?: HexAddress
   roles?: Role[]
@@ -44,7 +44,6 @@ export const createMockRolesAccount = ({
   owner: avatar,
   target: avatar,
 
-  modules: [],
   roles,
   allowances: [],
 })

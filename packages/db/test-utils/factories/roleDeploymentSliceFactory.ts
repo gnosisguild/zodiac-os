@@ -1,53 +1,47 @@
 import { Chain } from '@zodiac/chains'
 import {
   RoleDeployment,
-  RoleDeploymentStep,
-  RoleDeploymentStepCreateInput,
-  RoleDeploymentStepTable,
+  RoleDeploymentSlice,
+  RoleDeploymentSliceCreateInput,
+  RoleDeploymentSliceTable,
   User,
 } from '@zodiac/db/schema'
-import { createMockSafeAccount } from '@zodiac/modules/test-utils'
 import { safeJson } from '@zodiac/schema'
+import { randomAddress } from '@zodiac/test-utils'
 import { randomUUID } from 'crypto'
 import { createFactory } from './createFactory'
 
-export const roleDeploymentStepFactory = createFactory<
-  RoleDeploymentStepCreateInput,
-  RoleDeploymentStep,
+export const roleDeploymentSliceFactory = createFactory<
+  RoleDeploymentSliceCreateInput,
+  RoleDeploymentSlice,
   [createdBy: User, deployment: RoleDeployment]
 >({
   build(
     createdBy,
     deployment,
-    {
-      transactionBundle = [],
-      calls = [],
-      account = createMockSafeAccount(),
-      ...data
-    } = {},
+    { from = randomAddress(), steps = [], ...data } = {},
   ) {
     return {
       createdById: createdBy.id,
       roleId: deployment.roleId,
       tenantId: deployment.tenantId,
       workspaceId: deployment.workspaceId,
-      account: safeJson(account),
-      calls: safeJson(calls),
+      steps: safeJson(steps),
+      from,
       chainId: Chain.ETH,
       index: 0,
       roleDeploymentId: deployment.id,
-      transactionBundle: safeJson(transactionBundle),
 
       ...data,
     }
   },
   async create(db, data) {
-    const [deploymentStep] = await db
-      .insert(RoleDeploymentStepTable)
+    const [deploymentSlice] = await db
+      .insert(RoleDeploymentSliceTable)
       .values(data)
       .returning()
 
-    return deploymentStep
+    return deploymentSlice
   },
   createWithoutDb(data) {
     return {

@@ -1,7 +1,7 @@
 import type { HexAddress } from '@zodiac/schema'
-import { AccountType, prefixAddress, type Account } from 'ser-kit'
+import { AccountType, ExecutionAccount, prefixAddress } from 'ser-kit'
 
-type EOA = Extract<Account, { type: AccountType.EOA }>
+type EOA = Extract<ExecutionAccount, { type: AccountType.EOA }>
 
 export type CreateEoaAccountOptions = {
   address: HexAddress

@@ -176,7 +176,7 @@ const EditRole = ({
             <MultiSelect
               label="Members"
               name="members"
-              placeholder="Specify who should be affected by this role"
+              placeholder="Select who should be able to assume this role"
               options={users.map((user) => ({
                 label: user.fullName,
                 value: user.id,

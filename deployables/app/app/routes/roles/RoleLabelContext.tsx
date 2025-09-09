@@ -1,5 +1,5 @@
-import { decodeRoleKey } from '@zodiac/modules'
 import { createContext, PropsWithChildren, useContext } from 'react'
+import { decodeKey as decodeRoleKey } from 'zodiac-roles-sdk'
 
 export type RoleLabels = Record<string, string>
 const RoleLabelContext = createContext<RoleLabels>({})

@@ -11,6 +11,7 @@ export { createMockExecuteTransactionAction } from './createMockExecuteTransacti
 export { createMockListResult } from './createMockListResult'
 export { createMockProposeTransactionAction } from './createMockProposeTransactionAction'
 export { createMockSimulatedTransaction } from './createMockSimulatedTransaction'
+export { createMockStepsByAccount } from './createMockStepsByAccount'
 export { createMockTokenBalance } from './createMockTokenBalance'
 export { loadAndActivateRoute } from './loadAndActivateRoute'
 export { loadRoutes } from './loadRoutes'

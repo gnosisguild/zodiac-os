@@ -1,4 +1,4 @@
-import { render } from '@/test-utils'
+import { createMockStepsByAccount, render } from '@/test-utils'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Chain } from '@zodiac/chains'
@@ -6,7 +6,7 @@ import {
   dbClient,
   getRoleDeployment,
   getRoleDeployments,
-  getRoleDeploymentSteps,
+  getRoleDeploymentSlices,
   setActiveAccounts,
   setDefaultWallet,
   setRoleMembers,
@@ -21,17 +21,13 @@ import {
   userFactory,
   walletFactory,
 } from '@zodiac/db/test-utils'
-import {
-  createMockSafeAccount,
-  createMockTransactionRequest,
-} from '@zodiac/modules/test-utils'
+import { createMockSafeAccount } from '@zodiac/modules/test-utils'
 import {
   expectRouteToBe,
   randomAddress,
   waitForPendingActions,
 } from '@zodiac/test-utils'
 import { href } from 'react-router'
-import { AccountBuilderCall, AccountType } from 'ser-kit'
 import { beforeEach, describe, expect, vi } from 'vitest'
 import { Intent } from './intents'
 import { planRoleUpdate } from './planRoleUpdate'
@@ -44,7 +40,7 @@ describe('Managed roles', () => {
   beforeEach(() => {
     mockPlanRoleUpdate.mockResolvedValue({
       issues: [],
-      plan: [],
+      slices: [],
     })
 
     vi.setSystemTime(new Date())
@@ -59,7 +55,12 @@ describe('Managed roles', () => {
 
       mockPlanRoleUpdate.mockResolvedValue({
         issues: [],
-        plan: [{ account: createMockSafeAccount(), steps: [] }],
+        slices: [
+          {
+            from: randomAddress(),
+            steps: [{ account: createMockSafeAccount(), steps: [] }],
+          },
+        ],
       })
 
       await render(
@@ -86,36 +87,20 @@ describe('Managed roles', () => {
       )
     })
 
-    dbIt('creates all necessary steps for the deployment', async () => {
+    dbIt('creates all necessary slices for the deployment', async () => {
       const user = await userFactory.create()
       const tenant = await tenantFactory.create(user)
 
       const role = await roleFactory.create(tenant, user)
 
-      const account = createMockSafeAccount()
-      const call = {
-        call: 'createNode',
-        accountType: AccountType.SAFE,
-        args: { owners: [], threshold: 1 },
-        creationNonce: 1n,
-        deploymentAddress: randomAddress(),
-      } satisfies AccountBuilderCall
-      const transaction = createMockTransactionRequest()
+      const slice = {
+        from: randomAddress(),
+        steps: [createMockStepsByAccount()],
+      }
 
       mockPlanRoleUpdate.mockResolvedValue({
         issues: [],
-        plan: [
-          {
-            account,
-            steps: [
-              {
-                from: undefined,
-                call,
-                transaction,
-              },
-            ],
-          },
-        ],
+        slices: [slice],
       })
 
       await render(
@@ -132,14 +117,14 @@ describe('Managed roles', () => {
       await waitForPendingActions()
 
       const [deployment] = await getRoleDeployments(dbClient(), role.id)
-      const [step] = await getRoleDeploymentSteps(dbClient(), deployment.id)
+      const slices = await getRoleDeploymentSlices(dbClient(), deployment.id)
 
-      expect(step).toMatchObject({
-        index: 0,
-        calls: [call],
-        account,
-        transactionBundle: [transaction],
-      })
+      expect(slices).toMatchObject([
+        {
+          index: 0,
+          ...slice,
+        },
+      ])
     })
 
     describe('Issues', () => {
@@ -153,7 +138,7 @@ describe('Managed roles', () => {
 
           mockPlanRoleUpdate.mockResolvedValue({
             issues: [RoleDeploymentIssue.MissingDefaultWallet],
-            plan: [],
+            slices: [],
           })
 
           await render(
@@ -187,7 +172,7 @@ describe('Managed roles', () => {
 
         mockPlanRoleUpdate.mockResolvedValue({
           issues: [RoleDeploymentIssue.MissingDefaultWallet],
-          plan: [],
+          slices: [],
         })
 
         await render(

@@ -1,0 +1,1 @@
+ALTER TABLE "RoleDeploymentStep" RENAME COLUMN "targetAccount" TO "from";

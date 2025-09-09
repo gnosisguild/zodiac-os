@@ -1,15 +1,19 @@
 import { simulateTransactionBundle } from '@/simulation-server'
-import { createMockExecuteTransactionAction, render } from '@/test-utils'
+import {
+  createMockExecuteTransactionAction,
+  createMockStepsByAccount,
+  render,
+} from '@/test-utils'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Chain } from '@zodiac/chains'
 import {
   assertActiveRoleDeployment,
   cancelRoleDeployment,
-  completeRoleDeploymentStep,
+  completeRoleDeploymentSlice,
   dbClient,
   getProposedTransactions,
-  getRoleDeploymentStep,
+  getRoleDeploymentSlice,
   setActiveAccounts,
   setDefaultRoute,
   setDefaultWallet,
@@ -20,7 +24,7 @@ import {
   accountFactory,
   dbIt,
   roleDeploymentFactory,
-  roleDeploymentStepFactory,
+  roleDeploymentSliceFactory,
   roleFactory,
   routeFactory,
   signedTransactionFactory,
@@ -29,7 +33,6 @@ import {
   userFactory,
   walletFactory,
 } from '@zodiac/db/test-utils'
-import { createMockTransactionRequest } from '@zodiac/modules/test-utils'
 import {
   expectRouteToBe,
   randomHex,
@@ -222,10 +225,9 @@ describe('Deploy Role', () => {
           const role = await roleFactory.create(tenant, user)
           const deployment = await roleDeploymentFactory.create(user, role)
 
-          const transaction = createMockTransactionRequest()
-          await roleDeploymentStepFactory.create(user, deployment, {
-            targetAccount: account.address,
-            transactionBundle: [transaction],
+          await roleDeploymentSliceFactory.create(user, deployment, {
+            from: account.address,
+            steps: [createMockStepsByAccount()],
           })
 
           await setRoleMembers(dbClient(), role, [user.id])
@@ -291,13 +293,12 @@ describe('Deploy Role', () => {
           const role = await roleFactory.create(tenant, user)
           const deployment = await roleDeploymentFactory.create(user, role)
 
-          const transaction = createMockTransactionRequest()
-          const deploymentStep = await roleDeploymentStepFactory.create(
+          const deploymentSlice = await roleDeploymentSliceFactory.create(
             user,
             deployment,
             {
-              targetAccount: account.address,
-              transactionBundle: [transaction],
+              from: account.address,
+              steps: [createMockStepsByAccount()],
             },
           )
 
@@ -329,7 +330,7 @@ describe('Deploy Role', () => {
           )
 
           await expect(
-            getRoleDeploymentStep(dbClient(), deploymentStep.id),
+            getRoleDeploymentSlice(dbClient(), deploymentSlice.id),
           ).resolves.toHaveProperty(
             'proposedTransactionId',
             transactionProposal.id,
@@ -358,10 +359,9 @@ describe('Deploy Role', () => {
         const role = await roleFactory.create(tenant, user)
         const deployment = await roleDeploymentFactory.create(user, role)
 
-        const transaction = createMockTransactionRequest()
-        const step = await roleDeploymentStepFactory.create(user, deployment, {
-          targetAccount: account.address,
-          transactionBundle: [transaction],
+        const step = await roleDeploymentSliceFactory.create(user, deployment, {
+          from: account.address,
+          steps: [createMockStepsByAccount()],
         })
 
         await setRoleMembers(dbClient(), role, [user.id])
@@ -393,7 +393,7 @@ describe('Deploy Role', () => {
 
         expect(transactionProposal).toHaveProperty(
           'callbackUrl',
-          `http://localhost${href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback', { workspaceId: tenant.defaultWorkspaceId, roleId: role.id, deploymentId: deployment.id, deploymentStepId: step.id })}`,
+          `http://localhost${href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback', { workspaceId: tenant.defaultWorkspaceId, roleId: role.id, deploymentId: deployment.id, deploymentSliceId: step.id })}`,
         )
       })
 
@@ -430,7 +430,7 @@ describe('Deploy Role', () => {
             account,
           )
 
-          await roleDeploymentStepFactory.create(user, deployment, {
+          await roleDeploymentSliceFactory.create(user, deployment, {
             proposedTransactionId: proposal.id,
           })
 
@@ -497,7 +497,7 @@ describe('Deploy Role', () => {
             { signedTransactionId: transaction.id },
           )
 
-          const step = await roleDeploymentStepFactory.create(
+          const step = await roleDeploymentSliceFactory.create(
             user,
             deployment,
             {
@@ -506,8 +506,8 @@ describe('Deploy Role', () => {
             },
           )
 
-          await completeRoleDeploymentStep(dbClient(), user, {
-            roleDeploymentStepId: step.id,
+          await completeRoleDeploymentSlice(dbClient(), user, {
+            roleDeploymentSliceId: step.id,
             transactionHash: randomHex(18),
           })
 
@@ -570,7 +570,7 @@ describe('Deploy Role', () => {
       const role = await roleFactory.create(tenant, user)
       const deployment = await roleDeploymentFactory.create(user, role)
 
-      await roleDeploymentStepFactory.create(user, deployment)
+      await roleDeploymentSliceFactory.create(user, deployment)
 
       assertActiveRoleDeployment(deployment)
 
@@ -605,7 +605,7 @@ describe('Deploy Role', () => {
         account,
       )
 
-      await roleDeploymentStepFactory.create(user, deployment, {
+      await roleDeploymentSliceFactory.create(user, deployment, {
         proposedTransactionId: proposal.id,
       })
 

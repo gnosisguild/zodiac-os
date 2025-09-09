@@ -4,7 +4,7 @@ import {
   createMockEoaAccount,
   createMockExecutionRoute,
   createMockRoleWaypoint,
-  createMockSafeAccount,
+  createMockSafeExecutionAccount,
   createMockStartingWaypoint,
   createMockWaypoints,
 } from '@/test-utils'
@@ -38,7 +38,7 @@ describe('updateStartingPoint', () => {
   it('updates the connection of the waypoint connected to the starting point', () => {
     const route = createMockExecutionRoute({
       waypoints: createMockWaypoints({
-        start: createMockStartingWaypoint(createMockSafeAccount()),
+        start: createMockStartingWaypoint(createMockSafeExecutionAccount()),
         waypoints: [createMockRoleWaypoint(), createMockEndWaypoint()],
       }),
     })
@@ -58,7 +58,7 @@ describe('updateStartingPoint', () => {
     const endWaypoint = createMockEndWaypoint()
     const route = createMockExecutionRoute({
       waypoints: createMockWaypoints({
-        start: createMockStartingWaypoint(createMockSafeAccount()),
+        start: createMockStartingWaypoint(createMockSafeExecutionAccount()),
         waypoints: [createMockRoleWaypoint(), delayWaypoint, endWaypoint],
       }),
     })

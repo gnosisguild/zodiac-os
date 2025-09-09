@@ -1,0 +1,1 @@
+ALTER TABLE "RoleDeploymentSlice" ALTER COLUMN "from" SET NOT NULL;

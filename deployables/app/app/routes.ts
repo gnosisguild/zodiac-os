@@ -264,7 +264,7 @@ export default [
   ]),
 
   route(
-    '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/step/:deploymentStepId/sign-callback',
+    '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
     'routes/roles/sign-callback.ts',
   ),
 
