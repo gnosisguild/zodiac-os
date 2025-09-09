@@ -29,7 +29,7 @@
     "react-stick": "5.0.7",
     "react-toastify": "11.0.5",
     "ser-kit": "3.13.1",
-    "viem": "2.37.4"
+    "viem": "2.37.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "6.8.0",
