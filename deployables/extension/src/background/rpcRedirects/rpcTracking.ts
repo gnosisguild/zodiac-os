@@ -11,7 +11,11 @@ import {
 import { enableRpcDebugLogging } from './enableRpcDebugLogging'
 import { hasJsonRpcBody } from './hasJsonRpcBody'
 import { parseNetworkFromRequestBody } from './parseNetworkFromRequestBody'
-import { createRpcTrackingState, type TrackingState } from './rpcTrackingState'
+import {
+  createRpcTrackingState,
+  TrackedRpcEndpoints,
+  type TrackingState,
+} from './rpcTrackingState'
 import { trackRpcUrl } from './trackRpcUrl'
 
 type GetTrackedRpcUrlsForChainIdOptions = {
@@ -36,14 +40,6 @@ export const trackRequests = (): TrackRequestsResult => {
 
   chrome.webRequest.onBeforeRequest.addListener(
     (details) => {
-      if (state.chainIdByRpcUrl.has(details.url)) {
-        console.debug(
-          `detected already tracked network of JSON RPC endpoint ${details.url} in tab #${details.tabId}: ${state.chainIdByRpcUrl.get(details.url)}`,
-        )
-
-        return
-      }
-
       const hasActiveSession = state.trackedTabs.has(details.tabId)
 
       // only handle requests in tracked tabs
@@ -51,7 +47,7 @@ export const trackRequests = (): TrackRequestsResult => {
         return
       }
 
-      trackRequest(details)
+      trackRequest(state.chainIdByRpcUrl, details)
         .then((result) => {
           if (result.newEndpoint) {
             console.debug(
@@ -98,12 +94,10 @@ export const trackRequests = (): TrackRequestsResult => {
   }
 }
 
-const trackRequest = async ({
-  tabId,
-  url,
-  method,
-  requestBody,
-}: chrome.webRequest.OnBeforeRequestDetails): Promise<DetectNetworkResult> => {
+const trackRequest = async (
+  knownChainIds: TrackedRpcEndpoints,
+  { tabId, url, method, requestBody }: chrome.webRequest.OnBeforeRequestDetails,
+): Promise<DetectNetworkResult> => {
   if (method !== 'POST') {
     return { newEndpoint: false }
   }
@@ -118,7 +112,23 @@ const trackRequest = async ({
 
   // only consider requests with a JSON Rpc body
   if (!hasJsonRpcBody(requestBody)) {
-    return parseNetworkFromRequestBody({ requestBody })
+    const result = parseNetworkFromRequestBody({ requestBody })
+
+    const knownChainId = knownChainIds.get(url)
+
+    if (knownChainId == null) {
+      return result
+    }
+
+    if (result.newEndpoint && result.chainId !== knownChainId) {
+      return result
+    }
+
+    return { newEndpoint: false }
+  }
+
+  if (knownChainIds.has(url)) {
+    return { newEndpoint: false }
   }
 
   return detectNetworkOfRpcUrl({ url, tabId })

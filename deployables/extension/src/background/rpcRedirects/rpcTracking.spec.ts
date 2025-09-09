@@ -250,4 +250,31 @@ describe('RPC Tracking', () => {
       expect(handler).toHaveBeenCalledWith()
     })
   })
+
+  describe('Embedded chain id', () => {
+    it('notifies when the embedded chain id changes', async () => {
+      const result = trackRequests()
+      trackSessions(result)
+
+      const tab = createMockTab({ id: 1 })
+
+      await startPilotSession({ windowId: 1 }, tab)
+
+      const handler = vi.fn()
+
+      result.onNewRpcEndpointDetected.addListener(handler)
+
+      await mockWebRequest(tab, {
+        method: 'POST',
+        requestBody: { chainId: Chain.ETH, method: 'eth_call' },
+      })
+
+      await mockWebRequest(tab, {
+        method: 'POST',
+        requestBody: { chainId: Chain.GNO, method: 'eth_call' },
+      })
+
+      expect(handler).toHaveBeenCalledTimes(2)
+    })
+  })
 })
