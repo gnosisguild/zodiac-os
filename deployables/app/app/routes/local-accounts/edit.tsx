@@ -1,4 +1,4 @@
-import { authorizedLoader } from '@/auth-server'
+import { authorizedAction, authorizedLoader } from '@/auth-server'
 import {
   AvatarInput,
   InitiatorInput,
@@ -28,7 +28,7 @@ import {
   updateLabel,
   updateStartingPoint,
 } from '@zodiac/modules'
-import { type ExecutionRoute } from '@zodiac/schema'
+import { isUUID, type ExecutionRoute } from '@zodiac/schema'
 import {
   Form,
   PrimaryButtonGroup,
@@ -104,56 +104,86 @@ export const clientLoader = async ({
 
 clientLoader.hydrate = true as const
 
-export const action = async ({ request, params }: RouteType.ActionArgs) => {
-  const data = await request.formData()
-  const intent = getString(data, 'intent')
+export const action = async (args: RouteType.ActionArgs) =>
+  authorizedAction(
+    args,
+    async ({
+      request,
+      params: { data, workspaceId },
+      context: {
+        auth: { tenant },
+      },
+    }) => {
+      const formData = await request.formData()
+      const intent = getString(formData, 'intent')
 
-  let route = parseRouteData(params.data)
+      let route = parseRouteData(data)
 
-  switch (intent) {
-    case Intent.Save: {
-      const selectedRoute = await findSelectedRoute(route, data)
+      const getWorkspaceId = () => {
+        if (workspaceId != null) {
+          invariantResponse(isUUID(workspaceId), '"workspaceId" is not a UUID')
 
-      route = { ...route, ...selectedRoute, id: route.id }
+          return workspaceId
+        }
 
-      return updateLabel(route, getString(data, 'label'))
-    }
+        if (tenant != null) {
+          return tenant.defaultWorkspaceId
+        }
 
-    case Intent.SaveAsCopy: {
-      const selectedRoute = await findSelectedRoute(route, data)
+        return null
+      }
 
-      route = { ...route, ...selectedRoute, id: createRouteId() }
+      switch (intent) {
+        case Intent.Save: {
+          const selectedRoute = await findSelectedRoute(route, formData)
 
-      const label = getString(data, 'label')
+          route = { ...route, ...selectedRoute, id: route.id }
 
-      return updateLabel(
-        route,
-        label === route.label ? `${label} (copy)` : label,
-      )
-    }
+          return updateLabel(route, getString(formData, 'label'))
+        }
 
-    case Intent.UpdateInitiator: {
-      const account = await createAccount(
-        jsonRpcProvider(getChainId(route.avatar)),
-        getHexString(data, 'initiator'),
-      )
+        case Intent.SaveAsCopy: {
+          const selectedRoute = await findSelectedRoute(route, formData)
 
-      return editRoute(updateStartingPoint(route, account))
-    }
+          route = { ...route, ...selectedRoute, id: createRouteId() }
 
-    case Intent.UpdateAvatar: {
-      const avatar = getHexString(data, 'avatar')
+          const label = getString(formData, 'label')
 
-      return editRoute(updateAvatar(route, { safe: avatar }))
-    }
+          return updateLabel(
+            route,
+            label === route.label ? `${label} (copy)` : label,
+          )
+        }
 
-    case Intent.UpdateChain: {
-      const chainId = verifyChainId(getInt(data, 'chainId'))
+        case Intent.UpdateInitiator: {
+          const account = await createAccount(
+            jsonRpcProvider(getChainId(route.avatar)),
+            getHexString(formData, 'initiator'),
+          )
 
-      return editRoute(updateChainId(route, chainId))
-    }
-  }
-}
+          return editRoute(
+            updateStartingPoint(route, account),
+            getWorkspaceId(),
+          )
+        }
+
+        case Intent.UpdateAvatar: {
+          const avatar = getHexString(formData, 'avatar')
+
+          return editRoute(
+            updateAvatar(route, { safe: avatar }),
+            getWorkspaceId(),
+          )
+        }
+
+        case Intent.UpdateChain: {
+          const chainId = verifyChainId(getInt(formData, 'chainId'))
+
+          return editRoute(updateChainId(route, chainId), getWorkspaceId())
+        }
+      }
+    },
+  )
 
 const findSelectedRoute = async (
   route: ExecutionRoute,
