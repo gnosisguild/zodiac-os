@@ -1,6 +1,6 @@
 {
-  "id": "13372255-2620-45cc-8283-185d92bd49d1",
-  "prevId": "088d3acc-504b-4108-8168-ff3cde1d5ec5",
+  "id": "4bc4b7da-4f3c-44e4-b0ad-400135626baa",
+  "prevId": "13372255-2620-45cc-8283-185d92bd49d1",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2128,6 +2128,74 @@
           "tableTo": "User",
           "columnsFrom": [
             "createdById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.RoleDeployment": {
+      "name": "RoleDeployment",
+      "schema": "",
+      "columns": {
+        "deploymentId": {
+          "name": "deploymentId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "roleId": {
+          "name": "roleId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "RoleDeployment_roleId_index": {
+          "name": "RoleDeployment_roleId_index",
+          "columns": [
+            {
+              "expression": "roleId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "RoleDeployment_deploymentId_Deployment_id_fk": {
+          "name": "RoleDeployment_deploymentId_Deployment_id_fk",
+          "tableFrom": "RoleDeployment",
+          "tableTo": "Deployment",
+          "columnsFrom": [
+            "deploymentId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "RoleDeployment_roleId_Role_id_fk": {
+          "name": "RoleDeployment_roleId_Role_id_fk",
+          "tableFrom": "RoleDeployment",
+          "tableTo": "Role",
+          "columnsFrom": [
+            "roleId"
           ],
           "columnsTo": [
             "id"

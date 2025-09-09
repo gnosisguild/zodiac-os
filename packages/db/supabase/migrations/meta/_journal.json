@@ -516,8 +516,15 @@
     {
       "idx": 73,
       "version": "7",
-      "when": 1757413746597,
+      "when": 1757428969081,
       "tag": "0073_generalized deployments",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1757429000241,
+      "tag": "0074_deployment role ref table",
       "breakpoints": true
     }
   ]

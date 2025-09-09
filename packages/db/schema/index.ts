@@ -793,7 +793,7 @@ const deploymentReference = {
     .references(() => DeploymentTable.id, { onDelete: 'cascade' }),
 }
 
-const RoleDeploymentTable = pgTable(
+export const RoleDeploymentTable = pgTable(
   'RoleDeployment',
   {
     ...deploymentReference,

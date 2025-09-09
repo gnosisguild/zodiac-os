@@ -217,7 +217,7 @@ describe('Sign callback', () => {
     )
 
     await expect(response.json()).resolves.toEqual({
-      redirectTo: `/workspace/${tenant.defaultWorkspaceId}/roles/${role.id}/deployment/${deployment.id}`,
+      redirectTo: `/workspace/${tenant.defaultWorkspaceId}/deployment/${deployment.id}`,
     })
   })
 })
