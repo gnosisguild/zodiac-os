@@ -6,17 +6,17 @@ import {
   getAccountByAddress,
   getActivatedAccounts,
   getDefaultWalletLabels,
+  getDeployedRole,
   getDeployment,
   getDeploymentSlice,
   getDeploymentSlices,
-  getRole,
   getRoleActionAssets,
   getRoleMembers,
   getUser,
   proposeTransaction,
   updateDeploymentSlice,
 } from '@zodiac/db'
-import { DeploymentSlice } from '@zodiac/db/schema'
+import { DeploymentSlice, Role } from '@zodiac/db/schema'
 import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
 import { useIsPending } from '@zodiac/hooks'
 import { isUUID } from '@zodiac/schema'
@@ -31,19 +31,46 @@ import {
   SecondaryButton,
 } from '@zodiac/ui'
 import { Address, ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
-import { randomUUID, UUID } from 'crypto'
+import { randomUUID } from 'crypto'
 import { href, redirect } from 'react-router'
 import { prefixAddress } from 'ser-kit'
-import { Route } from './+types/deploy-role'
+import { Issues } from '../roles/issues'
+import { Route } from './+types/deploy'
 import { Labels, ProvideAddressLabels } from './AddressLabelContext'
 import { Call } from './Call'
 import { Description } from './FeedEntry'
 import { ProvideRoleLabels } from './RoleLabelContext'
 import { Intent } from './intents'
-import { Issues } from './issues'
 
 const contractLabels: Labels = {
-  ['0x23da9ade38e4477b23770ded512fd37b12381fab']: 'Cowswap',
+  ['0x23da9ade38e4477b23770ded512fd37b12381fab']: 'Cow Swap',
+}
+
+const assembleRoleAddressLabels = async (role: Role): Promise<Labels> => {
+  const assets = await getRoleActionAssets(dbClient(), {
+    roleId: role.id,
+  })
+  const assetLabels = assets.reduce<Labels>(
+    (result, asset) => ({ ...result, [asset.address]: asset.symbol }),
+    {},
+  )
+  const members = await getRoleMembers(dbClient(), { roleId: role.id })
+  const accounts = await getActivatedAccounts(dbClient(), { roleId: role.id })
+  const accountLabels = accounts.reduce<Labels>(
+    (result, account) => ({ ...result, [account.address]: account.label }),
+    {},
+  )
+
+  const walletLabels = await getDefaultWalletLabels(dbClient(), {
+    chainIds: Array.from(new Set(accounts.map(({ chainId }) => chainId))),
+    userIds: members.map(({ id }) => id),
+  })
+
+  return {
+    ...accountLabels,
+    ...walletLabels,
+    ...assetLabels,
+  }
 }
 
 export const loader = (args: Route.LoaderArgs) =>
@@ -53,45 +80,17 @@ export const loader = (args: Route.LoaderArgs) =>
       invariantResponse(isUUID(deploymentId), '"deploymentId" is not a UUID')
 
       const deployment = await getDeployment(dbClient(), deploymentId)
-      const roleId =
-        (deployment.reference &&
-          deployment.reference.startsWith('role:') &&
-          (deployment.reference.slice('role:'.length) as UUID)) ||
-        null
-      const role = roleId && (await getRole(dbClient(), roleId))
-
-      const assets = await getRoleActionAssets(dbClient(), {
-        roleId,
-      })
-      const members = await getRoleMembers(dbClient(), { roleId })
-      const accounts = await getActivatedAccounts(dbClient(), { roleId })
-
-      const accountLabels = accounts.reduce<Labels>(
-        (result, account) => ({ ...result, [account.address]: account.label }),
-        {},
-      )
-
-      const walletLabels = await getDefaultWalletLabels(dbClient(), {
-        chainIds: Array.from(new Set(accounts.map(({ chainId }) => chainId))),
-        userIds: members.map(({ id }) => id),
-      })
-
-      const assetLabels = assets.reduce<Labels>(
-        (result, asset) => ({ ...result, [asset.address]: asset.symbol }),
-        {},
-      )
+      const role = await getDeployedRole(dbClient(), deploymentId)
 
       const slices = await getDeploymentSlices(dbClient(), deploymentId)
 
       return {
         slices,
         addressLabels: {
-          ...accountLabels,
-          ...walletLabels,
-          ...assetLabels,
+          ...(role != null ? await assembleRoleAddressLabels(role) : {}),
           ...contractLabels,
         },
-        roleLabels: { [role.key]: role.label },
+        roleLabels: role != null ? { [role.key]: role.label } : {},
         issues: deployment.issues,
         ...(deployment.cancelledAt == null
           ? { cancelledAt: null, cancelledBy: null }
@@ -121,7 +120,7 @@ export const action = (args: Route.ActionArgs) =>
     args,
     async ({
       request,
-      params: { workspaceId, roleId, deploymentId },
+      params: { workspaceId, deploymentId },
       context: {
         auth: { user, tenant },
       },
@@ -142,10 +141,9 @@ export const action = (args: Route.ActionArgs) =>
       const transactionProposal = await dbClient().transaction(async (tx) => {
         const callbackUrl = new URL(
           href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+            '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
             {
               workspaceId,
-              roleId,
               deploymentId,
               deploymentSliceId: deploymentSlice.id,
             },

@@ -19,7 +19,7 @@ export const action = (args: Route.LoaderArgs) =>
     args,
     async ({
       request,
-      params: { workspaceId, deploymentId, roleId, deploymentSliceId },
+      params: { workspaceId, deploymentId, deploymentSliceId },
     }) => {
       invariantResponse(
         isUUID(deploymentSliceId),
@@ -55,14 +55,10 @@ export const action = (args: Route.LoaderArgs) =>
       })
 
       return Response.json({
-        redirectTo: href(
-          '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-          {
-            workspaceId,
-            deploymentId,
-            roleId,
-          },
-        ),
+        redirectTo: href('/workspace/:workspaceId/deployment/:deploymentId', {
+          workspaceId,
+          deploymentId,
+        }),
       })
     },
     {

@@ -21,7 +21,6 @@ CREATE TABLE "DeploymentSlice" (
 --> statement-breakpoint
 CREATE TABLE "Deployment" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"reference" varchar(255),
 	"completedAt" timestamp with time zone,
 	"cancelledAt" timestamp with time zone,
 	"cancelledById" uuid,
@@ -53,7 +52,6 @@ CREATE INDEX "DeploymentSlice_tenantId_index" ON "DeploymentSlice" USING btree (
 CREATE INDEX "DeploymentSlice_workspaceId_index" ON "DeploymentSlice" USING btree ("workspaceId");--> statement-breakpoint
 CREATE INDEX "DeploymentSlice_completedById_index" ON "DeploymentSlice" USING btree ("completedById");--> statement-breakpoint
 CREATE INDEX "DeploymentSlice_cancelledById_index" ON "DeploymentSlice" USING btree ("cancelledById");--> statement-breakpoint
-CREATE INDEX "Deployment_reference_index" ON "Deployment" USING btree ("reference");--> statement-breakpoint
 CREATE INDEX "Deployment_createdById_index" ON "Deployment" USING btree ("createdById");--> statement-breakpoint
 CREATE INDEX "Deployment_tenantId_index" ON "Deployment" USING btree ("tenantId");--> statement-breakpoint
 CREATE INDEX "Deployment_workspaceId_index" ON "Deployment" USING btree ("workspaceId");

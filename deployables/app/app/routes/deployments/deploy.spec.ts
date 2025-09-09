@@ -111,14 +111,10 @@ describe('Deploy Role', () => {
         })
 
         await render(
-          href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-            {
-              workspaceId: tenant.defaultWorkspaceId,
-              roleId: role.id,
-              deploymentId: deployment.id,
-            },
-          ),
+          href('/workspace/:workspaceId/deployment/:deploymentId', {
+            workspaceId: tenant.defaultWorkspaceId,
+            deploymentId: deployment.id,
+          }),
           { tenant, user },
         )
 
@@ -143,14 +139,10 @@ describe('Deploy Role', () => {
         await setRoleMembers(dbClient(), role, [user.id])
 
         await render(
-          href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-            {
-              workspaceId: tenant.defaultWorkspaceId,
-              roleId: role.id,
-              deploymentId: deployment.id,
-            },
-          ),
+          href('/workspace/:workspaceId/deployment/:deploymentId', {
+            workspaceId: tenant.defaultWorkspaceId,
+            deploymentId: deployment.id,
+          }),
           { tenant, user },
         )
 
@@ -173,14 +165,10 @@ describe('Deploy Role', () => {
         })
 
         await render(
-          href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-            {
-              workspaceId: tenant.defaultWorkspaceId,
-              roleId: role.id,
-              deploymentId: deployment.id,
-            },
-          ),
+          href('/workspace/:workspaceId/deployment/:deploymentId', {
+            workspaceId: tenant.defaultWorkspaceId,
+            deploymentId: deployment.id,
+          }),
           { tenant, user },
         )
 
@@ -234,14 +222,10 @@ describe('Deploy Role', () => {
           await setActiveAccounts(dbClient(), role, [account.id])
 
           await render(
-            href(
-              '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-              {
-                workspaceId: tenant.defaultWorkspaceId,
-                roleId: role.id,
-                deploymentId: deployment.id,
-              },
-            ),
+            href('/workspace/:workspaceId/deployment/:deploymentId', {
+              workspaceId: tenant.defaultWorkspaceId,
+              deploymentId: deployment.id,
+            }),
             { tenant, user },
           )
 
@@ -306,14 +290,10 @@ describe('Deploy Role', () => {
           await setActiveAccounts(dbClient(), role, [account.id])
 
           await render(
-            href(
-              '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-              {
-                workspaceId: tenant.defaultWorkspaceId,
-                roleId: role.id,
-                deploymentId: deployment.id,
-              },
-            ),
+            href('/workspace/:workspaceId/deployment/:deploymentId', {
+              workspaceId: tenant.defaultWorkspaceId,
+              deploymentId: deployment.id,
+            }),
             { tenant, user },
           )
 
@@ -368,14 +348,10 @@ describe('Deploy Role', () => {
         await setActiveAccounts(dbClient(), role, [account.id])
 
         await render(
-          href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-            {
-              workspaceId: tenant.defaultWorkspaceId,
-              roleId: role.id,
-              deploymentId: deployment.id,
-            },
-          ),
+          href('/workspace/:workspaceId/deployment/:deploymentId', {
+            workspaceId: tenant.defaultWorkspaceId,
+            deploymentId: deployment.id,
+          }),
           { tenant, user },
         )
 
@@ -393,7 +369,7 @@ describe('Deploy Role', () => {
 
         expect(transactionProposal).toHaveProperty(
           'callbackUrl',
-          `http://localhost${href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback', { workspaceId: tenant.defaultWorkspaceId, roleId: role.id, deploymentId: deployment.id, deploymentSliceId: step.id })}`,
+          `http://localhost${href('/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback', { workspaceId: tenant.defaultWorkspaceId, deploymentId: deployment.id, deploymentSliceId: step.id })}`,
         )
       })
 
@@ -435,14 +411,10 @@ describe('Deploy Role', () => {
           })
 
           await render(
-            href(
-              '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-              {
-                workspaceId: tenant.defaultWorkspaceId,
-                roleId: role.id,
-                deploymentId: deployment.id,
-              },
-            ),
+            href('/workspace/:workspaceId/deployment/:deploymentId', {
+              workspaceId: tenant.defaultWorkspaceId,
+              deploymentId: deployment.id,
+            }),
             { tenant, user },
           )
 
@@ -508,14 +480,10 @@ describe('Deploy Role', () => {
           })
 
           await render(
-            href(
-              '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-              {
-                workspaceId: tenant.defaultWorkspaceId,
-                roleId: role.id,
-                deploymentId: deployment.id,
-              },
-            ),
+            href('/workspace/:workspaceId/deployment/:deploymentId', {
+              workspaceId: tenant.defaultWorkspaceId,
+              deploymentId: deployment.id,
+            }),
             { tenant, user },
           )
 
@@ -544,9 +512,8 @@ describe('Deploy Role', () => {
       )
 
       await render(
-        href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/deployment/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
-          roleId: role.id,
           deploymentId: deployment.id,
         }),
         { tenant, user },
@@ -573,9 +540,8 @@ describe('Deploy Role', () => {
       await cancelDeployment(dbClient(), user, deployment)
 
       await render(
-        href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/deployment/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
-          roleId: role.id,
           deploymentId: deployment.id,
         }),
         { tenant, user },
@@ -610,9 +576,8 @@ describe('Deploy Role', () => {
       await cancelDeployment(dbClient(), user, deployment)
 
       await render(
-        href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/deployment/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
-          roleId: role.id,
           deploymentId: deployment.id,
         }),
         { tenant, user },

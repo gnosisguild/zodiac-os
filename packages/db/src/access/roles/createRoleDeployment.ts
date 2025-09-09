@@ -5,8 +5,11 @@ import {
   DeploymentTable,
   Role,
   User,
+  schema,
 } from '@zodiac/db/schema'
 import { DBClient } from '../../dbClient'
+
+const { roleDeployment } = schema
 
 type CreateDeploymentOptions = {
   issues: DeploymentIssue[]
@@ -18,23 +21,32 @@ export const createRoleDeployment = async (
   role: Role,
   { issues }: CreateDeploymentOptions,
 ): Promise<ActiveDeployment> => {
-  const [{ completedAt, cancelledAt, cancelledById, ...deployment }] = await db
-    .insert(DeploymentTable)
-    .values({
-      reference: `role:${role.id}`,
-      workspaceId: role.workspaceId,
-      tenantId: role.tenantId,
-      createdById: user.id,
-      issues,
+  return await db.transaction(async (tx) => {
+    // Insert the deployment
+    const [{ completedAt, cancelledAt, cancelledById, ...deployment }] =
+      await tx
+        .insert(DeploymentTable)
+        .values({
+          workspaceId: role.workspaceId,
+          tenantId: role.tenantId,
+          createdById: user.id,
+          issues,
+        })
+        .returning()
+
+    // Insert the role deployment relationship
+    await tx.insert(roleDeployment).values({
+      deploymentId: deployment.id,
+      roleId: role.id,
     })
-    .returning()
 
-  invariant(completedAt == null, 'Deployment has already been completed')
+    invariant(completedAt == null, 'Deployment has already been completed')
 
-  invariant(
-    cancelledById == null && cancelledAt == null,
-    'Deployment has already been cancelled',
-  )
+    invariant(
+      cancelledById == null && cancelledAt == null,
+      'Deployment has already been cancelled',
+    )
 
-  return { completedAt, cancelledAt, cancelledById, ...deployment }
+    return { completedAt, cancelledAt, cancelledById, ...deployment }
+  })
 }

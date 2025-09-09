@@ -761,7 +761,6 @@ export const DeploymentTable = pgTable(
   'Deployment',
   {
     id: uuid().notNull().$type<UUID>().defaultRandom().primaryKey(),
-    reference: varchar({ length: 255 }),
 
     completedAt: timestamp({ withTimezone: true }),
 
@@ -781,7 +780,6 @@ export const DeploymentTable = pgTable(
     ...workspaceReference,
   },
   (table) => [
-    index().on(table.reference),
     index().on(table.createdById),
     index().on(table.tenantId),
     index().on(table.workspaceId),
@@ -794,6 +792,15 @@ const deploymentReference = {
     .$type<UUID>()
     .references(() => DeploymentTable.id, { onDelete: 'cascade' }),
 }
+
+const RoleDeploymentTable = pgTable(
+  'RoleDeployment',
+  {
+    ...deploymentReference,
+    ...roleReference,
+  },
+  (table) => [index().on(table.roleId)],
+)
 
 export type BaseDeployment = typeof DeploymentTable.$inferSelect
 export type DeploymentCreateInput = typeof DeploymentTable.$inferInsert
@@ -905,6 +912,7 @@ export const schema = {
   roleActionAsset: ActionAssetTable,
   defaultWallet: DefaultWalletTable,
   deployment: DeploymentTable,
+  roleDeployment: RoleDeploymentTable,
   deploymentSlice: DeploymentSliceTable,
 
   TenantRelations,

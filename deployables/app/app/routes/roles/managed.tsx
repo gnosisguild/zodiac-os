@@ -4,10 +4,10 @@ import { ZERO_ADDRESS } from '@zodiac/chains'
 import {
   assertActiveDeployment,
   cancelDeployment,
-  createDeployment,
   createDeploymentSlice,
+  createRoleDeployment,
   dbClient,
-  findPendingDeployment,
+  findPendingRoleDeployment,
   getActivatedAccounts,
   getDeployment,
   getRole,
@@ -93,7 +93,7 @@ export const action = (args: Route.ActionArgs) =>
           const roleId = getUUID(data, 'roleId')
           const role = await getRole(dbClient(), roleId)
 
-          const pendingDeployment = await findPendingDeployment(
+          const pendingDeployment = await findPendingRoleDeployment(
             dbClient(),
             roleId,
           )
@@ -113,7 +113,7 @@ export const action = (args: Route.ActionArgs) =>
           }
 
           const deployment = await dbClient().transaction(async (tx) => {
-            const deployment = await createDeployment(tx, user, role, {
+            const deployment = await createRoleDeployment(tx, user, role, {
               issues,
             })
 
@@ -125,14 +125,10 @@ export const action = (args: Route.ActionArgs) =>
           })
 
           return redirect(
-            href(
-              '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-              {
-                deploymentId: deployment.id,
-                roleId: deployment.roleId,
-                workspaceId: deployment.workspaceId,
-              },
-            ),
+            href('/workspace/:workspaceId/deployment/:deploymentId', {
+              deploymentId: deployment.id,
+              workspaceId: deployment.workspaceId,
+            }),
           )
         }
         case Intent.CancelDeployment: {
@@ -391,14 +387,10 @@ const PendingDeploymentModal = ({ workspaceId }: { workspaceId: string }) => {
     >
       <Modal.Actions>
         <PrimaryLinkButton
-          to={href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-            {
-              workspaceId,
-              roleId: actionData.roleId,
-              deploymentId: actionData.pendingDeploymentId,
-            },
-          )}
+          to={href('/workspace/:workspaceId/deployment/:deploymentId', {
+            workspaceId,
+            deploymentId: actionData.pendingDeploymentId,
+          })}
         >
           Open deployment
         </PrimaryLinkButton>

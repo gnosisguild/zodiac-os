@@ -57,12 +57,11 @@ describe('Sign callback', () => {
 
     await post(
       href(
-        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+        '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
           deploymentSliceId: slice.id,
-          roleId: role.id,
         },
       ),
       formData({ proposalId: proposal.id, transactionHash }),
@@ -104,12 +103,11 @@ describe('Sign callback', () => {
 
     await post(
       href(
-        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+        '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
           deploymentSliceId: slice.id,
-          roleId: role.id,
         },
       ),
       formData({ proposalId: proposal.id, transactionHash }),
@@ -157,12 +155,11 @@ describe('Sign callback', () => {
 
       await post(
         href(
-          '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+          '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
           {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
             deploymentSliceId: slice.id,
-            roleId: role.id,
           },
         ),
         formData({ proposalId: proposal.id, transactionHash }),
@@ -208,12 +205,11 @@ describe('Sign callback', () => {
 
     const response = await post(
       href(
-        '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+        '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
           deploymentSliceId: slice.id,
-          roleId: role.id,
         },
       ),
       formData({ proposalId: proposal.id, transactionHash }),

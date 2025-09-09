@@ -516,8 +516,8 @@
     {
       "idx": 73,
       "version": "7",
-      "when": 1757075153747,
-      "tag": "0073_generalized deployment tables",
+      "when": 1757413746597,
+      "tag": "0073_generalized deployments",
       "breakpoints": true
     }
   ]

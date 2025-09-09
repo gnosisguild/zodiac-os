@@ -4,7 +4,6 @@ export enum Intent {
   Deploy = 'Deploy',
   CancelDeployment = 'CancelDeployment',
   AcceptWarnings = 'AcceptWarnings',
-  ExecuteTransaction = 'ExecuteTransaction',
   AddAction = 'AddAction',
   EditAction = 'EditAction',
   AddAsset = 'AddAsset',

@@ -1,5 +1,5 @@
 {
-  "id": "a0be4364-185d-4d79-a5c7-cd2e34bce909",
+  "id": "96d59a5d-cd10-4137-89cb-0eb78d16e81b",
   "prevId": "088d3acc-504b-4108-8168-ff3cde1d5ec5",
   "version": "7",
   "dialect": "postgresql",
@@ -1535,12 +1535,6 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "reference": {
-          "name": "reference",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
         "completedAt": {
           "name": "completedAt",
           "type": "timestamp with time zone",
@@ -1600,21 +1594,6 @@
         }
       },
       "indexes": {
-        "Deployment_reference_index": {
-          "name": "Deployment_reference_index",
-          "columns": [
-            {
-              "expression": "reference",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "Deployment_createdById_index": {
           "name": "Deployment_createdById_index",
           "columns": [

@@ -5,8 +5,8 @@ import { Chain } from '@zodiac/chains'
 import {
   dbClient,
   getDeployment,
-  getDeployments,
   getDeploymentSlices,
+  getRoleDeployments,
   setActiveAccounts,
   setDefaultWallet,
   setRoleMembers,
@@ -76,13 +76,12 @@ describe('Managed roles', () => {
 
       await waitForPendingActions()
 
-      const [deployment] = await getDeployments(dbClient(), role.id)
+      const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
 
       await expectRouteToBe(
-        href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/deployment/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
-          roleId: role.id,
-          deploymentId: deployment.id,
+          deploymentId,
         }),
       )
     })
@@ -116,8 +115,8 @@ describe('Managed roles', () => {
 
       await waitForPendingActions()
 
-      const [deployment] = await getDeployments(dbClient(), role.id)
-      const slices = await getDeploymentSlices(dbClient(), deployment.id)
+      const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
+      const slices = await getDeploymentSlices(dbClient(), deploymentId)
 
       expect(slices).toMatchObject([
         {
@@ -192,7 +191,8 @@ describe('Managed roles', () => {
 
         await waitForPendingActions()
 
-        const [deployment] = await getDeployments(dbClient(), role.id)
+        const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
+        const deployment = await getDeployment(dbClient(), deploymentId)
 
         expect(deployment).toHaveProperty('issues', [
           DeploymentIssue.MissingDefaultWallet,
@@ -223,14 +223,10 @@ describe('Managed roles', () => {
         )
 
         await expectRouteToBe(
-          href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-            {
-              deploymentId: deployment.id,
-              roleId: role.id,
-              workspaceId: tenant.defaultWorkspaceId,
-            },
-          ),
+          href('/workspace/:workspaceId/deployment/:deploymentId', {
+            deploymentId: deployment.id,
+            workspaceId: tenant.defaultWorkspaceId,
+          }),
         )
       })
 
@@ -305,7 +301,7 @@ describe('Managed roles', () => {
           await waitForPendingActions()
 
           await expect(
-            getDeployments(dbClient(), role.id),
+            getRoleDeployments(dbClient(), role.id),
           ).resolves.toHaveLength(0)
         },
       )
