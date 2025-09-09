@@ -85,7 +85,7 @@
     "tailwindcss": "4.1.13",
     "type-fest": "4.41.0",
     "typescript": "5.9.2",
-    "vite": "7.1.4",
+    "vite": "7.1.5",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "3.2.4"
   }
