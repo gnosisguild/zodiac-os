@@ -436,8 +436,8 @@ importers:
         specifier: 10.4.21
         version: 10.4.21(postcss@8.5.6)
       chalk:
-        specifier: 5.6.0
-        version: 5.6.0
+        specifier: 5.6.2
+        version: 5.6.2
       esbuild:
         specifier: 0.25.9
         version: 0.25.9
@@ -5634,6 +5634,10 @@ packages:
 
   chalk@5.6.0:
     resolution: {integrity: sha512-46QrSQFyVSEyYAgQ22hQ+zDa60YHA4fBstHmtSApj1Y5vKtG27fWowW03jCk5KcbXEWPZUIR894aARCA/G1kfQ==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
+  chalk@5.6.2:
+    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   change-case-all@1.0.15:
@@ -16623,7 +16627,7 @@ snapshots:
 
   chalk-template@1.1.0:
     dependencies:
-      chalk: 5.6.0
+      chalk: 5.6.2
 
   chalk@4.1.2:
     dependencies:
@@ -16631,6 +16635,8 @@ snapshots:
       supports-color: 7.2.0
 
   chalk@5.6.0: {}
+
+  chalk@5.6.2: {}
 
   change-case-all@1.0.15:
     dependencies:
