@@ -34,7 +34,7 @@
     "postcss": "8.5.6",
     "tailwindcss": "4.1.13",
     "typescript": "5.9.2",
-    "vite": "7.1.4",
+    "vite": "7.1.5",
     "vite-plugin-open-graph": "2.0.6",
     "vite-tsconfig-paths": "5.1.4",
     "wrangler": "4.34.0"
