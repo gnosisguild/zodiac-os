@@ -1,6 +1,10 @@
+import { Chain } from '@zodiac/chains'
+
+export type TrackedRpcEndpoints = Map<string, Chain>
+
 export type TrackingState = {
   trackedTabs: Set<number>
-  chainIdByRpcUrl: Map<string, number>
+  chainIdByRpcUrl: TrackedRpcEndpoints
 
   rpcUrlsByTabId: Map<number, Set<string>>
 }
