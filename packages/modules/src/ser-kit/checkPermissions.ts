@@ -8,7 +8,7 @@ type SuccessResult = {
 }
 
 type ErrorResult = {
-  error: unknown
+  error: Error
   permissionCheck: null
 }
 
@@ -34,7 +34,7 @@ export const checkPermissions = async (
     }
   } catch (error) {
     return {
-      error,
+      error: new Error('Could not check permissions', { cause: error }),
       permissionCheck: null,
     }
   }

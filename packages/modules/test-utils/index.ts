@@ -7,6 +7,7 @@ export {
   createMockEoaExecutionAccount,
 } from './createMockEoaAccount'
 export { createMockExecutionRoute } from './createMockExecutionRoute'
+export { createMockMemberConnection } from './createMockMemberConnection'
 export { createMockOwnsConnection } from './createMockOwnsConnection'
 export { createMockRole } from './createMockRole'
 export {
