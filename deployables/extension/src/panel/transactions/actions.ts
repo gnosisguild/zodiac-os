@@ -16,6 +16,8 @@ export enum ActionType {
   CommitRefresh = 'CommitRefresh',
   GlobalTranslate = 'GlobalTranslate',
   PassPermissionCheck = 'PassPermissionCheck',
+  FailPermissionCheck = 'FailPermissionCheck',
+  VoidPermissionCheck = 'VoidPermissionCheck',
 }
 
 type Action<Type extends ActionType, Payload = null> = {
@@ -154,6 +156,30 @@ export const passPermissionCheck = (
   payload,
 })
 
+type FailPermissionCheckAction = Action<
+  ActionType.FailPermissionCheck,
+  { transactionId: string }
+>
+
+export const failPermissionCheck = (
+  payload: Payload<FailPermissionCheckAction>,
+): FailPermissionCheckAction => ({
+  type: ActionType.FailPermissionCheck,
+  payload,
+})
+
+type VoidPermissionCheckAction = Action<
+  ActionType.VoidPermissionCheck,
+  { transactionId: string }
+>
+
+export const voidPermissionCheck = (
+  payload: Payload<VoidPermissionCheckAction>,
+): VoidPermissionCheckAction => ({
+  type: ActionType.VoidPermissionCheck,
+  payload,
+})
+
 export type TransactionAction =
   | AppendTransactionAction
   | DecodeTransactionAction
@@ -169,3 +195,5 @@ export type TransactionAction =
   | CommitRefreshAction
   | GlobalTranslateTransactionsAction
   | PassPermissionCheckAction
+  | FailPermissionCheckAction
+  | VoidPermissionCheckAction

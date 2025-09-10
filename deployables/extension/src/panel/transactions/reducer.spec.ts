@@ -8,6 +8,7 @@ import {
   commitRefreshTransactions,
   confirmRollbackTransaction,
   confirmTransaction,
+  failPermissionCheck,
   failTransaction,
   finishTransaction,
   passPermissionCheck,
@@ -15,6 +16,7 @@ import {
   revertTransaction,
   rollbackTransaction,
   translateTransaction,
+  voidPermissionCheck,
 } from './actions'
 import { ExecutionStatus } from './executionStatus'
 import { transactionsReducer } from './reducer'
@@ -338,6 +340,44 @@ describe('Transactions reducer', () => {
       ).toMatchObject({
         permissionChecks: {
           [transaction.id]: { type: PermissionCheckStatusType.passed },
+        },
+      })
+    })
+
+    it('is possible to mark a permission check as failed', () => {
+      const transaction = createTransaction()
+
+      expect(
+        transactionsReducer(
+          createState({
+            permissionChecks: {
+              [transaction.id]: { type: PermissionCheckStatusType.pending },
+            },
+          }),
+          failPermissionCheck({ transactionId: transaction.id }),
+        ),
+      ).toMatchObject({
+        permissionChecks: {
+          [transaction.id]: { type: PermissionCheckStatusType.failed },
+        },
+      })
+    })
+
+    it('is possible to mark a permission check as void', () => {
+      const transaction = createTransaction()
+
+      expect(
+        transactionsReducer(
+          createState({
+            permissionChecks: {
+              [transaction.id]: { type: PermissionCheckStatusType.pending },
+            },
+          }),
+          voidPermissionCheck({ transactionId: transaction.id }),
+        ),
+      ).toMatchObject({
+        permissionChecks: {
+          [transaction.id]: { type: PermissionCheckStatusType.void },
         },
       })
     })

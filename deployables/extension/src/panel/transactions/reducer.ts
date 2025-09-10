@@ -233,6 +233,30 @@ export const transactionsReducer = (
         },
       }
     }
+
+    case ActionType.FailPermissionCheck: {
+      return {
+        ...state,
+
+        permissionChecks: {
+          ...state.permissionChecks,
+
+          [payload.transactionId]: { type: PermissionCheckStatusType.failed },
+        },
+      }
+    }
+
+    case ActionType.VoidPermissionCheck: {
+      return {
+        ...state,
+
+        permissionChecks: {
+          ...state.permissionChecks,
+
+          [payload.transactionId]: { type: PermissionCheckStatusType.void },
+        },
+      }
+    }
   }
 }
 
