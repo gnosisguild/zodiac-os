@@ -132,10 +132,12 @@ const zRecordStore = z.record(z.string(), zRecord.optional()) // 📀 🎧
 const recordStoreKey = (rolesMod: PrefixedAddress, roleKey: string) =>
   `${rolesMod}:${decodeRoleKey(roleKey)}`
 
-export const useRoleRecordLink = (props?: {
-  rolesMod: PrefixedAddress
-  roleKey: string
-}) => {
+export const useRoleRecordLink = (
+  props: {
+    rolesMod: PrefixedAddress
+    roleKey: string
+  } | null,
+) => {
   const { rolesMod, roleKey } = props ?? {}
   const [record, setRecord] = useState<Record | undefined>(undefined)
 
