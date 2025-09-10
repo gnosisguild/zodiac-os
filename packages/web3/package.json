@@ -24,7 +24,7 @@
     "classnames": "2.5.1",
     "connectkit": "1.9.1",
     "ethereum-blockies-base64": "1.0.2",
-    "lucide-react": "0.542.0",
+    "lucide-react": "0.543.0",
     "viem": "2.37.5",
     "wagmi": "2.16.9"
   },
