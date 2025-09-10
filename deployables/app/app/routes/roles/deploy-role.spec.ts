@@ -195,9 +195,89 @@ describe('Deploy Role', () => {
 
   describe('Execute', () => {
     describe('Route selection', () => {
-      dbIt.todo(
-        'offers to complete the route setup when no route is configured for the respective account',
+      dbIt(
+        'informs the user when no route is configured for the respective account',
+        async () => {
+          const user = await userFactory.create()
+          const tenant = await tenantFactory.create(user)
+
+          const account = await accountFactory.create(tenant, user)
+
+          const role = await roleFactory.create(tenant, user)
+          const deployment = await roleDeploymentFactory.create(user, role)
+
+          await roleDeploymentSliceFactory.create(user, deployment, {
+            from: account.address,
+          })
+
+          await render(
+            href(
+              '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
+              {
+                workspaceId: tenant.defaultWorkspaceId,
+                roleId: role.id,
+                deploymentId: deployment.id,
+              },
+            ),
+            { tenant, user },
+          )
+
+          await userEvent.click(
+            await screen.findByRole('button', { name: 'Deploy' }),
+          )
+
+          expect(
+            await screen.findByRole('dialog', {
+              name: 'Missing route to account',
+            }),
+          ).toHaveAccessibleDescription(
+            'You have not set up a route to this account. After you have set up a route for this account you can come back here and continue with this step.',
+          )
+        },
       )
+
+      dbIt('offers a link to add a route', async () => {
+        const user = await userFactory.create()
+        const tenant = await tenantFactory.create(user)
+
+        const account = await accountFactory.create(tenant, user)
+
+        const role = await roleFactory.create(tenant, user)
+        const deployment = await roleDeploymentFactory.create(user, role)
+
+        await roleDeploymentSliceFactory.create(user, deployment, {
+          from: account.address,
+        })
+
+        await render(
+          href(
+            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
+            {
+              workspaceId: tenant.defaultWorkspaceId,
+              roleId: role.id,
+              deploymentId: deployment.id,
+            },
+          ),
+          { tenant, user },
+        )
+
+        await userEvent.click(
+          await screen.findByRole('button', { name: 'Deploy' }),
+        )
+
+        expect(
+          await screen.findByRole('link', {
+            name: 'Open account',
+          }),
+        ).toHaveAttribute(
+          'href',
+          href('/workspace/:workspaceId/accounts/:accountId', {
+            workspaceId: tenant.defaultWorkspaceId,
+            accountId: account.id,
+          }),
+        )
+      })
+
       dbIt.todo('allows you to select a route to use to execute a step')
     })
 

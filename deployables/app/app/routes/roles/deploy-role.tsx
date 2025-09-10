@@ -12,13 +12,14 @@ import {
   getRoleDeploymentSlice,
   getRoleDeploymentSlices,
   getRoleMembers,
+  getRoutes,
   getUser,
   proposeTransaction,
   updateRoleDeploymentSlice,
 } from '@zodiac/db'
 import { RoleDeploymentSlice } from '@zodiac/db/schema'
 import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
-import { useIsPending } from '@zodiac/hooks'
+import { useAfterSubmit, useIsPending } from '@zodiac/hooks'
 import { isUUID } from '@zodiac/schema'
 import {
   Card,
@@ -27,15 +28,21 @@ import {
   Divider,
   Info,
   InlineForm,
+  Modal,
   PrimaryLinkButton,
   SecondaryButton,
 } from '@zodiac/ui'
-import { Address, ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
+import { ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
 import { randomUUID } from 'crypto'
+import { useState } from 'react'
 import { href, redirect } from 'react-router'
 import { prefixAddress } from 'ser-kit'
 import { Route } from './+types/deploy-role'
-import { Labels, ProvideAddressLabels } from './AddressLabelContext'
+import {
+  LabeledAddress,
+  Labels,
+  ProvideAddressLabels,
+} from './AddressLabelContext'
 import { Call } from './Call'
 import { Description } from './FeedEntry'
 import { ProvideRoleLabels } from './RoleLabelContext'
@@ -134,6 +141,15 @@ export const action = (args: Route.ActionArgs) =>
         prefixedAddress: getPrefixedAddress(data, 'from'),
       })
 
+      const routes = await getRoutes(dbClient(), tenant.id, {
+        accountId: account.id,
+        userId: user.id,
+      })
+
+      if (routes.length === 0) {
+        return { issue: DeployIssues.NoRouteToAccount, accountId: account.id }
+      }
+
       const deploymentSlice = await getRoleDeploymentSlice(
         dbClient(),
         getUUID(data, 'roleDeploymentSliceId'),
@@ -214,7 +230,15 @@ const DeployRole = ({
     cancelledAt,
     cancelledBy,
   },
+  actionData,
+  params: { workspaceId },
 }: Route.ComponentProps) => {
+  const [dismissedRouteWarning, setDismissedRouteWarning] = useState(false)
+
+  useAfterSubmit(Intent.ExecuteTransaction, () =>
+    setDismissedRouteWarning(false),
+  )
+
   return (
     <Page>
       <Page.Header
@@ -228,6 +252,29 @@ const DeployRole = ({
       </Page.Header>
 
       <Page.Main>
+        {actionData != null &&
+          actionData.issue === DeployIssues.NoRouteToAccount && (
+            <Modal
+              open={!dismissedRouteWarning}
+              onClose={() => setDismissedRouteWarning(true)}
+              title="Missing route to account"
+              description="You have not set up a route to this account. After you have set up a route for this account you can come back here and continue with this step."
+            >
+              <Modal.Actions>
+                <PrimaryLinkButton
+                  to={href('/workspace/:workspaceId/accounts/:accountId', {
+                    workspaceId,
+                    accountId: actionData.accountId,
+                  })}
+                >
+                  Open account
+                </PrimaryLinkButton>
+
+                <Modal.CloseAction>Cancel</Modal.CloseAction>
+              </Modal.Actions>
+            </Modal>
+          )}
+
         <Issues issues={issues} />
 
         {cancelledAt != null && (
@@ -245,10 +292,6 @@ const DeployRole = ({
               </Info>
             ) : (
               <div className="flex flex-col gap-8">
-                <Info>
-                  The following changes need to be applied to deploy this role.
-                </Info>
-
                 {slices.map((slice) => (
                   <Card key={slice.from}>
                     {slice.steps.map(({ account, steps }) => (
@@ -308,7 +351,7 @@ const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
 
   return (
     <div className="flex flex-1 items-center justify-between gap-8">
-      <Address>{slice.from}</Address>
+      <LabeledAddress>{slice.from}</LabeledAddress>
 
       <div className="flex items-center gap-2">
         {slice.transactionHash != null && (
@@ -349,4 +392,8 @@ const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
       </div>
     </div>
   )
+}
+
+enum DeployIssues {
+  NoRouteToAccount = 'NoRouteToAccount',
 }
