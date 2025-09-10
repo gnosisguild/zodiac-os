@@ -10,6 +10,7 @@ import {
   confirmTransaction,
   failTransaction,
   finishTransaction,
+  passPermissionCheck,
   refreshTransactions,
   revertTransaction,
   rollbackTransaction,
@@ -17,7 +18,7 @@ import {
 } from './actions'
 import { ExecutionStatus } from './executionStatus'
 import { transactionsReducer } from './reducer'
-import type { State } from './state'
+import { PermissionCheckStatusType, type State } from './state'
 
 describe('Transactions reducer', () => {
   const createState = (initialState: Partial<State> = {}): State => ({
@@ -26,6 +27,8 @@ describe('Transactions reducer', () => {
 
     rollback: null,
     refresh: false,
+
+    permissionChecks: {},
 
     ...initialState,
   })
@@ -302,5 +305,41 @@ describe('Transactions reducer', () => {
     })
 
     it.todo('apply global translation')
+  })
+
+  describe('Permission checks', async () => {
+    it('enqueues a transaction for a permission check when it has been executed', () => {
+      const state = transactionsReducer(
+        createState(),
+        appendTransaction({ transaction: createMockTransactionRequest() }),
+      )
+
+      const [transaction] = state.pending
+
+      expect(state).toMatchObject({
+        permissionChecks: {
+          [transaction.id]: { type: PermissionCheckStatusType.pending },
+        },
+      })
+    })
+
+    it('is possible to mark a permission check as successful', () => {
+      const transaction = createTransaction()
+
+      expect(
+        transactionsReducer(
+          createState({
+            permissionChecks: {
+              [transaction.id]: { type: PermissionCheckStatusType.pending },
+            },
+          }),
+          passPermissionCheck({ transactionId: transaction.id }),
+        ),
+      ).toMatchObject({
+        permissionChecks: {
+          [transaction.id]: { type: PermissionCheckStatusType.passed },
+        },
+      })
+    })
   })
 })

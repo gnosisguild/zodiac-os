@@ -2,13 +2,14 @@ import { invariant } from '@epic-web/invariant'
 import { metaTransactionRequestEqual } from '@zodiac/schema'
 import { nanoid } from 'nanoid'
 import type { MetaTransactionRequest } from 'ser-kit'
-import { Action, type TransactionAction } from './actions'
+import { ActionType, type TransactionAction } from './actions'
 import { ExecutionStatus } from './executionStatus'
-import type {
-  ContractInfo,
-  State,
-  Transaction,
-  UnconfirmedTransaction,
+import {
+  PermissionCheckStatusType,
+  type ContractInfo,
+  type State,
+  type Transaction,
+  type UnconfirmedTransaction,
 } from './state'
 
 export const transactionsReducer = (
@@ -16,17 +17,25 @@ export const transactionsReducer = (
   { type, payload }: TransactionAction,
 ): State => {
   switch (type) {
-    case Action.Append: {
+    case ActionType.Append: {
       const { transaction } = payload
+
+      const trackedTransaction = createTransaction(transaction)
 
       return {
         ...state,
 
-        pending: [...state.pending, createTransaction(transaction)],
+        pending: [...state.pending, trackedTransaction],
+
+        permissionChecks: {
+          ...state.permissionChecks,
+
+          [trackedTransaction.id]: { type: PermissionCheckStatusType.pending },
+        },
       }
     }
 
-    case Action.Decode: {
+    case ActionType.Decode: {
       const { id, contractInfo } = payload
 
       return {
@@ -37,7 +46,7 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.Confirm: {
+    case ActionType.Confirm: {
       const { id, snapshotId, transactionHash } = payload
 
       const transaction = findTransaction(state.pending, id)
@@ -64,17 +73,19 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.Clear: {
+    case ActionType.Clear: {
       return {
         pending: [],
         executed: [],
 
         rollback: null,
         refresh: false,
+
+        permissionChecks: {},
       }
     }
 
-    case Action.Fail: {
+    case ActionType.Fail: {
       const { id } = payload
 
       return {
@@ -88,7 +99,7 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.Finish: {
+    case ActionType.Finish: {
       const { id } = payload
 
       return {
@@ -102,7 +113,7 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.Revert: {
+    case ActionType.Revert: {
       const { id } = payload
 
       return {
@@ -116,13 +127,13 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.Rollback: {
+    case ActionType.Rollback: {
       const { id } = payload
 
       return rollback(state, id)
     }
 
-    case Action.ConfirmRollback: {
+    case ActionType.ConfirmRollback: {
       const { id } = payload
 
       invariant(state.rollback != null, 'No transaction rollback in progress')
@@ -138,7 +149,7 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.Translate: {
+    case ActionType.Translate: {
       const { id, translations } = payload
 
       const rollbackState = rollback(state, id)
@@ -154,7 +165,7 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.GlobalTranslate: {
+    case ActionType.GlobalTranslate: {
       const { translations } = payload
 
       const firstDifferenceIndex = state.executed.findIndex(
@@ -198,7 +209,7 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.Refresh: {
+    case ActionType.Refresh: {
       return {
         ...state,
 
@@ -209,8 +220,18 @@ export const transactionsReducer = (
       }
     }
 
-    case Action.CommitRefresh: {
+    case ActionType.CommitRefresh: {
       return { ...state, refresh: false }
+    }
+
+    case ActionType.PassPermissionCheck: {
+      return {
+        ...state,
+        permissionChecks: {
+          ...state.permissionChecks,
+          [payload.transactionId]: { type: PermissionCheckStatusType.passed },
+        },
+      }
     }
   }
 }

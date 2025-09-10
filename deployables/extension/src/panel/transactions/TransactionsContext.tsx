@@ -21,6 +21,8 @@ const TransactionsContext = createContext<
   rollback: null,
   refresh: false,
 
+  permissionChecks: {},
+
   dispatch() {
     throw new Error('must be wrapped in <ProvideTransactions>')
   },
@@ -38,6 +40,8 @@ export const ProvideTransactions = ({
 
     rollback: null,
     refresh: false,
+
+    permissionChecks: {},
   },
 }: ProvideTransactionsProps) => {
   const [state, dispatch] = useReducer(transactionsReducer, initialState)
