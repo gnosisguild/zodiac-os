@@ -31,7 +31,7 @@
     "@vercel/speed-insights": "1.2.0",
     "@workos-inc/authkit-react-router": "0.8.1",
     "@workos-inc/node": "7.69.2",
-    "@workos-inc/widgets": "1.2.1",
+    "@workos-inc/widgets": "1.3.1",
     "@zodiac/chains": "workspace:*",
     "@zodiac/db": "workspace:*",
     "@zodiac/env": "workspace:*",

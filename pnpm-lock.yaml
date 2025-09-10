@@ -128,8 +128,8 @@ importers:
         specifier: 7.69.2
         version: 7.69.2(express@5.1.0)
       '@workos-inc/widgets':
-        specifier: 1.2.1
-        version: 1.2.1(@radix-ui/themes@3.2.1(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@tanstack/react-query@5.87.1(react@19.1.1))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: 1.3.1
+        version: 1.3.1(@radix-ui/themes@3.2.1(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@tanstack/react-query@5.87.1(react@19.1.1))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@zodiac/chains':
         specifier: workspace:*
         version: link:../../packages/chains
@@ -5282,8 +5282,8 @@ packages:
     resolution: {integrity: sha512-w22aaed73CWhTL5ndqepzCjkM5S18F3/wnkPQ6oIBjqD5K2t7y+nxCi7d83pNDjdJrVqaQKeJQ5TePvQP4oX7g==}
     engines: {node: '>=16'}
 
-  '@workos-inc/widgets@1.2.1':
-    resolution: {integrity: sha512-qR/8Ukj5W44HKeCpBJL+vO3/FxFnRllztpSAOAwa4r6q37kKchuiuNFn8ACMsBfBEKbOvM44fdkp1AmxPuqnrw==}
+  '@workos-inc/widgets@1.3.1':
+    resolution: {integrity: sha512-ZSR488/9cXiylJQJc+HnRRa6vGkp9bjb8e/f6MZoyQAYpVu0lRAOYjSRYvE8ce6NbejPm7/hyCrhHwLniubb0Q==}
     peerDependencies:
       '@radix-ui/themes': ^3.1.0
       '@tanstack/react-query': ^5.0.0
@@ -16194,7 +16194,7 @@ snapshots:
       - koa
       - next
 
-  '@workos-inc/widgets@1.2.1(@radix-ui/themes@3.2.1(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@tanstack/react-query@5.87.1(react@19.1.1))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@workos-inc/widgets@1.3.1(@radix-ui/themes@3.2.1(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@tanstack/react-query@5.87.1(react@19.1.1))(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.1.12)(react@19.1.1)
       '@radix-ui/react-form': 0.1.2(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
