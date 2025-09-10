@@ -289,10 +289,14 @@ describe('Deploy Role', () => {
 
           const account = await accountFactory.create(tenant, user)
 
-          await routeFactory.create(account, wallet, { label: 'First route' })
-          const route = await routeFactory.create(account, wallet, {
+          const routeA = await routeFactory.create(account, wallet, {
+            label: 'First route',
+          })
+          const routeB = await routeFactory.create(account, wallet, {
             label: 'Second route',
           })
+
+          await setDefaultRoute(dbClient(), tenant, user, routeA)
 
           const role = await roleFactory.create(tenant, user)
           const deployment = await roleDeploymentFactory.create(user, role)
@@ -337,7 +341,7 @@ describe('Deploy Role', () => {
               {
                 workspaceId: tenant.defaultWorkspaceId,
                 proposalId: proposal.id,
-                routeId: route.id,
+                routeId: routeB.id,
               },
             ),
           )

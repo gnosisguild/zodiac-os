@@ -14,7 +14,7 @@
     "test": "dotenvx run --env-file=.env.test -- vitest",
     "create-migration": "dotenvx run -- drizzle-kit generate --name $1",
     "migrate": "dotenvx run -- npx supabase migration up",
-    "migrate-test": "dotenvx run --env-file=.env.test -- npx supabase migration up"
+    "migrate-test": "dotenvx run --env-file=.env.test -- drizzle-kit migrate"
   },
   "exports": {
     ".": {
