@@ -5,6 +5,7 @@ import {
   dbClient,
   getAccountByAddress,
   getActivatedAccounts,
+  getDefaultRoute,
   getDefaultWalletLabels,
   getRole,
   getRoleActionAssets,
@@ -12,30 +13,40 @@ import {
   getRoleDeploymentSlice,
   getRoleDeploymentSlices,
   getRoleMembers,
+  getRoutes,
   getUser,
   proposeTransaction,
   updateRoleDeploymentSlice,
 } from '@zodiac/db'
 import { RoleDeploymentSlice } from '@zodiac/db/schema'
-import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
-import { useIsPending } from '@zodiac/hooks'
+import { getOptionalUUID, getPrefixedAddress, getUUID } from '@zodiac/form-data'
+import { useAfterSubmit, useIsPending } from '@zodiac/hooks'
 import { isUUID } from '@zodiac/schema'
 import {
   Card,
   Collapsible,
   DateValue,
   Divider,
+  Form,
   Info,
   InlineForm,
+  Modal,
+  PrimaryButton,
   PrimaryLinkButton,
   SecondaryButton,
+  Select,
 } from '@zodiac/ui'
-import { Address, ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
+import { ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
 import { randomUUID } from 'crypto'
+import { useState } from 'react'
 import { href, redirect } from 'react-router'
 import { prefixAddress } from 'ser-kit'
 import { Route } from './+types/deploy-role'
-import { Labels, ProvideAddressLabels } from './AddressLabelContext'
+import {
+  LabeledAddress,
+  Labels,
+  ProvideAddressLabels,
+} from './AddressLabelContext'
 import { Call } from './Call'
 import { Description } from './FeedEntry'
 import { ProvideRoleLabels } from './RoleLabelContext'
@@ -133,11 +144,44 @@ export const action = (args: Route.ActionArgs) =>
         tenantId: tenant.id,
         prefixedAddress: getPrefixedAddress(data, 'from'),
       })
-
       const deploymentSlice = await getRoleDeploymentSlice(
         dbClient(),
         getUUID(data, 'roleDeploymentSliceId'),
       )
+
+      const routes = await getRoutes(dbClient(), tenant.id, {
+        accountId: account.id,
+        userId: user.id,
+      })
+
+      if (routes.length === 0) {
+        return {
+          issue: DeployIssues.NoRouteToAccount,
+          accountId: account.id,
+        } as const
+      }
+
+      const selectedRouteId = getOptionalUUID(data, 'route')
+
+      if (routes.length > 1 && selectedRouteId == null) {
+        const defaultRoute = await getDefaultRoute(
+          dbClient(),
+          tenant,
+          user,
+          account.id,
+        )
+
+        return {
+          issue: DeployIssues.MultipleRoutes,
+          routes,
+          defaultRouteId: defaultRoute.routeId,
+
+          context: {
+            roleDeploymentSliceId: deploymentSlice.id,
+            from: prefixAddress(account.chainId, account.address),
+          },
+        } as const
+      }
 
       const transactionProposal = await dbClient().transaction(async (tx) => {
         const callbackUrl = new URL(
@@ -166,6 +210,7 @@ export const action = (args: Route.ActionArgs) =>
           transaction: transactionBundle,
           callbackUrl,
           callbackState: randomUUID(),
+          routeId: selectedRouteId,
         })
 
         await updateRoleDeploymentSlice(tx, deploymentSlice.id, {
@@ -214,7 +259,15 @@ const DeployRole = ({
     cancelledAt,
     cancelledBy,
   },
+  actionData,
+  params: { workspaceId },
 }: Route.ComponentProps) => {
+  const [dismissedRouteWarning, setDismissedRouteWarning] = useState(false)
+
+  useAfterSubmit(Intent.ExecuteTransaction, () =>
+    setDismissedRouteWarning(false),
+  )
+
   return (
     <Page>
       <Page.Header
@@ -228,6 +281,59 @@ const DeployRole = ({
       </Page.Header>
 
       <Page.Main>
+        {actionData != null && (
+          <>
+            {actionData.issue === DeployIssues.NoRouteToAccount && (
+              <Modal
+                open={!dismissedRouteWarning}
+                onClose={() => setDismissedRouteWarning(true)}
+                title="Missing route to account"
+                description="You have not set up a route to this account. After you have set up a route for this account you can come back here and continue with this step."
+              >
+                <Modal.Actions>
+                  <PrimaryLinkButton
+                    to={href('/workspace/:workspaceId/accounts/:accountId', {
+                      workspaceId,
+                      accountId: actionData.accountId,
+                    })}
+                  >
+                    Open account
+                  </PrimaryLinkButton>
+
+                  <Modal.CloseAction>Cancel</Modal.CloseAction>
+                </Modal.Actions>
+              </Modal>
+            )}
+
+            {actionData.issue === DeployIssues.MultipleRoutes && (
+              <Modal
+                open={!dismissedRouteWarning}
+                onClose={() => setDismissedRouteWarning(true)}
+                title="Multiple routes available"
+                description="Please choose the route you want to use. The default one has been pre-selected."
+              >
+                <Form context={actionData.context}>
+                  <Select
+                    name="route"
+                    label="Route"
+                    options={actionData.routes.map((route) => ({
+                      value: route.id,
+                      label: route.label,
+                    }))}
+                    defaultValue={actionData.defaultRouteId}
+                  />
+                  <Modal.Actions>
+                    <PrimaryButton submit intent={Intent.ExecuteTransaction}>
+                      Use route
+                    </PrimaryButton>
+                    <Modal.CloseAction>Cancel</Modal.CloseAction>
+                  </Modal.Actions>
+                </Form>
+              </Modal>
+            )}
+          </>
+        )}
+
         <Issues issues={issues} />
 
         {cancelledAt != null && (
@@ -245,10 +351,6 @@ const DeployRole = ({
               </Info>
             ) : (
               <div className="flex flex-col gap-8">
-                <Info>
-                  The following changes need to be applied to deploy this role.
-                </Info>
-
                 {slices.map((slice) => (
                   <Card key={slice.from}>
                     {slice.steps.map(({ account, steps }) => (
@@ -308,7 +410,7 @@ const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
 
   return (
     <div className="flex flex-1 items-center justify-between gap-8">
-      <Address>{slice.from}</Address>
+      <LabeledAddress>{slice.from}</LabeledAddress>
 
       <div className="flex items-center gap-2">
         {slice.transactionHash != null && (
@@ -349,4 +451,9 @@ const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
       </div>
     </div>
   )
+}
+
+enum DeployIssues {
+  NoRouteToAccount = 'NoRouteToAccount',
+  MultipleRoutes = 'MultipleRoutes',
 }

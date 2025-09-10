@@ -13,7 +13,7 @@
     "stop": "npx supabase stop",
     "test": "dotenvx run --env-file=.env.test -- vitest",
     "create-migration": "dotenvx run -- drizzle-kit generate --name $1",
-    "migrate": "dotenvx run -- drizzle-kit migrate",
+    "migrate": "dotenvx run -- npx supabase migration up",
     "migrate-test": "dotenvx run --env-file=.env.test -- drizzle-kit migrate"
   },
   "exports": {

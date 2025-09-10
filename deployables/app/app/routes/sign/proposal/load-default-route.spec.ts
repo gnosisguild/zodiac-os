@@ -169,6 +169,47 @@ describe('Load default route', () => {
     )
   })
 
+  dbIt(
+    'picks the route specified for the proposal when one is specified',
+    async () => {
+      const user = await userFactory.create()
+      const tenant = await tenantFactory.create(user)
+
+      const wallet = await walletFactory.create(user)
+      const account = await accountFactory.create(tenant, user)
+
+      await routeFactory.create(account, wallet, {
+        label: 'Route A',
+      })
+      const routeB = await routeFactory.create(account, wallet, {
+        label: 'Route B',
+      })
+
+      const proposal = await transactionProposalFactory.create(
+        tenant,
+        user,
+        account,
+        { routeId: routeB.id },
+      )
+
+      await render(
+        href('/workspace/:workspaceId/submit/proposal/:proposalId', {
+          proposalId: proposal.id,
+          workspaceId: tenant.defaultWorkspaceId,
+        }),
+        { tenant, user },
+      )
+
+      await expectRouteToBe(
+        href('/workspace/:workspaceId/submit/proposal/:proposalId/:routeId', {
+          proposalId: proposal.id,
+          routeId: routeB.id,
+          workspaceId: tenant.defaultWorkspaceId,
+        }),
+      )
+    },
+  )
+
   dbIt('shows an error when no route has been configured', async () => {
     const user = await userFactory.create()
     const tenant = await tenantFactory.create(user)

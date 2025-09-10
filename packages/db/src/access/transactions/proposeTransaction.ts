@@ -11,6 +11,7 @@ type ProposeTransactionOptions = {
   transaction: MetaTransactionRequest[]
   callbackUrl?: URL
   callbackState?: string
+  routeId?: UUID | null
 }
 
 export const proposeTransaction = async (
@@ -23,6 +24,7 @@ export const proposeTransaction = async (
     workspaceId,
     callbackUrl,
     callbackState,
+    routeId,
   }: ProposeTransactionOptions,
 ) => {
   const [proposedTransaction] = await db
@@ -35,6 +37,7 @@ export const proposeTransaction = async (
       accountId,
       callbackUrl: callbackUrl?.toString(),
       callbackState,
+      routeId,
     })
     .returning()
 

@@ -504,6 +504,10 @@ export const ProposedTransactionTable = pgTable(
     callbackUrl: text(),
     callbackState: text(),
 
+    routeId: uuid()
+      .$type<UUID>()
+      .references(() => RouteTable.id, { onDelete: 'set null' }),
+
     ...userReference,
     ...tenantReference,
     ...accountReference,
