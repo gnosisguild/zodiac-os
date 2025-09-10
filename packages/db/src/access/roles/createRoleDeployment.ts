@@ -30,14 +30,14 @@ export const createRoleDeployment = async (
           workspaceId: role.workspaceId,
           tenantId: role.tenantId,
           createdById: user.id,
-          issues,
         })
         .returning()
 
-    // Insert the role deployment relationship
+    // Insert the role deployment
     await tx.insert(roleDeployment).values({
       deploymentId: deployment.id,
       roleId: role.id,
+      issues,
     })
 
     invariant(completedAt == null, 'Deployment has already been completed')

@@ -79,7 +79,6 @@ export const deploymentFactory = createFactory<
       completedAt: null,
       createdAt: new Date(),
       updatedAt: null,
-      issues: [],
 
       ...input,
     } satisfies Deployment

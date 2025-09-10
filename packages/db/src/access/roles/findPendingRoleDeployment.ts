@@ -12,7 +12,7 @@ export const findPendingRoleDeployment = async (db: DBClient, roleId: UUID) => {
       completedAt: deployment.completedAt,
       cancelledAt: deployment.cancelledAt,
       cancelledById: deployment.cancelledById,
-      issues: deployment.issues,
+      issues: roleDeployment.issues,
       createdById: deployment.createdById,
       createdAt: deployment.createdAt,
       updatedAt: deployment.updatedAt,
