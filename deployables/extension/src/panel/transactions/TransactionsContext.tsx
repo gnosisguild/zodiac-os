@@ -131,3 +131,13 @@ export const useExecutedTransactions = () => {
 
   return executed
 }
+
+export const usePermissionCheckResult = (transactionId: string) => {
+  const { permissionChecks } = useContext(TransactionsContext)
+
+  if (transactionId in permissionChecks) {
+    return permissionChecks[transactionId]
+  }
+
+  return null
+}

@@ -28,14 +28,9 @@ export type ConfirmedTransaction = UnconfirmedTransaction & {
 export type Transaction = UnconfirmedTransaction | ConfirmedTransaction
 
 export enum PermissionCheckStatusType {
-  void = 'void',
   pending = 'pending',
   passed = 'passed',
   failed = 'failed',
-}
-
-type VoidPermissionCheck = {
-  type: PermissionCheckStatusType.void
 }
 
 type PendingPermissionCheck = {
@@ -57,7 +52,6 @@ type FailedPermissionCheck = {
 }
 
 type PermissionCheck =
-  | VoidPermissionCheck
   | PendingPermissionCheck
   | PassedPermissionCheck
   | FailedPermissionCheck

@@ -2,18 +2,19 @@ import { useExecutionRoute } from '@/execution-routes'
 import {
   Translate,
   useApplicableTranslation,
+  usePermissionCheck,
   useTransaction,
 } from '@/transactions'
 import { recordCalls, useRoleRecordLink } from '@/zodiac'
 import { invariant } from '@epic-web/invariant'
-import { EOA_ZERO_ADDRESS } from '@zodiac/chains'
 import { getRolesAppUrl } from '@zodiac/env'
-import type { ExecutionRoute } from '@zodiac/schema'
+import type { ExecutionRoute, PrefixedAddress } from '@zodiac/schema'
 import {
   errorToast,
   GhostLinkButton,
   SecondaryButton,
   SecondaryLinkButton,
+  Spinner,
   Tag,
 } from '@zodiac/ui'
 import {
@@ -21,41 +22,12 @@ import {
   Check,
   SquareArrowOutUpRight,
   TriangleAlert,
+  UserRound,
   UsersRound,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import {
-  AccountType,
-  checkPermissions,
-  ConnectionType,
-  PermissionViolation,
-  type Route as SerRoute,
-} from 'ser-kit'
+import { useState } from 'react'
+import { AccountType, ConnectionType } from 'ser-kit'
 import { decodeKey as decodeRoleKey } from 'zodiac-roles-sdk'
-
-const extractRoles = (route: ExecutionRoute | null) => {
-  if (route == null) {
-    return []
-  }
-
-  return (
-    route.waypoints?.flatMap((wp) => {
-      if (
-        wp.account.type === AccountType.ROLES &&
-        'connection' in wp &&
-        wp.connection.type === ConnectionType.IS_MEMBER
-      ) {
-        return {
-          rolesMod: wp.account.prefixedAddress,
-          version: wp.account.version,
-          roles: wp.connection.roles,
-          defaultRole: wp.connection.defaultRole,
-        }
-      }
-      return []
-    }) || []
-  )
-}
 
 type Props = {
   transactionId: string
@@ -69,45 +41,11 @@ enum RecordCallState {
 }
 
 export const RolePermissionCheck = ({ transactionId, mini = false }: Props) => {
-  const [error, setError] = useState<PermissionViolation | false | undefined>(
-    undefined,
-  )
   const route = useExecutionRoute()
 
   const transaction = useTransaction(transactionId)
-  const translation = useApplicableTranslation(transaction.id)
-
-  useEffect(() => {
-    const abortController = new AbortController()
-
-    if (route == null) {
-      return
-    }
-
-    const { waypoints } = route
-
-    invariant(waypoints != null, 'Route must have waypoints')
-
-    const checkableRoute = {
-      ...route,
-      waypoints,
-      initiator: route.initiator ?? EOA_ZERO_ADDRESS,
-    } satisfies SerRoute
-
-    checkPermissions([transaction], checkableRoute).then(
-      ({ success, error }) => {
-        if (abortController.signal.aborted) {
-          return
-        }
-
-        setError(success ? false : error)
-      },
-    )
-
-    return () => {
-      abortController.abort('Effect cancelled')
-    }
-  }, [transaction, route])
+  const permissionCheck = usePermissionCheck(transactionId)
+  const translation = useApplicableTranslation(transactionId)
 
   // if the role is unambiguous and from a v2 Roles module, we can record a permissions request to the Roles app
   const roleToRecordToCandidates = extractRoles(route).filter(
@@ -147,20 +85,20 @@ export const RolePermissionCheck = ({ transactionId, mini = false }: Props) => {
     }
   }
 
-  if (error == null) {
-    return null
-  }
-
   if (mini) {
-    return (
-      <>
-        {error === false ? (
-          <Tag head={<UsersRound size={16} />} color="green"></Tag>
-        ) : (
-          <Tag head={<UsersRound size={16} />} color="red"></Tag>
-        )}
-      </>
-    )
+    if (permissionCheck.isPending) {
+      return <Tag head={<Spinner />} color="blue" />
+    }
+
+    if (permissionCheck.isSkipped) {
+      return <Tag head={<UserRound size={16} />} color="gray" />
+    }
+
+    if (permissionCheck.error == null) {
+      return <Tag head={<UsersRound size={16} />} color="green" />
+    }
+
+    return <Tag head={<UsersRound size={16} />} color="red" />
   }
 
   return (
@@ -168,13 +106,19 @@ export const RolePermissionCheck = ({ transactionId, mini = false }: Props) => {
       <div className="flex items-center justify-between gap-2">
         Role permissions
         <div className="flex gap-2">
-          {error === false ? (
-            <Tag head={<Check size={16} />} color="green">
-              Allowed
+          {permissionCheck.isPending ? (
+            <Tag head={<Spinner />} color="blue">
+              Checking...
+            </Tag>
+          ) : permissionCheck.isSkipped ? (
+            <Tag color="gray">Skipped</Tag>
+          ) : permissionCheck.error != null ? (
+            <Tag head={<TriangleAlert size={16} />} color="red">
+              {permissionCheck.error}
             </Tag>
           ) : (
-            <Tag head={<TriangleAlert size={16} />} color="red">
-              {error}
+            <Tag head={<Check size={16} />} color="green">
+              Allowed
             </Tag>
           )}
 
@@ -192,39 +136,84 @@ export const RolePermissionCheck = ({ transactionId, mini = false }: Props) => {
         </div>
       </div>
 
-      {error && <Translate transactionId={transaction.id} />}
+      {permissionCheck.error != null && (
+        <>
+          <Translate transactionId={transactionId} />
 
-      {error && translation == null && roleToRecordTo && (
-        <div className="flex flex-wrap items-center gap-2">
-          {recordCallState === RecordCallState.Done ? (
-            <SecondaryButton fluid disabled icon={Check} size="small">
-              Request recorded
-            </SecondaryButton>
-          ) : (
-            <SecondaryButton
-              fluid
-              icon={CassetteTape}
-              size="small"
-              onClick={recordCall}
-              busy={recordCallState === RecordCallState.Pending}
-            >
-              Request permission
-            </SecondaryButton>
-          )}
+          {translation == null && roleToRecordTo && (
+            <div className="flex flex-wrap items-center gap-2">
+              {recordCallState === RecordCallState.Done ? (
+                <SecondaryButton fluid disabled icon={Check} size="small">
+                  Request recorded
+                </SecondaryButton>
+              ) : (
+                <SecondaryButton
+                  fluid
+                  icon={CassetteTape}
+                  size="small"
+                  onClick={recordCall}
+                  busy={recordCallState === RecordCallState.Pending}
+                >
+                  Request permission
+                </SecondaryButton>
+              )}
 
-          {roleRecordLink && (
-            <SecondaryLinkButton
-              fluid
-              openInNewWindow
-              size="small"
-              icon={SquareArrowOutUpRight}
-              to={roleRecordLink}
-            >
-              View requested permissions
-            </SecondaryLinkButton>
+              {roleRecordLink && (
+                <SecondaryLinkButton
+                  fluid
+                  openInNewWindow
+                  size="small"
+                  icon={SquareArrowOutUpRight}
+                  to={roleRecordLink}
+                >
+                  View requested permissions
+                </SecondaryLinkButton>
+              )}
+            </div>
           )}
-        </div>
+        </>
       )}
     </div>
   )
+}
+
+type Role = {
+  rolesMod: PrefixedAddress
+  version: 1 | 2
+  roles: string[]
+  defaultRole?: string
+}
+
+const extractRoles = (route: ExecutionRoute | null) => {
+  if (route == null) {
+    return []
+  }
+
+  if (route.waypoints == null) {
+    return []
+  }
+
+  return route.waypoints.reduce<Role[]>((result, waypoint) => {
+    if (waypoint.account.type !== AccountType.ROLES) {
+      return result
+    }
+
+    if (!('connection' in waypoint)) {
+      return result
+    }
+
+    if (waypoint.connection.type !== ConnectionType.IS_MEMBER) {
+      return result
+    }
+
+    return [
+      ...result,
+      {
+        rolesMod: waypoint.account.prefixedAddress,
+        version: waypoint.account.version,
+        roles: waypoint.connection.roles,
+        defaultRole: waypoint.connection.defaultRole,
+      },
+    ]
+  }, [])
 }

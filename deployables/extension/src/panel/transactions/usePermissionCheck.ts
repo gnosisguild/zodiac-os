@@ -5,14 +5,27 @@ import { checkPermissions } from '@zodiac/modules'
 import { ExecutionRoute } from '@zodiac/schema'
 import { useEffect } from 'react'
 import { AccountType, Route } from 'ser-kit'
-import { useDispatch, useTransaction } from './TransactionsContext'
+import {
+  useDispatch,
+  usePermissionCheckResult,
+  useTransaction,
+} from './TransactionsContext'
 import {
   clearPermissionChecks,
   failPermissionCheck,
   passPermissionCheck,
 } from './actions'
+import { PermissionCheckError, PermissionCheckStatusType } from './state'
 
-export const usePermissionCheck = (transactionId: string) => {
+type PermissionCheckResult = {
+  isPending: boolean
+  isSkipped: boolean
+  error: PermissionCheckError | null
+}
+
+export const usePermissionCheck = (
+  transactionId: string,
+): PermissionCheckResult => {
   const dispatch = useDispatch()
 
   const route = useExecutionRoute()
@@ -74,6 +87,24 @@ export const usePermissionCheck = (transactionId: string) => {
       abortController.abort('Effect cancelled')
     }
   }, [dispatch, route, routeHasRoles, transaction])
+
+  const state = usePermissionCheckResult(transactionId)
+
+  if (state == null) {
+    return { isPending: false, isSkipped: true, error: null }
+  }
+
+  switch (state.type) {
+    case PermissionCheckStatusType.pending: {
+      return { isPending: true, isSkipped: false, error: null }
+    }
+    case PermissionCheckStatusType.failed: {
+      return { isPending: false, isSkipped: false, error: state.error }
+    }
+    case PermissionCheckStatusType.passed: {
+      return { isPending: false, isSkipped: false, error: null }
+    }
+  }
 }
 
 const routeGoesThroughRoles = (route: ExecutionRoute | null) => {
