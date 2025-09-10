@@ -526,6 +526,13 @@
       "when": 1757429000241,
       "tag": "0074_deployment role ref table",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1757517422021,
+      "tag": "0075_move issues to role deployment",
+      "breakpoints": true
     }
   ]
 }

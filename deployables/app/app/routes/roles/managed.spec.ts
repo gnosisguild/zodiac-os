@@ -11,7 +11,7 @@ import {
   setDefaultWallet,
   setRoleMembers,
 } from '@zodiac/db'
-import { DeploymentIssue } from '@zodiac/db/schema'
+import { RoleDeploymentIssue } from '@zodiac/db/schema'
 import {
   accountFactory,
   dbIt,
@@ -137,7 +137,7 @@ describe('Managed roles', () => {
           await roleFactory.create(tenant, user)
 
           mockPlanRoleUpdate.mockResolvedValue({
-            issues: [DeploymentIssue.MissingDefaultWallet],
+            issues: [RoleDeploymentIssue.MissingDefaultWallet],
             slices: [],
           })
 
@@ -171,7 +171,7 @@ describe('Managed roles', () => {
         const role = await roleFactory.create(tenant, user)
 
         mockPlanRoleUpdate.mockResolvedValue({
-          issues: [DeploymentIssue.MissingDefaultWallet],
+          issues: [RoleDeploymentIssue.MissingDefaultWallet],
           slices: [],
         })
 
@@ -196,7 +196,7 @@ describe('Managed roles', () => {
         const deployment = await getDeployment(dbClient(), deploymentId)
 
         expect(deployment).toHaveProperty('issues', [
-          DeploymentIssue.MissingDefaultWallet,
+          RoleDeploymentIssue.MissingDefaultWallet,
         ])
       })
     })

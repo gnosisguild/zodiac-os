@@ -167,7 +167,10 @@ export default [
         ]),
 
         ...prefix('deployment/:deploymentId', [
-          index('routes/deployments/deploy.tsx'),
+          index('routes/deployments/deployment.tsx'),
+        ]),
+        ...prefix('role-deployment/:deploymentId', [
+          index('routes/deployments/role-deployment.tsx'),
         ]),
 
         ...prefix('roles', [

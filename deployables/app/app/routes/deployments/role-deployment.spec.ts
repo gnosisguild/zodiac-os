@@ -19,12 +19,13 @@ import {
   setDefaultWallet,
   setRoleMembers,
 } from '@zodiac/db'
-import { DeploymentIssue } from '@zodiac/db/schema'
+import { RoleDeploymentIssue } from '@zodiac/db/schema'
 import {
   accountFactory,
   dbIt,
   deploymentFactory,
   deploymentSliceFactory,
+  roleDeploymentFactory,
   roleFactory,
   routeFactory,
   signedTransactionFactory,
@@ -106,8 +107,9 @@ describe('Deploy Role', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await deploymentFactory.create(user, role, {
-          issues: [DeploymentIssue.NoActiveMembers],
+        const deployment = await deploymentFactory.create(user, role)
+        await roleDeploymentFactory.create(deployment, role, {
+          issues: [RoleDeploymentIssue.NoActiveMembers],
         })
 
         await render(
@@ -131,8 +133,9 @@ describe('Deploy Role', () => {
 
         const account = await accountFactory.create(tenant, user)
         const role = await roleFactory.create(tenant, user)
-        const deployment = await deploymentFactory.create(user, role, {
-          issues: [DeploymentIssue.MissingDefaultWallet],
+        const deployment = await deploymentFactory.create(user, role)
+        await roleDeploymentFactory.create(deployment, role, {
+          issues: [RoleDeploymentIssue.MissingDefaultWallet],
         })
 
         await setActiveAccounts(dbClient(), role, [account.id])
@@ -160,8 +163,9 @@ describe('Deploy Role', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await deploymentFactory.create(user, role, {
-          issues: [DeploymentIssue.NoActiveAccounts],
+        const deployment = await deploymentFactory.create(user, role)
+        await roleDeploymentFactory.create(deployment, role, {
+          issues: [RoleDeploymentIssue.NoActiveAccounts],
         })
 
         await render(

@@ -1,9 +1,9 @@
 import { invariant } from '@epic-web/invariant'
 import {
   ActiveDeployment,
-  DeploymentIssue,
   DeploymentTable,
   Role,
+  RoleDeploymentIssue,
   User,
   schema,
 } from '@zodiac/db/schema'
@@ -12,7 +12,7 @@ import { DBClient } from '../../dbClient'
 const { roleDeployment } = schema
 
 type CreateDeploymentOptions = {
-  issues: DeploymentIssue[]
+  issues: RoleDeploymentIssue[]
 }
 
 export const createRoleDeployment = async (

@@ -746,17 +746,6 @@ const ActionAssetRelations = relations(ActionAssetTable, ({ one }) => ({
   }),
 }))
 
-export enum DeploymentIssue {
-  NoActiveAccounts = 'NoActiveAccounts',
-  NoActiveMembers = 'NoActiveMembers',
-  MissingDefaultWallet = 'MissingDefaultWallet',
-}
-
-export const DeploymentIssueEnum = pgEnum(
-  'DeploymentIssue',
-  enumToPgEnum(DeploymentIssue),
-)
-
 export const DeploymentTable = pgTable(
   'Deployment',
   {
@@ -770,8 +759,6 @@ export const DeploymentTable = pgTable(
       .references(() => UserTable.id, {
         onDelete: 'set null',
       }),
-
-    issues: DeploymentIssueEnum().array().notNull().default([]),
 
     ...createdByReference,
     ...createdTimestamp,
@@ -796,9 +783,22 @@ const deploymentReference = {
 export type BaseDeployment = typeof DeploymentTable.$inferSelect
 export type DeploymentCreateInput = typeof DeploymentTable.$inferInsert
 
+export enum RoleDeploymentIssue {
+  NoActiveAccounts = 'NoActiveAccounts',
+  NoActiveMembers = 'NoActiveMembers',
+  MissingDefaultWallet = 'MissingDefaultWallet',
+}
+
+export const RoleDeploymentIssueEnum = pgEnum(
+  'RoleDeploymentIssue',
+  enumToPgEnum(RoleDeploymentIssue),
+)
+
 export const RoleDeploymentTable = pgTable(
   'RoleDeployment',
   {
+    issues: RoleDeploymentIssueEnum().array().notNull().default([]),
+
     ...deploymentReference,
     ...roleReference,
   },
@@ -931,5 +931,5 @@ export const schema = {
   RoleActionRelations,
   ActionAssetRelations,
   DefaultWalletRelations,
-  DeploymentIssueEnum,
+  RoleDeploymentIssueEnum,
 }

@@ -5,10 +5,10 @@ import {
   getRoleActions,
 } from '@zodiac/db'
 import {
-  DeploymentIssue,
   Role,
   RoleAction,
   RoleActionAsset,
+  RoleDeploymentIssue,
 } from '@zodiac/db/schema'
 
 import { Account, AccountType, NewAccount, UpdateAccount } from 'ser-kit'
@@ -23,7 +23,7 @@ type UpdateOrNewRolesMod = Extract<
 
 type Result = {
   rolesMods: UpdateOrNewRolesMod[]
-  issues: DeploymentIssue[]
+  issues: RoleDeploymentIssue[]
 }
 
 type GetRolesModsOptions = {
@@ -41,7 +41,7 @@ export const getRolesMods = async (
   if (activeAccounts.length === 0) {
     return {
       rolesMods: [],
-      issues: [DeploymentIssue.NoActiveAccounts],
+      issues: [RoleDeploymentIssue.NoActiveAccounts],
     }
   }
 

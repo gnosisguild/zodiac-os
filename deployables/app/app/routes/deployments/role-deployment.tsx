@@ -6,41 +6,28 @@ import {
   getAccountByAddress,
   getActivatedAccounts,
   getDefaultWalletLabels,
-  getDeployedRole,
   getDeployment,
   getDeploymentSlice,
   getDeploymentSlices,
   getRoleActionAssets,
+  getRoleDeployment,
   getRoleMembers,
   getUser,
   proposeTransaction,
   updateDeploymentSlice,
 } from '@zodiac/db'
-import { DeploymentSlice, Role } from '@zodiac/db/schema'
+import { Role } from '@zodiac/db/schema'
 import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
-import { useIsPending } from '@zodiac/hooks'
 import { isUUID } from '@zodiac/schema'
-import {
-  Card,
-  Collapsible,
-  DateValue,
-  Divider,
-  Info,
-  InlineForm,
-  PrimaryLinkButton,
-  SecondaryButton,
-} from '@zodiac/ui'
-import { Address, ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
+import { DateValue, Info } from '@zodiac/ui'
+import { ConnectWalletButton } from '@zodiac/web3'
 import { randomUUID } from 'crypto'
 import { href, redirect } from 'react-router'
-import { prefixAddress } from 'ser-kit'
 import { Issues } from '../roles/issues'
-import { Route } from './+types/deploy'
+import { Route } from './+types/role-deployment'
 import { Labels, ProvideAddressLabels } from './AddressLabelContext'
-import { Call } from './Call'
-import { Description } from './FeedEntry'
 import { ProvideRoleLabels } from './RoleLabelContext'
-import { Intent } from './intents'
+import { Slice } from './Slice'
 
 const contractLabels: Labels = {
   ['0x23da9ade38e4477b23770ded512fd37b12381fab']: 'Cow Swap',
@@ -80,18 +67,19 @@ export const loader = (args: Route.LoaderArgs) =>
       invariantResponse(isUUID(deploymentId), '"deploymentId" is not a UUID')
 
       const deployment = await getDeployment(dbClient(), deploymentId)
-      const role = await getDeployedRole(dbClient(), deploymentId)
-
       const slices = await getDeploymentSlices(dbClient(), deploymentId)
+
+      const { role, issues } = await getRoleDeployment(dbClient(), deploymentId)
+      const roleAddressLabels = await assembleRoleAddressLabels(role)
 
       return {
         slices,
         addressLabels: {
-          ...(role != null ? await assembleRoleAddressLabels(role) : {}),
+          ...roleAddressLabels,
           ...contractLabels,
         },
-        roleLabels: role != null ? { [role.key]: role.label } : {},
-        issues: deployment.issues,
+        roleLabels: { [role.key]: role.label },
+        issues,
         ...(deployment.cancelledAt == null
           ? { cancelledAt: null, cancelledBy: null }
           : {
@@ -203,7 +191,7 @@ export const action = (args: Route.ActionArgs) =>
     },
   )
 
-const DeployRole = ({
+const RoleDeployment = ({
   loaderData: {
     slices,
     addressLabels,
@@ -248,39 +236,11 @@ const DeployRole = ({
                 </Info>
 
                 {slices.map((slice) => (
-                  <Card key={slice.from}>
-                    {slice.steps.map(({ account, steps }) => (
-                      <Collapsible
-                        key={account.address}
-                        header={
-                          <div className="flex flex-1 items-center justify-between gap-8">
-                            <Description account={account} />
-                            <span className="text-xs">
-                              {steps.length === 1
-                                ? '1 call'
-                                : `${steps.length} calls`}
-                            </span>
-                          </div>
-                        }
-                      >
-                        <div className="flex flex-col gap-4 divide-y divide-zinc-700 pt-4">
-                          {steps.map((step, index) => (
-                            <div key={index} className="not-last:pb-4">
-                              <Call
-                                callData={step.call}
-                                chainId={slice.chainId}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </Collapsible>
-                    ))}
-                    <Divider />
-                    <Deploy
-                      slice={slice}
-                      deploymentCancelled={cancelledAt != null}
-                    />
-                  </Card>
+                  <Slice
+                    key={slice.from}
+                    slice={slice}
+                    deploymentCancelled={cancelledAt != null}
+                  />
                 ))}
               </div>
             )}
@@ -291,60 +251,4 @@ const DeployRole = ({
   )
 }
 
-export default DeployRole
-
-type DeployProps = {
-  slice: DeploymentSlice
-  deploymentCancelled: boolean
-}
-
-const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
-  const pending = useIsPending(
-    Intent.ExecuteTransaction,
-    (data) => data.get('deploymentSliceId') === slice.id,
-  )
-
-  return (
-    <div className="flex flex-1 items-center justify-between gap-8">
-      <Address>{slice.from}</Address>
-
-      <div className="flex items-center gap-2">
-        {slice.transactionHash != null && (
-          <TransactionStatus hash={slice.transactionHash}>
-            Deployed
-          </TransactionStatus>
-        )}
-
-        <InlineForm
-          context={{
-            deploymentSliceId: slice.id,
-            from: prefixAddress(slice.chainId, slice.from),
-          }}
-        >
-          <SecondaryButton
-            submit
-            size="small"
-            disabled={deploymentCancelled || slice.transactionHash != null}
-            intent={Intent.ExecuteTransaction}
-            busy={pending}
-            onClick={(event) => event.stopPropagation()}
-          >
-            Deploy
-          </SecondaryButton>
-        </InlineForm>
-
-        {slice.proposedTransactionId && slice.cancelledAt == null && (
-          <PrimaryLinkButton
-            size="small"
-            to={href('/workspace/:workspaceId/submit/proposal/:proposalId', {
-              workspaceId: slice.workspaceId,
-              proposalId: slice.proposedTransactionId,
-            })}
-          >
-            Show transaction
-          </PrimaryLinkButton>
-        )}
-      </div>
-    </div>
-  )
-}
+export default RoleDeployment

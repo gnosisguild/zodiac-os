@@ -12,10 +12,11 @@ export const roleDeploymentFactory = createFactory<
   RoleDeployment,
   [deployment: Deployment, role: Role]
 >({
-  build(deployment, role) {
+  build(deployment, role, { issues = [] } = {}) {
     return {
       deploymentId: deployment.id,
       roleId: role.id,
+      issues,
     }
   },
   async create(db, data) {
@@ -26,10 +27,11 @@ export const roleDeploymentFactory = createFactory<
 
     return roleDeployment
   },
-  createWithoutDb({ deploymentId, roleId }) {
+  createWithoutDb({ deploymentId, roleId, issues = [] }) {
     return {
       deploymentId,
       roleId,
+      issues,
     } satisfies RoleDeployment
   },
 })
