@@ -386,5 +386,25 @@ describe('Transactions reducer', () => {
         permissionChecks: {},
       })
     })
+
+    it('marks all permission checks as pending when transactions are being refreshed', () => {
+      const transaction = createConfirmedTransaction()
+
+      expect(
+        transactionsReducer(
+          createState({
+            executed: [transaction],
+            permissionChecks: {
+              [transaction.id]: { type: PermissionCheckStatusType.passed },
+            },
+          }),
+          refreshTransactions(),
+        ),
+      ).toMatchObject({
+        permissionChecks: {
+          [transaction.id]: { type: PermissionCheckStatusType.pending },
+        },
+      })
+    })
   })
 })

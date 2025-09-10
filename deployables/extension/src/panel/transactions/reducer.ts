@@ -217,6 +217,14 @@ export const transactionsReducer = (
         executed: [],
 
         refresh: true,
+
+        permissionChecks: state.executed.reduce(
+          (result, transaction) => ({
+            ...result,
+            [transaction.id]: { type: PermissionCheckStatusType.pending },
+          }),
+          {},
+        ),
       }
     }
 

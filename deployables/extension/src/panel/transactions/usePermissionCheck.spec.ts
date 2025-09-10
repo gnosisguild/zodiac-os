@@ -1,4 +1,8 @@
-import { createTransaction, renderHook } from '@/test-utils'
+import {
+  createConfirmedTransaction,
+  createTransaction,
+  renderHook,
+} from '@/test-utils'
 import { waitFor } from '@testing-library/react'
 import { checkPermissions } from '@zodiac/modules'
 import {
@@ -164,6 +168,22 @@ describe('usePermissionCheck', () => {
           },
         })
       })
+    })
+
+    it('does not check permissions multiple times', async () => {
+      const transaction = createConfirmedTransaction()
+
+      await renderHook(() => usePermissionCheck(transaction.id), {
+        route,
+        initialState: {
+          executed: [transaction],
+          permissionChecks: {
+            [transaction.id]: { type: PermissionCheckStatusType.passed },
+          },
+        },
+      })
+
+      expect(mockCheckPermissions).not.toHaveBeenCalled()
     })
   })
 })

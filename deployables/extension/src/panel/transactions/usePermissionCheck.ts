@@ -32,6 +32,11 @@ export const usePermissionCheck = (
   const transaction = useTransaction(transactionId)
   const routeHasRoles = routeGoesThroughRoles(route)
 
+  const state = usePermissionCheckResult(transactionId)
+
+  const isPending =
+    state != null && state.type == PermissionCheckStatusType.pending
+
   useEffect(() => {
     if (routeHasRoles) {
       return
@@ -42,6 +47,10 @@ export const usePermissionCheck = (
 
   useEffect(() => {
     const abortController = new AbortController()
+
+    if (!isPending) {
+      return
+    }
 
     if (routeHasRoles === false) {
       return
@@ -90,9 +99,7 @@ export const usePermissionCheck = (
     return () => {
       abortController.abort('Effect cancelled')
     }
-  }, [dispatch, route, routeHasRoles, transaction])
-
-  const state = usePermissionCheckResult(transactionId)
+  }, [dispatch, isPending, route, routeHasRoles, transaction])
 
   if (state == null) {
     return { isPending: false, isSkipped: true, error: null }
