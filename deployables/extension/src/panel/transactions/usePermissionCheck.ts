@@ -5,7 +5,11 @@ import { ExecutionRoute } from '@zodiac/schema'
 import { useEffect } from 'react'
 import { AccountType, Route } from 'ser-kit'
 import { useDispatch, useTransaction } from './TransactionsContext'
-import { clearPermissionChecks, passPermissionCheck } from './actions'
+import {
+  clearPermissionChecks,
+  failPermissionCheck,
+  passPermissionCheck,
+} from './actions'
 
 export const usePermissionCheck = (
   route: ExecutionRoute,
@@ -49,6 +53,13 @@ export const usePermissionCheck = (
       if (result.error == null) {
         if (result.permissionCheck.success) {
           dispatch(passPermissionCheck({ transactionId: transaction.id }))
+        } else {
+          dispatch(
+            failPermissionCheck({
+              transactionId: transaction.id,
+              error: result.permissionCheck.error,
+            }),
+          )
         }
       }
     })

@@ -1,6 +1,7 @@
 import { createConfirmedTransaction, createTransaction } from '@/test-utils'
 import { createMockTransactionRequest } from '@zodiac/modules/test-utils'
 import { addMinutes } from 'date-fns'
+import { PermissionViolation } from 'ser-kit'
 import { describe, expect, it } from 'vitest'
 import {
   appendTransaction,
@@ -354,11 +355,17 @@ describe('Transactions reducer', () => {
               [transaction.id]: { type: PermissionCheckStatusType.pending },
             },
           }),
-          failPermissionCheck({ transactionId: transaction.id }),
+          failPermissionCheck({
+            transactionId: transaction.id,
+            error: PermissionViolation.AllowanceExceeded,
+          }),
         ),
       ).toMatchObject({
         permissionChecks: {
-          [transaction.id]: { type: PermissionCheckStatusType.failed },
+          [transaction.id]: {
+            type: PermissionCheckStatusType.failed,
+            error: PermissionViolation.AllowanceExceeded,
+          },
         },
       })
     })

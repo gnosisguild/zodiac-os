@@ -8,6 +8,7 @@ import {
   createMockWaypoints,
 } from '@zodiac/modules/test-utils'
 import { beforeEach } from 'node:test'
+import { PermissionViolation } from 'ser-kit'
 import { describe, expect, it, vi } from 'vitest'
 import { PermissionCheckStatusType } from './state'
 import { usePermissionCheck } from './usePermissionCheck'
@@ -89,6 +90,41 @@ describe('usePermissionCheck', () => {
         expect(getState()).toMatchObject({
           permissionChecks: {
             [transaction.id]: { type: PermissionCheckStatusType.passed },
+          },
+        })
+      })
+    })
+
+    it('marks transactions that fail the check as failed', async () => {
+      const transaction = createTransaction()
+
+      mockCheckPermissions.mockResolvedValue({
+        error: null,
+        permissionCheck: {
+          success: false,
+          error: PermissionViolation.AllowanceExceeded,
+        },
+      })
+
+      const { getState } = await renderHook(
+        () => usePermissionCheck(route, transaction.id),
+        {
+          initialState: {
+            pending: [transaction],
+            permissionChecks: {
+              [transaction.id]: { type: PermissionCheckStatusType.pending },
+            },
+          },
+        },
+      )
+
+      await waitFor(() => {
+        expect(getState()).toMatchObject({
+          permissionChecks: {
+            [transaction.id]: {
+              type: PermissionCheckStatusType.failed,
+              error: PermissionViolation.AllowanceExceeded,
+            },
           },
         })
       })

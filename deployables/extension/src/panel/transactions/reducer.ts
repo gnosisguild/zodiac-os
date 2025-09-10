@@ -241,7 +241,10 @@ export const transactionsReducer = (
         permissionChecks: {
           ...state.permissionChecks,
 
-          [payload.transactionId]: { type: PermissionCheckStatusType.failed },
+          [payload.transactionId]: {
+            type: PermissionCheckStatusType.failed,
+            error: payload.error,
+          },
         },
       }
     }

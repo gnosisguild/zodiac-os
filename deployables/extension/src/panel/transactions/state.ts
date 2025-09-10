@@ -1,4 +1,5 @@
 import type { Hex, MetaTransactionRequest } from '@zodiac/schema'
+import { PermissionViolation } from 'ser-kit'
 import type { ExecutionStatus } from './executionStatus'
 
 type AbiFragment = object
@@ -47,6 +48,7 @@ type PassedPermissionCheck = {
 
 type FailedPermissionCheck = {
   type: PermissionCheckStatusType.failed
+  error: PermissionViolation
 }
 
 type PermissionCheck =
