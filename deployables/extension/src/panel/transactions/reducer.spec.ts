@@ -4,6 +4,7 @@ import { addMinutes } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import {
   appendTransaction,
+  clearPermissionChecks,
   clearTransactions,
   commitRefreshTransactions,
   confirmRollbackTransaction,
@@ -16,7 +17,6 @@ import {
   revertTransaction,
   rollbackTransaction,
   translateTransaction,
-  voidPermissionCheck,
 } from './actions'
 import { ExecutionStatus } from './executionStatus'
 import { transactionsReducer } from './reducer'
@@ -363,7 +363,7 @@ describe('Transactions reducer', () => {
       })
     })
 
-    it('is possible to mark a permission check as void', () => {
+    it('is possible to clear all permission checks', () => {
       const transaction = createTransaction()
 
       expect(
@@ -373,12 +373,10 @@ describe('Transactions reducer', () => {
               [transaction.id]: { type: PermissionCheckStatusType.pending },
             },
           }),
-          voidPermissionCheck({ transactionId: transaction.id }),
+          clearPermissionChecks(),
         ),
       ).toMatchObject({
-        permissionChecks: {
-          [transaction.id]: { type: PermissionCheckStatusType.void },
-        },
+        permissionChecks: {},
       })
     })
   })

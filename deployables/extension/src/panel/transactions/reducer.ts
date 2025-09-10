@@ -246,15 +246,11 @@ export const transactionsReducer = (
       }
     }
 
-    case ActionType.VoidPermissionCheck: {
+    case ActionType.ClearPermissionChecks: {
       return {
         ...state,
 
-        permissionChecks: {
-          ...state.permissionChecks,
-
-          [payload.transactionId]: { type: PermissionCheckStatusType.void },
-        },
+        permissionChecks: {},
       }
     }
   }

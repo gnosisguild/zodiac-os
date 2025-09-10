@@ -17,7 +17,7 @@ export enum ActionType {
   GlobalTranslate = 'GlobalTranslate',
   PassPermissionCheck = 'PassPermissionCheck',
   FailPermissionCheck = 'FailPermissionCheck',
-  VoidPermissionCheck = 'VoidPermissionCheck',
+  ClearPermissionChecks = 'ClearPermissionChecks',
 }
 
 type Action<Type extends ActionType, Payload = null> = {
@@ -168,16 +168,11 @@ export const failPermissionCheck = (
   payload,
 })
 
-type VoidPermissionCheckAction = Action<
-  ActionType.VoidPermissionCheck,
-  { transactionId: string }
->
+type ClearPermissionChecksAction = Action<ActionType.ClearPermissionChecks>
 
-export const voidPermissionCheck = (
-  payload: Payload<VoidPermissionCheckAction>,
-): VoidPermissionCheckAction => ({
-  type: ActionType.VoidPermissionCheck,
-  payload,
+export const clearPermissionChecks = (): ClearPermissionChecksAction => ({
+  type: ActionType.ClearPermissionChecks,
+  payload: null,
 })
 
 export type TransactionAction =
@@ -196,4 +191,4 @@ export type TransactionAction =
   | GlobalTranslateTransactionsAction
   | PassPermissionCheckAction
   | FailPermissionCheckAction
-  | VoidPermissionCheckAction
+  | ClearPermissionChecksAction
