@@ -5,6 +5,7 @@ import {
   dbClient,
   getAccountByAddress,
   getActivatedAccounts,
+  getDefaultRoute,
   getDefaultWalletLabels,
   getRole,
   getRoleActionAssets,
@@ -18,7 +19,7 @@ import {
   updateRoleDeploymentSlice,
 } from '@zodiac/db'
 import { RoleDeploymentSlice } from '@zodiac/db/schema'
-import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
+import { getOptionalUUID, getPrefixedAddress, getUUID } from '@zodiac/form-data'
 import { useAfterSubmit, useIsPending } from '@zodiac/hooks'
 import { isUUID } from '@zodiac/schema'
 import {
@@ -26,11 +27,14 @@ import {
   Collapsible,
   DateValue,
   Divider,
+  Form,
   Info,
   InlineForm,
   Modal,
+  PrimaryButton,
   PrimaryLinkButton,
   SecondaryButton,
+  Select,
 } from '@zodiac/ui'
 import { ConnectWalletButton, TransactionStatus } from '@zodiac/web3'
 import { randomUUID } from 'crypto'
@@ -140,6 +144,10 @@ export const action = (args: Route.ActionArgs) =>
         tenantId: tenant.id,
         prefixedAddress: getPrefixedAddress(data, 'from'),
       })
+      const deploymentSlice = await getRoleDeploymentSlice(
+        dbClient(),
+        getUUID(data, 'roleDeploymentSliceId'),
+      )
 
       const routes = await getRoutes(dbClient(), tenant.id, {
         accountId: account.id,
@@ -147,13 +155,33 @@ export const action = (args: Route.ActionArgs) =>
       })
 
       if (routes.length === 0) {
-        return { issue: DeployIssues.NoRouteToAccount, accountId: account.id }
+        return {
+          issue: DeployIssues.NoRouteToAccount,
+          accountId: account.id,
+        } as const
       }
 
-      const deploymentSlice = await getRoleDeploymentSlice(
-        dbClient(),
-        getUUID(data, 'roleDeploymentSliceId'),
-      )
+      const selectedRouteId = getOptionalUUID(data, 'route')
+
+      if (routes.length > 1 && selectedRouteId == null) {
+        const defaultRoute = await getDefaultRoute(
+          dbClient(),
+          tenant,
+          user,
+          account.id,
+        )
+
+        return {
+          issue: DeployIssues.MultipleRoutes,
+          routes,
+          defaultRouteId: defaultRoute.routeId,
+
+          context: {
+            roleDeploymentSliceId: deploymentSlice.id,
+            from: prefixAddress(account.chainId, account.address),
+          },
+        } as const
+      }
 
       const transactionProposal = await dbClient().transaction(async (tx) => {
         const callbackUrl = new URL(
@@ -192,10 +220,19 @@ export const action = (args: Route.ActionArgs) =>
       })
 
       return redirect(
-        href('/workspace/:workspaceId/submit/proposal/:proposalId', {
-          workspaceId,
-          proposalId: transactionProposal.id,
-        }),
+        selectedRouteId
+          ? href(
+              '/workspace/:workspaceId/submit/proposal/:proposalId/:routeId',
+              {
+                workspaceId,
+                proposalId: transactionProposal.id,
+                routeId: selectedRouteId,
+              },
+            )
+          : href('/workspace/:workspaceId/submit/proposal/:proposalId', {
+              workspaceId,
+              proposalId: transactionProposal.id,
+            }),
       )
     },
     {
@@ -252,28 +289,58 @@ const DeployRole = ({
       </Page.Header>
 
       <Page.Main>
-        {actionData != null &&
-          actionData.issue === DeployIssues.NoRouteToAccount && (
-            <Modal
-              open={!dismissedRouteWarning}
-              onClose={() => setDismissedRouteWarning(true)}
-              title="Missing route to account"
-              description="You have not set up a route to this account. After you have set up a route for this account you can come back here and continue with this step."
-            >
-              <Modal.Actions>
-                <PrimaryLinkButton
-                  to={href('/workspace/:workspaceId/accounts/:accountId', {
-                    workspaceId,
-                    accountId: actionData.accountId,
-                  })}
-                >
-                  Open account
-                </PrimaryLinkButton>
+        {actionData != null && (
+          <>
+            {actionData.issue === DeployIssues.NoRouteToAccount && (
+              <Modal
+                open={!dismissedRouteWarning}
+                onClose={() => setDismissedRouteWarning(true)}
+                title="Missing route to account"
+                description="You have not set up a route to this account. After you have set up a route for this account you can come back here and continue with this step."
+              >
+                <Modal.Actions>
+                  <PrimaryLinkButton
+                    to={href('/workspace/:workspaceId/accounts/:accountId', {
+                      workspaceId,
+                      accountId: actionData.accountId,
+                    })}
+                  >
+                    Open account
+                  </PrimaryLinkButton>
 
-                <Modal.CloseAction>Cancel</Modal.CloseAction>
-              </Modal.Actions>
-            </Modal>
-          )}
+                  <Modal.CloseAction>Cancel</Modal.CloseAction>
+                </Modal.Actions>
+              </Modal>
+            )}
+
+            {actionData.issue === DeployIssues.MultipleRoutes && (
+              <Modal
+                open={!dismissedRouteWarning}
+                onClose={() => setDismissedRouteWarning(true)}
+                title="Multiple routes available"
+                description="Please choose the route you want to use. The default one has been pre-selected."
+              >
+                <Form context={actionData.context}>
+                  <Select
+                    name="route"
+                    label="Route"
+                    options={actionData.routes.map((route) => ({
+                      value: route.id,
+                      label: route.label,
+                    }))}
+                    defaultValue={actionData.defaultRouteId}
+                  />
+                  <Modal.Actions>
+                    <PrimaryButton submit intent={Intent.ExecuteTransaction}>
+                      Use route
+                    </PrimaryButton>
+                    <Modal.CloseAction>Cancel</Modal.CloseAction>
+                  </Modal.Actions>
+                </Form>
+              </Modal>
+            )}
+          </>
+        )}
 
         <Issues issues={issues} />
 
@@ -396,4 +463,5 @@ const Deploy = ({ slice, deploymentCancelled }: DeployProps) => {
 
 enum DeployIssues {
   NoRouteToAccount = 'NoRouteToAccount',
+  MultipleRoutes = 'MultipleRoutes',
 }

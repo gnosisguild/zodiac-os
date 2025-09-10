@@ -36,6 +36,7 @@ import {
 import {
   expectRouteToBe,
   randomHex,
+  selectOption,
   waitForPendingActions,
 } from '@zodiac/test-utils'
 import { formatDate } from '@zodiac/ui'
@@ -278,7 +279,70 @@ describe('Deploy Role', () => {
         )
       })
 
-      dbIt.todo('allows you to select a route to use to execute a step')
+      dbIt(
+        'allows you to select a route to use to execute a step',
+        async () => {
+          const user = await userFactory.create()
+          const tenant = await tenantFactory.create(user)
+
+          const wallet = await walletFactory.create(user)
+
+          const account = await accountFactory.create(tenant, user)
+
+          await routeFactory.create(account, wallet, { label: 'First route' })
+          const route = await routeFactory.create(account, wallet, {
+            label: 'Second route',
+          })
+
+          const role = await roleFactory.create(tenant, user)
+          const deployment = await roleDeploymentFactory.create(user, role)
+
+          await roleDeploymentSliceFactory.create(user, deployment, {
+            from: account.address,
+          })
+
+          await render(
+            href(
+              '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
+              {
+                workspaceId: tenant.defaultWorkspaceId,
+                roleId: role.id,
+                deploymentId: deployment.id,
+              },
+            ),
+            { tenant, user },
+          )
+
+          await userEvent.click(
+            await screen.findByRole('button', { name: 'Deploy' }),
+          )
+
+          await selectOption('Route', 'Second route')
+
+          await userEvent.click(
+            await screen.findByRole('button', { name: 'Use route' }),
+          )
+
+          await waitForPendingActions()
+
+          const [proposal] = await getProposedTransactions(
+            dbClient(),
+            user,
+            account,
+          )
+
+          await expectRouteToBe(
+            href(
+              '/workspace/:workspaceId/submit/proposal/:proposalId/:routeId',
+              {
+                workspaceId: tenant.defaultWorkspaceId,
+                proposalId: proposal.id,
+                routeId: route.id,
+              },
+            ),
+          )
+        },
+      )
     })
 
     describe('Transaction proposal', () => {
