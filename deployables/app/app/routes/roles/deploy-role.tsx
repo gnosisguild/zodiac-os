@@ -210,6 +210,7 @@ export const action = (args: Route.ActionArgs) =>
           transaction: transactionBundle,
           callbackUrl,
           callbackState: randomUUID(),
+          routeId: selectedRouteId,
         })
 
         await updateRoleDeploymentSlice(tx, deploymentSlice.id, {
@@ -220,19 +221,10 @@ export const action = (args: Route.ActionArgs) =>
       })
 
       return redirect(
-        selectedRouteId
-          ? href(
-              '/workspace/:workspaceId/submit/proposal/:proposalId/:routeId',
-              {
-                workspaceId,
-                proposalId: transactionProposal.id,
-                routeId: selectedRouteId,
-              },
-            )
-          : href('/workspace/:workspaceId/submit/proposal/:proposalId', {
-              workspaceId,
-              proposalId: transactionProposal.id,
-            }),
+        href('/workspace/:workspaceId/submit/proposal/:proposalId', {
+          workspaceId,
+          proposalId: transactionProposal.id,
+        }),
       )
     },
     {

@@ -49,6 +49,7 @@ export const transactionProposalFactory = createFactory<
       signedTransactionId: null,
       callbackUrl: null,
       callbackState: null,
+      routeId: null,
 
       ...data,
     }
