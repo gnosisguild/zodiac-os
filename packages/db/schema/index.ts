@@ -793,6 +793,9 @@ const deploymentReference = {
     .references(() => DeploymentTable.id, { onDelete: 'cascade' }),
 }
 
+export type BaseDeployment = typeof DeploymentTable.$inferSelect
+export type DeploymentCreateInput = typeof DeploymentTable.$inferInsert
+
 export const RoleDeploymentTable = pgTable(
   'RoleDeployment',
   {
@@ -802,8 +805,8 @@ export const RoleDeploymentTable = pgTable(
   (table) => [index().on(table.roleId)],
 )
 
-export type BaseDeployment = typeof DeploymentTable.$inferSelect
-export type DeploymentCreateInput = typeof DeploymentTable.$inferInsert
+export type RoleDeployment = typeof RoleDeploymentTable.$inferSelect
+export type RoleDeploymentCreateInput = typeof RoleDeploymentTable.$inferInsert
 
 export type ActiveDeployment = NullProperties<
   BaseDeployment,

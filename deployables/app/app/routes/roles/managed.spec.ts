@@ -16,6 +16,7 @@ import {
   accountFactory,
   dbIt,
   deploymentFactory,
+  roleDeploymentFactory,
   roleFactory,
   tenantFactory,
   userFactory,
@@ -207,6 +208,10 @@ describe('Managed roles', () => {
 
         const role = await roleFactory.create(tenant, user)
         const deployment = await deploymentFactory.create(user, role)
+        const roleDeployment = await roleDeploymentFactory.create(
+          deployment,
+          role,
+        )
 
         await render(
           href('/workspace/:workspaceId/roles', {
@@ -224,7 +229,7 @@ describe('Managed roles', () => {
 
         await expectRouteToBe(
           href('/workspace/:workspaceId/deployment/:deploymentId', {
-            deploymentId: deployment.id,
+            deploymentId: roleDeployment.deploymentId,
             workspaceId: tenant.defaultWorkspaceId,
           }),
         )
@@ -238,6 +243,10 @@ describe('Managed roles', () => {
 
           const role = await roleFactory.create(tenant, user)
           const deployment = await deploymentFactory.create(user, role)
+          const roleDeployment = await roleDeploymentFactory.create(
+            deployment,
+            role,
+          )
 
           await render(
             href('/workspace/:workspaceId/roles', {
@@ -256,7 +265,7 @@ describe('Managed roles', () => {
           await waitForPendingActions()
 
           await expect(
-            getDeployment(dbClient(), deployment.id),
+            getDeployment(dbClient(), roleDeployment.deploymentId),
           ).resolves.toMatchObject({
             cancelledAt: new Date(),
             cancelledById: user.id,
