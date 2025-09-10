@@ -208,7 +208,7 @@ const ManagedRoles = ({
               <TableCell>
                 <DateValue>{role.createdAt}</DateValue>
               </TableCell>
-              <TableCell>{role.createBy.fullName}</TableCell>
+              <TableCell>{role.createdBy.fullName}</TableCell>
               <TableCell>
                 {activatedAccounts[role.id] == null ? (
                   <Empty />

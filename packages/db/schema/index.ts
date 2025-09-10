@@ -598,7 +598,7 @@ const roleReference = {
 }
 
 const RoleRelations = relations(RoleTable, ({ one }) => ({
-  createBy: one(UserTable, {
+  createdBy: one(UserTable, {
     fields: [RoleTable.createdById],
     references: [UserTable.id],
   }),

@@ -16,6 +16,6 @@ export const getRoles = (db: DBClient, { workspaceId }: GetRolesOptions = {}) =>
       return asc(fields.label)
     },
     with: {
-      createBy: { columns: { fullName: true } },
+      createdBy: { columns: { fullName: true } },
     },
   })
