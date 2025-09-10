@@ -1,5 +1,6 @@
 import { ProvideAccount, toLocalAccount, type TaggedAccount } from '@/accounts'
 import { toAccount } from '@/companion'
+import { ProvideExecutionRoute } from '@/execution-routes'
 import {
   ProvideForkProvider,
   ProvideTransactions,
@@ -7,6 +8,7 @@ import {
 } from '@/transactions'
 import { invariant } from '@epic-web/invariant'
 import { createMockExecutionRoute } from '@zodiac/modules/test-utils'
+import { ExecutionRoute } from '@zodiac/schema'
 import {
   renderHook as renderHookBase,
   type RenderHookOptions,
@@ -21,6 +23,7 @@ type ExtendedOptions = {
   activeTab?: Partial<chrome.tabs.Tab>
 
   account?: TaggedAccount
+  route?: ExecutionRoute
 
   initialState?: Partial<State>
 }
@@ -29,7 +32,8 @@ export const renderHook = async <Result, Props>(
   fn: Fn<Result, Props>,
   {
     activeTab,
-    account = toLocalAccount(toAccount(createMockExecutionRoute())),
+    route = createMockExecutionRoute(),
+    account = toLocalAccount(toAccount(route)),
     wrapper: Wrapper = Fragment,
     initialState,
 
@@ -44,6 +48,7 @@ export const renderHook = async <Result, Props>(
   const FinalWrapper = ({ children }: PropsWithChildren) => (
     <RenderWrapper
       account={account}
+      route={route}
       initialState={createTransactionState(initialState)}
       stateRef={state}
     >
@@ -70,6 +75,7 @@ export const renderHook = async <Result, Props>(
 
 type RenderWrapperProps = PropsWithChildren<{
   account: TaggedAccount
+  route: ExecutionRoute
   initialState: State
   stateRef: RefObject<State | null>
 }>
@@ -79,10 +85,13 @@ const RenderWrapper = ({
   initialState,
   children,
   stateRef,
+  route,
 }: RenderWrapperProps) => (
   <ProvideAccount account={account}>
-    <ProvideTransactions initialState={initialState} stateRef={stateRef}>
-      <ProvideForkProvider route={null}>{children}</ProvideForkProvider>
-    </ProvideTransactions>
+    <ProvideExecutionRoute route={route}>
+      <ProvideTransactions initialState={initialState} stateRef={stateRef}>
+        <ProvideForkProvider route={null}>{children}</ProvideForkProvider>
+      </ProvideTransactions>
+    </ProvideExecutionRoute>
   </ProvideAccount>
 )

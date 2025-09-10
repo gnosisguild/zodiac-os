@@ -1,10 +1,10 @@
 import { useAccount } from '@/accounts'
 import { AD_HOC_ROUTE_ID } from '@/execution-routes'
 import { ForkProvider } from '@/providers'
-import type { ExecutionRoute, HexAddress } from '@/types'
+import type { HexAddress } from '@/types'
 import { invariant } from '@epic-web/invariant'
 import { ZERO_ADDRESS } from '@zodiac/chains'
-import { jsonParse } from '@zodiac/schema'
+import { ExecutionRoute, jsonParse } from '@zodiac/schema'
 import {
   createContext,
   useContext,

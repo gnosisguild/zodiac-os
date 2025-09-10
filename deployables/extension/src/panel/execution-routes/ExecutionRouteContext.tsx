@@ -1,5 +1,5 @@
-import type { ExecutionRoute } from '@/types'
 import { invariant } from '@epic-web/invariant'
+import { ExecutionRoute } from '@zodiac/schema'
 import { createContext, useContext, type PropsWithChildren } from 'react'
 
 const ExecutionRouteContext = createContext<{ route: ExecutionRoute | null }>({

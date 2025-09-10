@@ -1,3 +1,4 @@
+import { useExecutionRoute } from '@/execution-routes'
 import { invariant } from '@epic-web/invariant'
 import { EOA_ZERO_ADDRESS } from '@zodiac/chains'
 import { checkPermissions } from '@zodiac/modules'
@@ -11,12 +12,10 @@ import {
   passPermissionCheck,
 } from './actions'
 
-export const usePermissionCheck = (
-  route: ExecutionRoute,
-  transactionId: string,
-) => {
+export const usePermissionCheck = (transactionId: string) => {
   const dispatch = useDispatch()
 
+  const route = useExecutionRoute()
   const transaction = useTransaction(transactionId)
   const routeHasRoles = routeGoesThroughRoles(route)
 

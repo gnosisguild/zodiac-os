@@ -39,8 +39,9 @@ describe('usePermissionCheck', () => {
       const route = createMockExecutionRoute()
 
       const { getState } = await renderHook(
-        () => usePermissionCheck(route, transaction.id),
+        () => usePermissionCheck(transaction.id),
         {
+          route,
           initialState: {
             pending: [transaction],
             permissionChecks: {
@@ -75,8 +76,9 @@ describe('usePermissionCheck', () => {
       })
 
       const { getState } = await renderHook(
-        () => usePermissionCheck(route, transaction.id),
+        () => usePermissionCheck(transaction.id),
         {
+          route,
           initialState: {
             pending: [transaction],
             permissionChecks: {
@@ -107,8 +109,9 @@ describe('usePermissionCheck', () => {
       })
 
       const { getState } = await renderHook(
-        () => usePermissionCheck(route, transaction.id),
+        () => usePermissionCheck(transaction.id),
         {
+          route,
           initialState: {
             pending: [transaction],
             permissionChecks: {
@@ -139,8 +142,9 @@ describe('usePermissionCheck', () => {
       })
 
       const { getState } = await renderHook(
-        () => usePermissionCheck(route, transaction.id),
+        () => usePermissionCheck(transaction.id),
         {
+          route,
           initialState: {
             pending: [transaction],
             permissionChecks: {

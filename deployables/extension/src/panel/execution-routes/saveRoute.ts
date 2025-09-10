@@ -1,5 +1,5 @@
 import { saveStorageEntry } from '@/storage'
-import type { ExecutionRoute } from '@/types'
+import { ExecutionRoute } from '@zodiac/schema'
 
 export const saveRoute = (route: ExecutionRoute) =>
   saveStorageEntry({
