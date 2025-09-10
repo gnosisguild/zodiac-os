@@ -61,6 +61,13 @@ export const usePermissionCheck = (
             }),
           )
         }
+      } else {
+        dispatch(
+          failPermissionCheck({
+            transactionId: transaction.id,
+            error: 'Service unavailable',
+          }),
+        )
       }
     })
 

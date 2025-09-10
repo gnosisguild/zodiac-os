@@ -1,6 +1,5 @@
 import type { MetaTransactionRequest } from '@zodiac/schema'
-import { PermissionViolation } from 'ser-kit'
-import type { ContractInfo } from './state'
+import type { ContractInfo, PermissionCheckError } from './state'
 
 export enum ActionType {
   Append = 'Append',
@@ -151,7 +150,7 @@ type PassPermissionCheckAction = Action<
 >
 
 export const passPermissionCheck = (
-  payload: PassPermissionCheckAction['payload'],
+  payload: Payload<PassPermissionCheckAction>,
 ): PassPermissionCheckAction => ({
   type: ActionType.PassPermissionCheck,
   payload,
@@ -159,7 +158,7 @@ export const passPermissionCheck = (
 
 type FailPermissionCheckAction = Action<
   ActionType.FailPermissionCheck,
-  { transactionId: string; error: PermissionViolation }
+  { transactionId: string; error: PermissionCheckError }
 >
 
 export const failPermissionCheck = (

@@ -129,5 +129,37 @@ describe('usePermissionCheck', () => {
         })
       })
     })
+
+    it('shows when the permission check service is unavailable', async () => {
+      const transaction = createTransaction()
+
+      mockCheckPermissions.mockResolvedValue({
+        error: new Error('Service unavailable'),
+        permissionCheck: null,
+      })
+
+      const { getState } = await renderHook(
+        () => usePermissionCheck(route, transaction.id),
+        {
+          initialState: {
+            pending: [transaction],
+            permissionChecks: {
+              [transaction.id]: { type: PermissionCheckStatusType.pending },
+            },
+          },
+        },
+      )
+
+      await waitFor(() => {
+        expect(getState()).toMatchObject({
+          permissionChecks: {
+            [transaction.id]: {
+              type: PermissionCheckStatusType.failed,
+              error: 'Service unavailable',
+            },
+          },
+        })
+      })
+    })
   })
 })

@@ -45,10 +45,15 @@ type PendingPermissionCheck = {
 type PassedPermissionCheck = {
   type: PermissionCheckStatusType.passed
 }
+type PermissionCheckServiceUnavailable = 'Service unavailable'
+
+export type PermissionCheckError =
+  | PermissionViolation
+  | PermissionCheckServiceUnavailable
 
 type FailedPermissionCheck = {
   type: PermissionCheckStatusType.failed
-  error: PermissionViolation
+  error: PermissionCheckError
 }
 
 type PermissionCheck =
