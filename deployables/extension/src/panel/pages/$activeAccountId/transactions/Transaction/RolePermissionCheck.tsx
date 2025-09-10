@@ -1,4 +1,4 @@
-import { useExecutionRoute } from '@/execution-routes'
+import { useOptionalExecutionRoute } from '@/execution-routes'
 import {
   Translate,
   useApplicableTranslation,
@@ -12,6 +12,7 @@ import type { ExecutionRoute, PrefixedAddress } from '@zodiac/schema'
 import {
   errorToast,
   GhostLinkButton,
+  Popover,
   SecondaryButton,
   SecondaryLinkButton,
   Spinner,
@@ -41,7 +42,7 @@ enum RecordCallState {
 }
 
 export const RolePermissionCheck = ({ transactionId, mini = false }: Props) => {
-  const route = useExecutionRoute()
+  const route = useOptionalExecutionRoute()
 
   const transaction = useTransaction(transactionId)
   const permissionCheck = usePermissionCheck(transactionId)
@@ -113,9 +114,13 @@ export const RolePermissionCheck = ({ transactionId, mini = false }: Props) => {
           ) : permissionCheck.isSkipped ? (
             <Tag color="gray">Skipped</Tag>
           ) : permissionCheck.error != null ? (
-            <Tag head={<TriangleAlert size={16} />} color="red">
-              {permissionCheck.error}
-            </Tag>
+            <Popover
+              popover={<span className="text-sm">{permissionCheck.error}</span>}
+            >
+              <Tag head={<TriangleAlert size={16} />} color="red">
+                Error
+              </Tag>
+            </Popover>
           ) : (
             <Tag head={<Check size={16} />} color="green">
               Allowed

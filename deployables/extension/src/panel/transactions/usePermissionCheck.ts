@@ -1,4 +1,4 @@
-import { useExecutionRoute } from '@/execution-routes'
+import { useOptionalExecutionRoute } from '@/execution-routes'
 import { invariant } from '@epic-web/invariant'
 import { EOA_ZERO_ADDRESS } from '@zodiac/chains'
 import { checkPermissions } from '@zodiac/modules'
@@ -28,7 +28,7 @@ export const usePermissionCheck = (
 ): PermissionCheckResult => {
   const dispatch = useDispatch()
 
-  const route = useExecutionRoute()
+  const route = useOptionalExecutionRoute()
   const transaction = useTransaction(transactionId)
   const routeHasRoles = routeGoesThroughRoles(route)
 
@@ -44,6 +44,10 @@ export const usePermissionCheck = (
     const abortController = new AbortController()
 
     if (routeHasRoles === false) {
+      return
+    }
+
+    if (route == null) {
       return
     }
 
