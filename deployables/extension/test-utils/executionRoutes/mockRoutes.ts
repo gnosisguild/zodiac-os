@@ -1,5 +1,5 @@
 import { saveRoute } from '@/execution-routes'
-import type { ExecutionRoute } from '@/types'
+import { ExecutionRoute } from '@zodiac/schema'
 import { createMockRoute } from '../creators'
 
 export const mockRoutes = (...routes: Partial<ExecutionRoute>[]) => {

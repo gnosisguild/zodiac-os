@@ -1,13 +1,10 @@
 import { useAccount } from '@/accounts'
-import { useExecutionRoute } from '@/execution-routes'
 import { Translate, useTransaction } from '@/transactions'
-import type { ExecutionRoute } from '@/types'
 import { chainCurrency } from '@zodiac/chains'
 import { toMetaTransactionRequest } from '@zodiac/schema'
 import { CopyToClipboard, Divider, TextInput, ToggleButton } from '@zodiac/ui'
 import { formatEther, Fragment } from 'ethers'
 import { useState, type PropsWithChildren } from 'react'
-import { AccountType } from 'ser-kit'
 import { AddressField } from './AddressField'
 import { DecodedTransaction } from './DecodedTransaction'
 import { useFriendlyTransaction } from './friendly'
@@ -24,9 +21,7 @@ interface Props {
 export const Transaction = ({ transactionId }: Props) => {
   const transaction = useTransaction(transactionId)
   const [expanded, setExpanded] = useState(true)
-  const route = useExecutionRoute()
   const decoded = useDecodedFunctionData(transactionId)
-  const showPermissionsCheck = routeGoesThroughRoles(route)
 
   const { FriendlyTitle, FriendlyBody } = useFriendlyTransaction(transactionId)
 
@@ -42,7 +37,6 @@ export const Transaction = ({ transactionId }: Props) => {
           functionFragment={decoded?.functionFragment}
           expanded={expanded}
           onExpandToggle={() => setExpanded(!expanded)}
-          showPermissionsCheck={showPermissionsCheck}
         >
           {FriendlyTitle ? (
             <FriendlyTitle transactionId={transactionId} />
@@ -60,10 +54,7 @@ export const Transaction = ({ transactionId }: Props) => {
             <GenericBody transactionId={transactionId} />
           )}
           <Divider />
-          <TransactionStatus
-            transactionId={transactionId}
-            showPermissionsCheck={showPermissionsCheck}
-          />
+          <TransactionStatus transactionId={transactionId} />
         </div>
       )}
     </section>
@@ -106,7 +97,6 @@ type HeaderProps = PropsWithChildren<{
   onExpandToggle(): void
   expanded: boolean
   isDelegateCall: boolean
-  showPermissionsCheck: boolean
   children: React.ReactNode
 }>
 
@@ -114,7 +104,6 @@ const TransactionHeader = ({
   transactionId,
   onExpandToggle,
   expanded,
-  showPermissionsCheck,
   children,
 }: HeaderProps) => {
   const transaction = useTransaction(transactionId)
@@ -128,9 +117,7 @@ const TransactionHeader = ({
       <div className="flex items-center justify-end gap-2">
         <SimulationStatus transactionId={transactionId} mini />
 
-        {showPermissionsCheck && (
-          <RolePermissionCheck transactionId={transactionId} mini />
-        )}
+        <RolePermissionCheck transactionId={transactionId} mini />
 
         <div className="flex">
           <Translate mini transactionId={transactionId} />
@@ -174,23 +161,15 @@ const GenericTitle = ({ transactionId }: { transactionId: string }) => {
 
 interface StatusProps {
   transactionId: string
-  showPermissionsCheck?: boolean
 }
 
-const TransactionStatus = ({
-  transactionId,
-  showPermissionsCheck = false,
-}: StatusProps) => (
+const TransactionStatus = ({ transactionId }: StatusProps) => (
   <>
     <SimulationStatus transactionId={transactionId} />
 
-    {showPermissionsCheck && (
-      <>
-        <Divider />
+    <Divider />
 
-        <RolePermissionCheck transactionId={transactionId} />
-      </>
-    )}
+    <RolePermissionCheck transactionId={transactionId} />
   </>
 )
 
@@ -206,17 +185,5 @@ const EtherValue = ({ value }: EtherValueProps) => {
       label="Amount"
       description={chainCurrency(chainId)}
     />
-  )
-}
-
-const routeGoesThroughRoles = (route: ExecutionRoute | null) => {
-  if (route == null) {
-    return false
-  }
-
-  return (
-    route.waypoints?.some(
-      (waypoint) => waypoint.account.type === AccountType.ROLES,
-    ) || false
   )
 }

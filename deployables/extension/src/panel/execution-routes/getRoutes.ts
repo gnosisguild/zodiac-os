@@ -1,7 +1,7 @@
 import { getStorageEntries } from '@/storage'
-import type { ExecutionRoute } from '@/types'
 import { ZERO_ADDRESS } from '@zodiac/chains'
 import { createEoaStartingPoint, sortRoutes } from '@zodiac/modules'
+import { ExecutionRoute } from '@zodiac/schema'
 
 export const getRoutes = async (): Promise<ExecutionRoute[]> => {
   const routes = await getStorageEntries<ExecutionRoute>('routes')

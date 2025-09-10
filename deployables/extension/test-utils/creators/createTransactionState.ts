@@ -7,5 +7,7 @@ export const createTransactionState = (state: Partial<State> = {}): State => ({
   rollback: null,
   refresh: false,
 
+  permissionChecks: {},
+
   ...state,
 })

@@ -1,6 +1,7 @@
 import { invariant } from '@epic-web/invariant'
 import {
   createContext,
+  RefObject,
   useContext,
   useReducer,
   type Dispatch,
@@ -21,6 +22,8 @@ const TransactionsContext = createContext<
   rollback: null,
   refresh: false,
 
+  permissionChecks: {},
+
   dispatch() {
     throw new Error('must be wrapped in <ProvideTransactions>')
   },
@@ -28,6 +31,11 @@ const TransactionsContext = createContext<
 
 type ProvideTransactionsProps = PropsWithChildren<{
   initialState?: State
+  /**
+   * This is meant for testing purposes ONLY!
+   * DO NOT use this in real code
+   */
+  stateRef?: RefObject<State | null>
 }>
 
 export const ProvideTransactions = ({
@@ -38,9 +46,16 @@ export const ProvideTransactions = ({
 
     rollback: null,
     refresh: false,
+
+    permissionChecks: {},
   },
+  stateRef,
 }: ProvideTransactionsProps) => {
   const [state, dispatch] = useReducer(transactionsReducer, initialState)
+
+  if (stateRef != null) {
+    stateRef.current = state
+  }
 
   return (
     <TransactionsContext value={{ ...state, dispatch }}>
@@ -115,4 +130,14 @@ export const useExecutedTransactions = () => {
   const { executed } = useContext(TransactionsContext)
 
   return executed
+}
+
+export const usePermissionCheckResult = (transactionId: string) => {
+  const { permissionChecks } = useContext(TransactionsContext)
+
+  if (transactionId in permissionChecks) {
+    return permissionChecks[transactionId]
+  }
+
+  return null
 }

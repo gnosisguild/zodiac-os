@@ -1,5 +1,5 @@
 import { getStorageEntry } from '@/storage'
-import { type ExecutionRoute } from '@/types'
+import { ExecutionRoute } from '@zodiac/schema'
 
 export const findRoute = async (routeId: string) => {
   const route = await getStorageEntry<ExecutionRoute | undefined>({

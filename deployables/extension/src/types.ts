@@ -1,16 +1,8 @@
 import type { JsonRpcRequest } from '@zodiac/messages'
-import type {
-  ExecutionRoute as BaseExecutionRoute,
-  Hex,
-  HexAddress,
-} from '@zodiac/schema'
+import type { Hex, HexAddress } from '@zodiac/schema'
 
 export type { JsonRpcRequest } from '@zodiac/messages'
 export type { HexAddress } from '@zodiac/schema'
-
-export type ExecutionRoute = BaseExecutionRoute & {
-  lastUsed?: number
-}
 
 export interface JsonRpcError extends Error {
   data: {

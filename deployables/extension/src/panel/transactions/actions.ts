@@ -1,7 +1,7 @@
 import type { MetaTransactionRequest } from '@zodiac/schema'
-import type { ContractInfo } from './state'
+import type { ContractInfo, PermissionCheckError } from './state'
 
-export enum Action {
+export enum ActionType {
   Append = 'Append',
   Decode = 'Decode',
   Confirm = 'Confirm',
@@ -15,153 +15,164 @@ export enum Action {
   Refresh = 'Refresh',
   CommitRefresh = 'CommitRefresh',
   GlobalTranslate = 'GlobalTranslate',
+  PassPermissionCheck = 'PassPermissionCheck',
+  FailPermissionCheck = 'FailPermissionCheck',
+  ClearPermissionChecks = 'ClearPermissionChecks',
 }
 
-interface AppendTransactionAction {
-  type: Action.Append
-  payload: {
-    transaction: MetaTransactionRequest
-  }
+type Action<Type extends ActionType, Payload = null> = {
+  type: Type
+  payload: Payload
 }
+type Payload<T extends Action<ActionType, unknown>> = T['payload']
+
+type AppendTransactionAction = Action<
+  ActionType.Append,
+  { transaction: MetaTransactionRequest }
+>
 
 export const appendTransaction = (
-  payload: AppendTransactionAction['payload'],
-): AppendTransactionAction => ({ type: Action.Append, payload })
+  payload: Payload<AppendTransactionAction>,
+): AppendTransactionAction => ({ type: ActionType.Append, payload })
 
-interface DecodeTransactionAction {
-  type: Action.Decode
-  payload: {
+type DecodeTransactionAction = Action<
+  ActionType.Decode,
+  {
     id: string
     contractInfo: ContractInfo
   }
-}
+>
 
 export const decodeTransaction = (
-  payload: DecodeTransactionAction['payload'],
-): DecodeTransactionAction => ({ type: Action.Decode, payload })
+  payload: Payload<DecodeTransactionAction>,
+): DecodeTransactionAction => ({ type: ActionType.Decode, payload })
 
-interface ConfirmTransactionAction {
-  type: Action.Confirm
-  payload: {
+type ConfirmTransactionAction = Action<
+  ActionType.Confirm,
+  {
     id: string
     snapshotId: string
     transactionHash: string
   }
-}
+>
 
 export const confirmTransaction = (
-  payload: ConfirmTransactionAction['payload'],
-): ConfirmTransactionAction => ({ type: Action.Confirm, payload })
+  payload: Payload<ConfirmTransactionAction>,
+): ConfirmTransactionAction => ({ type: ActionType.Confirm, payload })
 
-type FailTransactionAction = {
-  type: Action.Fail
-  payload: {
-    id: string
-  }
-}
+type FailTransactionAction = Action<ActionType.Fail, { id: string }>
 
 export const failTransaction = (
-  payload: FailTransactionAction['payload'],
+  payload: Payload<FailTransactionAction>,
 ): FailTransactionAction => ({
-  type: Action.Fail,
+  type: ActionType.Fail,
   payload,
 })
 
-type FinishTransactionAction = {
-  type: Action.Finish
-  payload: { id: string }
-}
+type FinishTransactionAction = Action<ActionType.Finish, { id: string }>
 
 export const finishTransaction = (
-  payload: FinishTransactionAction['payload'],
-): FinishTransactionAction => ({ type: Action.Finish, payload })
+  payload: Payload<FinishTransactionAction>,
+): FinishTransactionAction => ({ type: ActionType.Finish, payload })
 
-type RevertTransactionAction = {
-  type: Action.Revert
-  payload: { id: string }
-}
+type RevertTransactionAction = Action<ActionType.Revert, { id: string }>
 
 export const revertTransaction = (
-  payload: RevertTransactionAction['payload'],
-): RevertTransactionAction => ({ type: Action.Revert, payload })
+  payload: Payload<RevertTransactionAction>,
+): RevertTransactionAction => ({ type: ActionType.Revert, payload })
 
-interface ClearTransactionsAction {
-  type: Action.Clear
-  payload: null
-}
+type ClearTransactionsAction = Action<ActionType.Clear>
 
 export const clearTransactions = (): ClearTransactionsAction => ({
-  type: Action.Clear,
+  type: ActionType.Clear,
   payload: null,
 })
 
-type RollbackTransactionType = {
-  type: Action.Rollback
-  payload: {
-    id: string
-  }
-}
+type RollbackTransactionType = Action<ActionType.Rollback, { id: string }>
 
 export const rollbackTransaction = (
-  payload: RollbackTransactionType['payload'],
-): RollbackTransactionType => ({ type: Action.Rollback, payload })
+  payload: Payload<RollbackTransactionType>,
+): RollbackTransactionType => ({ type: ActionType.Rollback, payload })
 
-type ConfirmRollbackTransactionAction = {
-  type: Action.ConfirmRollback
-  payload: {
-    id: string
-  }
-}
+type ConfirmRollbackTransactionAction = Action<
+  ActionType.ConfirmRollback,
+  { id: string }
+>
 
 export const confirmRollbackTransaction = (
-  payload: ConfirmRollbackTransactionAction['payload'],
+  payload: Payload<ConfirmRollbackTransactionAction>,
 ): ConfirmRollbackTransactionAction => ({
-  type: Action.ConfirmRollback,
+  type: ActionType.ConfirmRollback,
   payload,
 })
 
-type TranslateTransactionAction = {
-  type: Action.Translate
-  payload: {
+type TranslateTransactionAction = Action<
+  ActionType.Translate,
+  {
     id: string
     translations: MetaTransactionRequest[]
   }
-}
+>
 
 export const translateTransaction = (
-  payload: TranslateTransactionAction['payload'],
-): TranslateTransactionAction => ({ type: Action.Translate, payload })
+  payload: Payload<TranslateTransactionAction>,
+): TranslateTransactionAction => ({ type: ActionType.Translate, payload })
 
-type RefreshTransactionsAction = {
-  type: Action.Refresh
-  payload: null
-}
+type RefreshTransactionsAction = Action<ActionType.Refresh>
 
 export const refreshTransactions = (): RefreshTransactionsAction => ({
-  type: Action.Refresh,
+  type: ActionType.Refresh,
   payload: null,
 })
 
-type CommitRefreshAction = {
-  type: Action.CommitRefresh
-  payload: null
-}
+type CommitRefreshAction = Action<ActionType.CommitRefresh>
 
 export const commitRefreshTransactions = (): CommitRefreshAction => ({
-  type: Action.CommitRefresh,
+  type: ActionType.CommitRefresh,
   payload: null,
 })
 
-type GlobalTranslateTransactionsAction = {
-  type: Action.GlobalTranslate
-  payload: { translations: MetaTransactionRequest[] }
-}
+type GlobalTranslateTransactionsAction = Action<
+  ActionType.GlobalTranslate,
+  { translations: MetaTransactionRequest[] }
+>
 
 export const globalTranslateTransactions = (
-  payload: GlobalTranslateTransactionsAction['payload'],
+  payload: Payload<GlobalTranslateTransactionsAction>,
 ): GlobalTranslateTransactionsAction => ({
-  type: Action.GlobalTranslate,
+  type: ActionType.GlobalTranslate,
   payload,
+})
+
+type PassPermissionCheckAction = Action<
+  ActionType.PassPermissionCheck,
+  { transactionId: string }
+>
+
+export const passPermissionCheck = (
+  payload: Payload<PassPermissionCheckAction>,
+): PassPermissionCheckAction => ({
+  type: ActionType.PassPermissionCheck,
+  payload,
+})
+
+type FailPermissionCheckAction = Action<
+  ActionType.FailPermissionCheck,
+  { transactionId: string; error: PermissionCheckError }
+>
+
+export const failPermissionCheck = (
+  payload: Payload<FailPermissionCheckAction>,
+): FailPermissionCheckAction => ({
+  type: ActionType.FailPermissionCheck,
+  payload,
+})
+
+type ClearPermissionChecksAction = Action<ActionType.ClearPermissionChecks>
+
+export const clearPermissionChecks = (): ClearPermissionChecksAction => ({
+  type: ActionType.ClearPermissionChecks,
+  payload: null,
 })
 
 export type TransactionAction =
@@ -178,3 +189,6 @@ export type TransactionAction =
   | RefreshTransactionsAction
   | CommitRefreshAction
   | GlobalTranslateTransactionsAction
+  | PassPermissionCheckAction
+  | FailPermissionCheckAction
+  | ClearPermissionChecksAction
