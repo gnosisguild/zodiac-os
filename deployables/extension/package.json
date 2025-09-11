@@ -83,7 +83,7 @@
     "@zodiac/web3": "workspace:*",
     "classnames": "2.5.1",
     "date-fns": "4.1.0",
-    "lucide-react": "0.543.0",
+    "lucide-react": "0.544.0",
     "nanoid": "5.1.5",
     "node-stdlib-browser": "1.3.1",
     "react": "19.1.1",
