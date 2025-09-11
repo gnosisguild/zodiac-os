@@ -363,53 +363,50 @@ describe('Managed roles', () => {
     })
 
     describe('Setup safe', () => {
-      dbIt(
-        'ensures that the current user has a safe setup for each affected chain',
-        async () => {
-          const user = await userFactory.create()
-          const tenant = await tenantFactory.create(user)
+      dbIt('ensures that the current user has a safe setup', async () => {
+        const user = await userFactory.create()
+        const tenant = await tenantFactory.create(user)
 
-          const wallet = await walletFactory.create(user)
+        const wallet = await walletFactory.create(user)
 
-          await setDefaultWallet(dbClient(), user, {
-            walletId: wallet.id,
-            chainId: Chain.ETH,
-          })
+        await setDefaultWallet(dbClient(), user, {
+          walletId: wallet.id,
+          chainId: Chain.ETH,
+        })
 
-          const account = await accountFactory.create(tenant, user, {
-            chainId: Chain.ETH,
-          })
-          const role = await roleFactory.create(tenant, user)
+        const account = await accountFactory.create(tenant, user, {
+          chainId: Chain.ETH,
+        })
+        const role = await roleFactory.create(tenant, user)
 
-          await setActiveAccounts(dbClient(), role, [account.id])
-          await setRoleMembers(dbClient(), role, [user.id])
+        await setActiveAccounts(dbClient(), role, [account.id])
+        await setRoleMembers(dbClient(), role, [user.id])
 
-          mockAccount({ address: wallet.address, chainId: Chain.ETH })
+        mockAccount({ address: wallet.address, chainId: Chain.ETH })
 
-          await render(
-            href('/workspace/:workspaceId/roles', {
-              workspaceId: tenant.defaultWorkspaceId,
-            }),
-            { tenant, user },
-          )
+        await render(
+          href('/workspace/:workspaceId/roles', {
+            workspaceId: tenant.defaultWorkspaceId,
+          }),
+          { tenant, user },
+        )
 
-          await userEvent.click(
-            await screen.findByRole('button', { name: 'Deploy' }),
-          )
+        await userEvent.click(
+          await screen.findByRole('button', { name: 'Deploy' }),
+        )
 
-          await waitForPendingActions(Intent.Deploy)
+        await waitForPendingActions(Intent.Deploy)
 
-          await userEvent.click(
-            await screen.findByRole('button', { name: 'Setup safe' }),
-          )
+        await userEvent.click(
+          await screen.findByRole('button', { name: 'Setup safe' }),
+        )
 
-          await waitForPendingActions(Intent.StoreSetupSafe)
+        await waitForPendingActions(Intent.StoreSetupSafe)
 
-          await expect(
-            getSetupSafeAddress(dbClient(), user, Chain.ETH),
-          ).resolves.toBeDefined()
-        },
-      )
+        await expect(
+          getSetupSafeAddress(dbClient(), user, Chain.ETH),
+        ).resolves.toBeDefined()
+      })
     })
   })
 })
