@@ -28,7 +28,7 @@
     "react-select": "5.10.2",
     "react-stick": "5.0.7",
     "react-toastify": "11.0.5",
-    "ser-kit": "3.13.1",
+    "ser-kit": "3.14.0",
     "viem": "2.37.5"
   },
   "devDependencies": {
