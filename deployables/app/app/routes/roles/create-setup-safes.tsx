@@ -21,6 +21,7 @@ import {
   Labeled,
   Modal,
   SecondaryButton,
+  successToast,
   Table,
   TableBody,
   TableCell,
@@ -288,6 +289,11 @@ const DeploySafe = ({
                     },
                     {
                       onSuccess() {
+                        successToast({
+                          title: 'Safe created',
+                          message: `The safe with address "${address}" has been successfully deployed.`,
+                        })
+
                         submit(formData({ chainId, address }))
                       },
                     },
