@@ -10,25 +10,21 @@ export const createUserSafes = async (
   user: User,
   chainIds: Chain[],
 ): Promise<NewSafe[]> => {
-  const safes: NewSafe[] = []
-
   const defaultWallets = await getDefaultWallets(dbClient(), user.id)
 
-  for (const chainId of chainIds) {
+  return chainIds.map((chainId) => {
     invariant(
       defaultWallets[chainId] != null,
       `User has not defined a default wallet for chain "${chainId}"`,
     )
 
-    safes.push({
+    return {
       type: AccountType.SAFE,
       chain: chainId,
       modules: [],
       owners: [defaultWallets[chainId].address],
       threshold: 1,
       nonce: user.nonce,
-    })
-  }
-
-  return safes
+    }
+  })
 }
