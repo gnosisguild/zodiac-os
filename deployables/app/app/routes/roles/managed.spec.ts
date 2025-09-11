@@ -403,6 +403,8 @@ describe('Managed roles', () => {
             await screen.findByRole('button', { name: 'Setup safe' }),
           )
 
+          await waitForPendingActions(Intent.StoreSetupSafe)
+
           await expect(
             getSetupSafeAddress(dbClient(), user, Chain.ETH),
           ).resolves.toBeDefined()

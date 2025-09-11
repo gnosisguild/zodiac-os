@@ -1,7 +1,7 @@
-import { authorizedLoader } from '@/auth-server'
+import { authorizedAction, authorizedLoader } from '@/auth-server'
 import { Chain } from '@/routes-ui'
 import { invariant, invariantResponse } from '@epic-web/invariant'
-import { ChainId, ZERO_ADDRESS } from '@zodiac/chains'
+import { ChainId, verifyChainId, ZERO_ADDRESS } from '@zodiac/chains'
 import {
   dbClient,
   getActivatedAccounts,
@@ -9,11 +9,15 @@ import {
   getRole,
   getSetupSafeAddresses,
   getWalletLabels,
+  setSetupSafe,
 } from '@zodiac/db'
 import { Wallet } from '@zodiac/db/schema'
+import { formData, getHexString, getNumber } from '@zodiac/form-data'
+import { useIsPending } from '@zodiac/hooks'
 import { HexAddress, isUUID } from '@zodiac/schema'
 import {
   Error,
+  InlineForm,
   Labeled,
   Modal,
   SecondaryButton,
@@ -39,6 +43,7 @@ import {
   resolveAccounts,
 } from 'ser-kit'
 import { Route } from './+types/create-setup-safes'
+import { Intent } from './intents'
 import { createUserSafes, groupByFrom } from './planRoleUpdate'
 
 export const loader = (args: Route.LoaderArgs) =>
@@ -93,6 +98,34 @@ export const loader = (args: Route.LoaderArgs) =>
     {
       ensureSignedIn: true,
       async hasAccess({ tenant, params: { roleId, workspaceId } }) {
+        invariantResponse(isUUID(roleId), '"roleId" is not a UUID')
+
+        const role = await getRole(dbClient(), roleId)
+
+        return role.tenantId === tenant.id && role.workspaceId === workspaceId
+      },
+    },
+  )
+
+export const action = (args: Route.ActionArgs) =>
+  authorizedAction(
+    args,
+    async ({
+      request,
+      context: {
+        auth: { user },
+      },
+    }) => {
+      const data = await request.formData()
+
+      const chainId = verifyChainId(getNumber(data, 'chainId'))
+      const address = getHexString(data, 'address')
+
+      await setSetupSafe(dbClient(), user, { chainId, address })
+    },
+    {
+      ensureSignedIn: true,
+      async hasAccess({ tenant, params: { workspaceId, roleId } }) {
         invariantResponse(isUUID(roleId), '"roleId" is not a UUID')
 
         const role = await getRole(dbClient(), roleId)
@@ -217,6 +250,8 @@ const DeploySafe = ({
   const account = useAccount()
   const { sendTransaction, isPending } = useSendTransaction()
 
+  const isStoring = useIsPending(Intent.StoreSetupSafe)
+
   return (
     <TableRow>
       <TableCell>
@@ -234,18 +269,35 @@ const DeploySafe = ({
       </TableCell>
       <TableCell>
         <TableRowActions autoHide={false}>
-          <SecondaryButton
-            size="small"
-            busy={isPending}
-            disabled={
-              account.isDisconnected ||
-              account.address?.toLowerCase() !== wallet.address ||
-              account.chainId !== chainId
-            }
-            onClick={() => sendTransaction(transaction)}
-          >
-            Setup safe
-          </SecondaryButton>
+          <InlineForm intent={Intent.StoreSetupSafe}>
+            {({ submit }) => (
+              <SecondaryButton
+                size="small"
+                busy={isPending || isStoring}
+                disabled={
+                  account.isDisconnected ||
+                  account.address?.toLowerCase() !== wallet.address ||
+                  account.chainId !== chainId
+                }
+                onClick={() =>
+                  sendTransaction(
+                    {
+                      data: transaction.data,
+                      to: transaction.to,
+                      value: transaction.value,
+                    },
+                    {
+                      onSuccess() {
+                        submit(formData({ chainId, address }))
+                      },
+                    },
+                  )
+                }
+              >
+                Setup safe
+              </SecondaryButton>
+            )}
+          </InlineForm>
         </TableRowActions>
       </TableCell>
     </TableRow>
