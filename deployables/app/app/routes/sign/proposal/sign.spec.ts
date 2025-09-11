@@ -34,7 +34,7 @@ import {
   waitForPendingActions,
 } from '@zodiac/test-utils'
 import { MockJsonRpcProvider } from '@zodiac/test-utils/rpc'
-import { useAccount, useConnectorClient } from '@zodiac/web3'
+import { mockAccount } from '@zodiac/web3/test-utils'
 import { href } from 'react-router'
 import {
   checkPermissions,
@@ -63,20 +63,6 @@ const mockExecute = vi.mocked(execute)
 const mockPlanExecution = vi.mocked(planExecution)
 const mockQueryRoutes = vi.mocked(queryRoutes)
 const mockCheckPermissions = vi.mocked(checkPermissions)
-
-vi.mock('@zodiac/web3', async (importOriginal) => {
-  const module = await importOriginal<typeof import('@zodiac/web3')>()
-
-  return {
-    ...module,
-
-    useAccount: vi.fn(module.useAccount),
-    useConnectorClient: vi.fn(module.useConnectorClient),
-  }
-})
-
-const mockUseAccount = vi.mocked(useAccount)
-const mockUseConnectorClient = vi.mocked(useConnectorClient)
 
 vi.mock('@/simulation-server', async (importOriginal) => {
   const module = await importOriginal<typeof import('@/simulation-server')>()
@@ -110,14 +96,7 @@ describe('Sign', () => {
     mockPlanExecution.mockResolvedValue([createMockExecuteTransactionAction()])
     mockJsonRpcProvider.mockReturnValue(new MockJsonRpcProvider())
 
-    // @ts-expect-error We really only want to use this subset
-    mockUseAccount.mockReturnValue({
-      address: initiator,
-      chainId,
-    })
-
-    // @ts-expect-error We just need this to be there
-    mockUseConnectorClient.mockReturnValue({ data: {} })
+    mockAccount({ address: initiator })
 
     mockSimulateTransactionBundle.mockResolvedValue({
       error: null,

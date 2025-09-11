@@ -9,4 +9,5 @@ export enum Intent {
   EditAction = 'EditAction',
   AddAsset = 'AddAsset',
   EditAsset = 'EditAsset',
+  StoreSetupSafe = 'StoreSetupSafe',
 }

@@ -7,9 +7,11 @@ import {
   getRoleDeployment,
   getRoleDeployments,
   getRoleDeploymentSlices,
+  getSetupSafeAddress,
   setActiveAccounts,
   setDefaultWallet,
   setRoleMembers,
+  setSetupSafe,
 } from '@zodiac/db'
 import { RoleDeploymentIssue } from '@zodiac/db/schema'
 import {
@@ -27,12 +29,17 @@ import {
   randomAddress,
   waitForPendingActions,
 } from '@zodiac/test-utils'
+import { mockAccount } from '@zodiac/web3/test-utils'
 import { href } from 'react-router'
 import { beforeEach, describe, expect, vi } from 'vitest'
 import { Intent } from './intents'
 import { planRoleUpdate } from './planRoleUpdate'
 
-vi.mock('./planRoleUpdate', () => ({ planRoleUpdate: vi.fn() }))
+vi.mock('./planRoleUpdate', async (importOriginal) => {
+  const module = await importOriginal<typeof import('./planRoleUpdate')>()
+
+  return { ...module, planRoleUpdate: vi.fn() }
+})
 
 const mockPlanRoleUpdate = vi.mocked(planRoleUpdate)
 
@@ -321,6 +328,11 @@ describe('Managed roles', () => {
           chainId: Chain.ETH,
         })
 
+        await setSetupSafe(dbClient(), user, {
+          chainId: Chain.ETH,
+          address: randomAddress(),
+        })
+
         const account = await accountFactory.create(tenant, user, {
           chainId: Chain.ETH,
         })
@@ -347,6 +359,53 @@ describe('Managed roles', () => {
         ).toHaveAccessibleDescription(
           'There are no changes that need to be applied.',
         )
+      })
+    })
+
+    describe('Setup safe', () => {
+      dbIt('ensures that the current user has a safe setup', async () => {
+        const user = await userFactory.create()
+        const tenant = await tenantFactory.create(user)
+
+        const wallet = await walletFactory.create(user)
+
+        await setDefaultWallet(dbClient(), user, {
+          walletId: wallet.id,
+          chainId: Chain.ETH,
+        })
+
+        const account = await accountFactory.create(tenant, user, {
+          chainId: Chain.ETH,
+        })
+        const role = await roleFactory.create(tenant, user)
+
+        await setActiveAccounts(dbClient(), role, [account.id])
+        await setRoleMembers(dbClient(), role, [user.id])
+
+        mockAccount({ address: wallet.address, chainId: Chain.ETH })
+
+        await render(
+          href('/workspace/:workspaceId/roles', {
+            workspaceId: tenant.defaultWorkspaceId,
+          }),
+          { tenant, user },
+        )
+
+        await userEvent.click(
+          await screen.findByRole('button', { name: 'Deploy' }),
+        )
+
+        await waitForPendingActions(Intent.Deploy)
+
+        await userEvent.click(
+          await screen.findByRole('button', { name: 'Setup safe' }),
+        )
+
+        await waitForPendingActions(Intent.StoreSetupSafe)
+
+        await expect(
+          getSetupSafeAddress(dbClient(), user, Chain.ETH),
+        ).resolves.toBeDefined()
       })
     })
   })

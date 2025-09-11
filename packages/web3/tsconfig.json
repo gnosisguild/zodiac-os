@@ -3,5 +3,5 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"]
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*", "./test-utils/**/*"]
 }
