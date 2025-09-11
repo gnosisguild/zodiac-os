@@ -1,0 +1,1 @@
+CREATE INDEX "RoleDeployment_deploymentId_index" ON "RoleDeployment" USING btree ("deploymentId");

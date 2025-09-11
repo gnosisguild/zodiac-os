@@ -533,6 +533,13 @@
       "when": 1757517422021,
       "tag": "0075_move issues to role deployment",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1757580934220,
+      "tag": "0076_index on deployment id",
+      "breakpoints": true
     }
   ]
 }

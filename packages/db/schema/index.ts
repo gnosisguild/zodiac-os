@@ -802,7 +802,7 @@ export const RoleDeploymentTable = pgTable(
     ...deploymentReference,
     ...roleReference,
   },
-  (table) => [index().on(table.roleId)],
+  (table) => [index().on(table.roleId), index().on(table.deploymentId)],
 )
 
 export type RoleDeployment = typeof RoleDeploymentTable.$inferSelect
