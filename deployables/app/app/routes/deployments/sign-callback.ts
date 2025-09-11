@@ -4,6 +4,7 @@ import {
   completeDeploymentIfNeeded,
   completeDeploymentSlice,
   dbClient,
+  findRoleDeployment,
   getDeploymentSlice,
   getProposedTransaction,
   getSignedTransaction,
@@ -54,11 +55,18 @@ export const action = (args: Route.LoaderArgs) =>
         await completeDeploymentIfNeeded(tx, deploymentId)
       })
 
+      const roleDeployment = await findRoleDeployment(dbClient(), deploymentId)
+
       return Response.json({
-        redirectTo: href('/workspace/:workspaceId/deployment/:deploymentId', {
-          workspaceId,
-          deploymentId,
-        }),
+        redirectTo: href(
+          roleDeployment != null
+            ? '/workspace/:workspaceId/role-deployment/:deploymentId'
+            : '/workspace/:workspaceId/deployment/:deploymentId',
+          {
+            workspaceId,
+            deploymentId,
+          },
+        ),
       })
     },
     {

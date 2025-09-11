@@ -2,7 +2,6 @@ import {
   dbIt,
   deploymentFactory,
   deploymentSliceFactory,
-  roleFactory,
   tenantFactory,
   userFactory,
 } from '@zodiac/db/test-utils'
@@ -21,8 +20,7 @@ describe('Cancel role deployment', () => {
     const user = await userFactory.create()
     const tenant = await tenantFactory.create(user)
 
-    const role = await roleFactory.create(tenant, user)
-    const deployment = await deploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(tenant, user)
     const step = await deploymentSliceFactory.create(user, deployment)
 
     assertActiveDeployment(deployment)

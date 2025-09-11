@@ -1,7 +1,6 @@
 import {
   dbIt,
   deploymentFactory,
-  roleFactory,
   tenantFactory,
   userFactory,
 } from '@zodiac/db/test-utils'
@@ -20,9 +19,7 @@ describe('completeDeploymentIfNeeded', () => {
   dbIt('sets the deployment to completed', async () => {
     const user = await userFactory.create()
     const tenant = await tenantFactory.create(user)
-
-    const role = await roleFactory.create(tenant, user)
-    const deployment = await deploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(tenant, user)
 
     await completeDeploymentIfNeeded(dbClient(), deployment.id)
 
@@ -34,9 +31,7 @@ describe('completeDeploymentIfNeeded', () => {
   dbIt('does not complete the deployment if it was cancelled', async () => {
     const user = await userFactory.create()
     const tenant = await tenantFactory.create(user)
-
-    const role = await roleFactory.create(tenant, user)
-    const deployment = await deploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(tenant, user)
 
     assertActiveDeployment(deployment)
 

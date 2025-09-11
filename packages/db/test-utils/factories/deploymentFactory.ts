@@ -4,7 +4,7 @@ import {
   Deployment,
   DeploymentCreateInput,
   DeploymentTable,
-  Role,
+  Tenant,
   User,
 } from '@zodiac/db/schema'
 import { randomUUID } from 'crypto'
@@ -13,14 +13,13 @@ import { createFactory } from './createFactory'
 export const deploymentFactory = createFactory<
   DeploymentCreateInput,
   Deployment,
-  [createdBy: User, role: Role]
+  [tenant: Tenant, createdBy: User]
 >({
-  build(createdBy, role, data) {
+  build(tenant, createdBy, data) {
     return {
       createdById: createdBy.id,
-      roleId: role.id,
-      tenantId: role.tenantId,
-      workspaceId: role.workspaceId,
+      tenantId: tenant.id,
+      workspaceId: tenant.defaultWorkspaceId,
 
       ...data,
     }

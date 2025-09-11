@@ -107,13 +107,13 @@ describe('Deploy Role', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await deploymentFactory.create(user, role)
+        const deployment = await deploymentFactory.create(tenant, user)
         await roleDeploymentFactory.create(deployment, role, {
           issues: [RoleDeploymentIssue.NoActiveMembers],
         })
 
         await render(
-          href('/workspace/:workspaceId/deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
           }),
@@ -133,7 +133,7 @@ describe('Deploy Role', () => {
 
         const account = await accountFactory.create(tenant, user)
         const role = await roleFactory.create(tenant, user)
-        const deployment = await deploymentFactory.create(user, role)
+        const deployment = await deploymentFactory.create(tenant, user)
         await roleDeploymentFactory.create(deployment, role, {
           issues: [RoleDeploymentIssue.MissingDefaultWallet],
         })
@@ -142,7 +142,7 @@ describe('Deploy Role', () => {
         await setRoleMembers(dbClient(), role, [user.id])
 
         await render(
-          href('/workspace/:workspaceId/deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
           }),
@@ -163,13 +163,13 @@ describe('Deploy Role', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await deploymentFactory.create(user, role)
+        const deployment = await deploymentFactory.create(tenant, user)
         await roleDeploymentFactory.create(deployment, role, {
           issues: [RoleDeploymentIssue.NoActiveAccounts],
         })
 
         await render(
-          href('/workspace/:workspaceId/deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
           }),
@@ -215,7 +215,8 @@ describe('Deploy Role', () => {
           await setDefaultRoute(dbClient(), tenant, user, route)
 
           const role = await roleFactory.create(tenant, user)
-          const deployment = await deploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(tenant, user)
+          await roleDeploymentFactory.create(deployment, role)
 
           await deploymentSliceFactory.create(user, deployment, {
             from: account.address,
@@ -226,7 +227,7 @@ describe('Deploy Role', () => {
           await setActiveAccounts(dbClient(), role, [account.id])
 
           await render(
-            href('/workspace/:workspaceId/deployment/:deploymentId', {
+            href('/workspace/:workspaceId/role-deployment/:deploymentId', {
               workspaceId: tenant.defaultWorkspaceId,
               deploymentId: deployment.id,
             }),
@@ -279,7 +280,8 @@ describe('Deploy Role', () => {
           await setDefaultRoute(dbClient(), tenant, user, route)
 
           const role = await roleFactory.create(tenant, user)
-          const deployment = await deploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(tenant, user)
+          await roleDeploymentFactory.create(deployment, role)
 
           const deploymentSlice = await deploymentSliceFactory.create(
             user,
@@ -294,7 +296,7 @@ describe('Deploy Role', () => {
           await setActiveAccounts(dbClient(), role, [account.id])
 
           await render(
-            href('/workspace/:workspaceId/deployment/:deploymentId', {
+            href('/workspace/:workspaceId/role-deployment/:deploymentId', {
               workspaceId: tenant.defaultWorkspaceId,
               deploymentId: deployment.id,
             }),
@@ -341,7 +343,8 @@ describe('Deploy Role', () => {
         await setDefaultRoute(dbClient(), tenant, user, route)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await deploymentFactory.create(user, role)
+        const deployment = await deploymentFactory.create(tenant, user)
+        await roleDeploymentFactory.create(deployment, role)
 
         const step = await deploymentSliceFactory.create(user, deployment, {
           from: account.address,
@@ -352,7 +355,7 @@ describe('Deploy Role', () => {
         await setActiveAccounts(dbClient(), role, [account.id])
 
         await render(
-          href('/workspace/:workspaceId/deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
           }),
@@ -402,7 +405,8 @@ describe('Deploy Role', () => {
           await setRoleMembers(dbClient(), role, [user.id])
           await setActiveAccounts(dbClient(), role, [account.id])
 
-          const deployment = await deploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(tenant, user)
+          await roleDeploymentFactory.create(deployment, role)
 
           const proposal = await transactionProposalFactory.create(
             tenant,
@@ -415,7 +419,7 @@ describe('Deploy Role', () => {
           })
 
           await render(
-            href('/workspace/:workspaceId/deployment/:deploymentId', {
+            href('/workspace/:workspaceId/role-deployment/:deploymentId', {
               workspaceId: tenant.defaultWorkspaceId,
               deploymentId: deployment.id,
             }),
@@ -459,7 +463,8 @@ describe('Deploy Role', () => {
           await setRoleMembers(dbClient(), role, [user.id])
           await setActiveAccounts(dbClient(), role, [account.id])
 
-          const deployment = await deploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(tenant, user)
+          await roleDeploymentFactory.create(deployment, role)
 
           const transaction = await signedTransactionFactory.create(
             tenant,
@@ -484,7 +489,7 @@ describe('Deploy Role', () => {
           })
 
           await render(
-            href('/workspace/:workspaceId/deployment/:deploymentId', {
+            href('/workspace/:workspaceId/role-deployment/:deploymentId', {
               workspaceId: tenant.defaultWorkspaceId,
               deploymentId: deployment.id,
             }),
@@ -505,7 +510,8 @@ describe('Deploy Role', () => {
       const tenant = await tenantFactory.create(user)
 
       const role = await roleFactory.create(tenant, user)
-      const deployment = await deploymentFactory.create(user, role)
+      const deployment = await deploymentFactory.create(tenant, user)
+      await roleDeploymentFactory.create(deployment, role)
 
       assertActiveDeployment(deployment)
 
@@ -516,7 +522,7 @@ describe('Deploy Role', () => {
       )
 
       await render(
-        href('/workspace/:workspaceId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/role-deployment/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
         }),
@@ -535,7 +541,8 @@ describe('Deploy Role', () => {
       const tenant = await tenantFactory.create(user)
 
       const role = await roleFactory.create(tenant, user)
-      const deployment = await deploymentFactory.create(user, role)
+      const deployment = await deploymentFactory.create(tenant, user)
+      await roleDeploymentFactory.create(deployment, role)
 
       await deploymentSliceFactory.create(user, deployment)
 
@@ -544,7 +551,7 @@ describe('Deploy Role', () => {
       await cancelDeployment(dbClient(), user, deployment)
 
       await render(
-        href('/workspace/:workspaceId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/role-deployment/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
         }),
@@ -563,7 +570,8 @@ describe('Deploy Role', () => {
       const account = await accountFactory.create(tenant, user)
 
       const role = await roleFactory.create(tenant, user)
-      const deployment = await deploymentFactory.create(user, role)
+      const deployment = await deploymentFactory.create(tenant, user)
+      await roleDeploymentFactory.create(deployment, role)
 
       const proposal = await transactionProposalFactory.create(
         tenant,
@@ -580,7 +588,7 @@ describe('Deploy Role', () => {
       await cancelDeployment(dbClient(), user, deployment)
 
       await render(
-        href('/workspace/:workspaceId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/role-deployment/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
         }),

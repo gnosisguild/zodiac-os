@@ -5,6 +5,7 @@ import {
   dbIt,
   deploymentFactory,
   deploymentSliceFactory,
+  roleDeploymentFactory,
   roleFactory,
   routeFactory,
   signedTransactionFactory,
@@ -32,8 +33,7 @@ describe('Sign callback', () => {
 
     const route = await routeFactory.create(account, wallet)
 
-    const role = await roleFactory.create(tenant, user)
-    const deployment = await deploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(tenant, user)
 
     const transaction = await signedTransactionFactory.create(
       tenant,
@@ -80,8 +80,7 @@ describe('Sign callback', () => {
     const account = await accountFactory.create(tenant, user)
     const route = await routeFactory.create(account, wallet)
 
-    const role = await roleFactory.create(tenant, user)
-    const deployment = await deploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(tenant, user)
 
     const transaction = await signedTransactionFactory.create(
       tenant,
@@ -132,8 +131,7 @@ describe('Sign callback', () => {
       const account = await accountFactory.create(tenant, user)
       const route = await routeFactory.create(account, wallet)
 
-      const role = await roleFactory.create(tenant, user)
-      const deployment = await deploymentFactory.create(user, role)
+      const deployment = await deploymentFactory.create(tenant, user)
 
       const transaction = await signedTransactionFactory.create(
         tenant,
@@ -182,8 +180,7 @@ describe('Sign callback', () => {
     const account = await accountFactory.create(tenant, user)
     const route = await routeFactory.create(account, wallet)
 
-    const role = await roleFactory.create(tenant, user)
-    const deployment = await deploymentFactory.create(user, role)
+    const deployment = await deploymentFactory.create(tenant, user)
 
     const transaction = await signedTransactionFactory.create(
       tenant,
@@ -218,6 +215,54 @@ describe('Sign callback', () => {
 
     await expect(response.json()).resolves.toEqual({
       redirectTo: `/workspace/${tenant.defaultWorkspaceId}/deployment/${deployment.id}`,
+    })
+  })
+
+  dbIt('redirects to the role deployment page', async () => {
+    const user = await userFactory.create()
+    const tenant = await tenantFactory.create(user)
+
+    const wallet = await walletFactory.create(user)
+    const account = await accountFactory.create(tenant, user)
+    const route = await routeFactory.create(account, wallet)
+
+    const role = await roleFactory.create(tenant, user)
+    const deployment = await deploymentFactory.create(tenant, user)
+    await roleDeploymentFactory.create(deployment, role)
+
+    const transaction = await signedTransactionFactory.create(
+      tenant,
+      user,
+      route,
+    )
+    const proposal = await transactionProposalFactory.create(
+      tenant,
+      user,
+      account,
+      { signedTransactionId: transaction.id },
+    )
+
+    const slice = await deploymentSliceFactory.create(user, deployment, {
+      proposedTransactionId: proposal.id,
+    })
+
+    const transactionHash = randomHex(18)
+
+    const response = await post(
+      href(
+        '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+        {
+          workspaceId: tenant.defaultWorkspaceId,
+          deploymentId: deployment.id,
+          deploymentSliceId: slice.id,
+        },
+      ),
+      formData({ proposalId: proposal.id, transactionHash }),
+      { tenant, user },
+    )
+
+    await expect(response.json()).resolves.toEqual({
+      redirectTo: `/workspace/${tenant.defaultWorkspaceId}/role-deployment/${deployment.id}`,
     })
   })
 })

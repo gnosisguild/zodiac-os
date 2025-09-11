@@ -6,6 +6,7 @@ import {
   dbClient,
   getDeployment,
   getDeploymentSlices,
+  getRoleDeployment,
   getRoleDeployments,
   setActiveAccounts,
   setDefaultWallet,
@@ -80,7 +81,7 @@ describe('Managed roles', () => {
       const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
 
       await expectRouteToBe(
-        href('/workspace/:workspaceId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/role-deployment/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId,
         }),
@@ -193,9 +194,9 @@ describe('Managed roles', () => {
         await waitForPendingActions()
 
         const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
-        const deployment = await getDeployment(dbClient(), deploymentId)
+        const roleDeployment = await getRoleDeployment(dbClient(), deploymentId)
 
-        expect(deployment).toHaveProperty('issues', [
+        expect(roleDeployment).toHaveProperty('issues', [
           RoleDeploymentIssue.MissingDefaultWallet,
         ])
       })
@@ -207,7 +208,7 @@ describe('Managed roles', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await deploymentFactory.create(user, role)
+        const deployment = await deploymentFactory.create(tenant, user)
         const roleDeployment = await roleDeploymentFactory.create(
           deployment,
           role,
@@ -228,7 +229,7 @@ describe('Managed roles', () => {
         )
 
         await expectRouteToBe(
-          href('/workspace/:workspaceId/deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
             deploymentId: roleDeployment.deploymentId,
             workspaceId: tenant.defaultWorkspaceId,
           }),
@@ -242,7 +243,7 @@ describe('Managed roles', () => {
           const tenant = await tenantFactory.create(user)
 
           const role = await roleFactory.create(tenant, user)
-          const deployment = await deploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(tenant, user)
           const roleDeployment = await roleDeploymentFactory.create(
             deployment,
             role,

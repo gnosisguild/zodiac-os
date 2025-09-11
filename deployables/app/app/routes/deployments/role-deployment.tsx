@@ -1,33 +1,27 @@
-import { authorizedAction, authorizedLoader } from '@/auth-server'
+import { authorizedLoader } from '@/auth-server'
 import { Page } from '@/components'
 import { invariantResponse } from '@epic-web/invariant'
 import {
   dbClient,
-  getAccountByAddress,
   getActivatedAccounts,
   getDefaultWalletLabels,
   getDeployment,
-  getDeploymentSlice,
   getDeploymentSlices,
   getRoleActionAssets,
   getRoleDeployment,
   getRoleMembers,
   getUser,
-  proposeTransaction,
-  updateDeploymentSlice,
 } from '@zodiac/db'
 import { Role } from '@zodiac/db/schema'
-import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
 import { isUUID } from '@zodiac/schema'
 import { DateValue, Info } from '@zodiac/ui'
 import { ConnectWalletButton } from '@zodiac/web3'
-import { randomUUID } from 'crypto'
-import { href, redirect } from 'react-router'
 import { Issues } from '../roles/issues'
 import { Route } from './+types/role-deployment'
 import { Labels, ProvideAddressLabels } from './AddressLabelContext'
 import { ProvideRoleLabels } from './RoleLabelContext'
 import { Slice } from './Slice'
+import { action as deploymentAction } from './deployment'
 
 const contractLabels: Labels = {
   ['0x23da9ade38e4477b23770ded512fd37b12381fab']: 'Cow Swap',
@@ -103,93 +97,8 @@ export const loader = (args: Route.LoaderArgs) =>
     },
   )
 
-export const action = (args: Route.ActionArgs) =>
-  authorizedAction(
-    args,
-    async ({
-      request,
-      params: { workspaceId, deploymentId },
-      context: {
-        auth: { user, tenant },
-      },
-    }) => {
-      const data = await request.formData()
-      const url = new URL(request.url)
-
-      const account = await getAccountByAddress(dbClient(), {
-        tenantId: tenant.id,
-        prefixedAddress: getPrefixedAddress(data, 'from'),
-      })
-
-      const deploymentSlice = await getDeploymentSlice(
-        dbClient(),
-        getUUID(data, 'deploymentSliceId'),
-      )
-
-      const transactionProposal = await dbClient().transaction(async (tx) => {
-        const callbackUrl = new URL(
-          href(
-            '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
-            {
-              workspaceId,
-              deploymentId,
-              deploymentSliceId: deploymentSlice.id,
-            },
-          ),
-          url.origin,
-        )
-
-        const transactionBundle = deploymentSlice.steps.flatMap(
-          (stepsByAccount) =>
-            stepsByAccount.steps.map((step) => step.transaction),
-        )
-
-        const transactionProposal = await proposeTransaction(tx, {
-          userId: user.id,
-          tenantId: deploymentSlice.tenantId,
-          workspaceId: deploymentSlice.workspaceId,
-          accountId: account.id,
-          transaction: transactionBundle,
-          callbackUrl,
-          callbackState: randomUUID(),
-        })
-
-        await updateDeploymentSlice(tx, deploymentSlice.id, {
-          proposedTransactionId: transactionProposal.id,
-        })
-
-        return transactionProposal
-      })
-
-      return redirect(
-        href('/workspace/:workspaceId/submit/proposal/:proposalId', {
-          workspaceId,
-          proposalId: transactionProposal.id,
-        }),
-      )
-    },
-    {
-      ensureSignedIn: true,
-      async hasAccess({
-        request,
-        params: { workspaceId, deploymentId },
-        tenant,
-      }) {
-        const data = await request.formData()
-
-        const deploymentSlice = await getDeploymentSlice(
-          dbClient(),
-          getUUID(data, 'deploymentSliceId'),
-        )
-
-        return (
-          deploymentSlice.tenantId === tenant.id &&
-          deploymentSlice.workspaceId === workspaceId &&
-          deploymentSlice.deploymentId === deploymentId
-        )
-      },
-    },
-  )
+// the action is the same as for generic deployments, so we can reuse it
+export const action = deploymentAction
 
 const RoleDeployment = ({
   loaderData: {
