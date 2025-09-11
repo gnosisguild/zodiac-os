@@ -1,17 +1,20 @@
 import { authorizedLoader } from '@/auth-server'
 import { Chain } from '@/routes-ui'
 import { invariant, invariantResponse } from '@epic-web/invariant'
-import { ZERO_ADDRESS } from '@zodiac/chains'
+import { ChainId, ZERO_ADDRESS } from '@zodiac/chains'
 import {
   dbClient,
   getActivatedAccounts,
   getDefaultWallets,
   getRole,
   getSetupSafeAddresses,
+  getWalletLabels,
 } from '@zodiac/db'
-import { isUUID } from '@zodiac/schema'
+import { Wallet } from '@zodiac/db/schema'
+import { HexAddress, isUUID } from '@zodiac/schema'
 import {
   Error,
+  Labeled,
   Modal,
   SecondaryButton,
   Table,
@@ -22,9 +25,19 @@ import {
   TableRow,
   TableRowActions,
 } from '@zodiac/ui'
-import { Address } from '@zodiac/web3'
+import {
+  Address,
+  ConnectWalletButton,
+  useAccount,
+  useSendTransaction,
+} from '@zodiac/web3'
 import { href, Link, useNavigate } from 'react-router'
-import { planApplyAccounts, prefixAddress, resolveAccounts } from 'ser-kit'
+import {
+  MetaTransactionRequest,
+  planApplyAccounts,
+  prefixAddress,
+  resolveAccounts,
+} from 'ser-kit'
 import { Route } from './+types/create-setup-safes'
 import { createUserSafes, groupByFrom } from './planRoleUpdate'
 
@@ -71,6 +84,7 @@ export const loader = (args: Route.LoaderArgs) =>
         return {
           stepsByAccount: steps,
           defaultWallets: await getDefaultWallets(dbClient(), user.id),
+          walletLabels: await getWalletLabels(dbClient(), user.id),
         }
       } catch {
         return { missingChainIds }
@@ -89,7 +103,7 @@ export const loader = (args: Route.LoaderArgs) =>
   )
 
 const CreateSetupSafes = ({
-  loaderData: { missingChainIds, stepsByAccount, defaultWallets },
+  loaderData: { missingChainIds, stepsByAccount, defaultWallets, walletLabels },
   params: { workspaceId },
 }: Route.ComponentProps) => {
   const navigate = useNavigate()
@@ -124,52 +138,53 @@ const CreateSetupSafes = ({
       )}
 
       {stepsByAccount && (
-        <Table>
-          <TableHead>
-            <TableRow withActions>
-              <TableHeader>Safe</TableHeader>
-              <TableHeader>Chain</TableHeader>
-              <TableHeader>Owner</TableHeader>
-            </TableRow>
-          </TableHead>
+        <div className="flex flex-col gap-8">
+          <Labeled label="Connected wallet">
+            <div className="flex">
+              <ConnectWalletButton addressLabels={walletLabels}>
+                Connect your wallet to continue
+              </ConnectWalletButton>
+            </div>
+          </Labeled>
 
-          <TableBody>
-            {stepsByAccount.map(({ account, steps }) => {
-              const transactions = steps.map(({ transaction }) => transaction)
-              const wallet = defaultWallets[account.chain]
+          <Table>
+            <TableHead>
+              <TableRow withActions>
+                <TableHeader>Safe</TableHeader>
+                <TableHeader>Chain</TableHeader>
+                <TableHeader>Owner</TableHeader>
+              </TableRow>
+            </TableHead>
 
-              invariant(
-                wallet != null,
-                'Default wallet used to create a safe but not present',
-              )
+            <TableBody>
+              {stepsByAccount.map(({ account, steps }) => {
+                const wallet = defaultWallets[account.chain]
 
-              return (
-                <TableRow key={prefixAddress(account.chain, account.address)}>
-                  <TableCell>
-                    <Address shorten size="small">
-                      {account.address}
-                    </Address>
-                  </TableCell>
-                  <TableCell>
-                    <Chain chainId={account.chain} />
-                  </TableCell>
-                  <TableCell>
-                    <Address shorten label={wallet.label}>
-                      {wallet.address}
-                    </Address>
-                  </TableCell>
-                  <TableCell>
-                    <TableRowActions autoHide={false}>
-                      <SecondaryButton size="small">
-                        Setup safe{' '}
-                      </SecondaryButton>
-                    </TableRowActions>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
+                invariant(
+                  wallet != null,
+                  'Default wallet used to create a safe but not present',
+                )
+
+                invariant(
+                  steps.length === 1,
+                  'Deploying a safe should always happen in one step',
+                )
+
+                const [{ transaction }] = steps
+
+                return (
+                  <DeploySafe
+                    key={prefixAddress(account.chain, account.address)}
+                    transaction={transaction}
+                    wallet={wallet}
+                    address={account.address}
+                    chainId={account.chain}
+                  />
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
       )}
 
       <Modal.Actions>
@@ -180,3 +195,59 @@ const CreateSetupSafes = ({
 }
 
 export default CreateSetupSafes
+
+type DeploySafeProps = {
+  address: HexAddress
+  chainId: ChainId
+  transaction: MetaTransactionRequest
+  wallet: Wallet
+}
+
+const DeploySafe = ({
+  transaction,
+  wallet,
+  address,
+  chainId,
+}: DeploySafeProps) => {
+  invariant(
+    wallet != null,
+    'Default wallet used to create a safe but not present',
+  )
+
+  const account = useAccount()
+  const { sendTransaction, isPending } = useSendTransaction()
+
+  return (
+    <TableRow>
+      <TableCell>
+        <Address shorten size="small">
+          {address}
+        </Address>
+      </TableCell>
+      <TableCell>
+        <Chain chainId={chainId} />
+      </TableCell>
+      <TableCell>
+        <Address shorten label={wallet.label}>
+          {wallet.address}
+        </Address>
+      </TableCell>
+      <TableCell>
+        <TableRowActions autoHide={false}>
+          <SecondaryButton
+            size="small"
+            busy={isPending}
+            disabled={
+              account.isDisconnected ||
+              account.address?.toLowerCase() !== wallet.address ||
+              account.chainId !== chainId
+            }
+            onClick={() => sendTransaction(transaction)}
+          >
+            Setup safe
+          </SecondaryButton>
+        </TableRowActions>
+      </TableCell>
+    </TableRow>
+  )
+}
