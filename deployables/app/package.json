@@ -57,7 +57,7 @@
     "ser-kit": "3.14.0",
     "zodiac-roles-sdk": "3.2.5",
     "viem": "2.37.5",
-    "zod": "4.1.6"
+    "zod": "4.1.8"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "1.49.0",
