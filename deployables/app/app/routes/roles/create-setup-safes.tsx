@@ -17,6 +17,7 @@ import { useIsPending } from '@zodiac/hooks'
 import { HexAddress, isUUID } from '@zodiac/schema'
 import {
   Error,
+  Info,
   InlineForm,
   Labeled,
   Modal,
@@ -68,6 +69,10 @@ export const loader = (args: Route.LoaderArgs) =>
       const missingChainIds = chainIds.filter(
         (chainId) => !setupSafes.some((safe) => safe.chainId === chainId),
       )
+
+      if (missingChainIds.length === 0) {
+        return { allSetUp: true }
+      }
 
       try {
         const newSafes = await createUserSafes(user, missingChainIds)
@@ -137,7 +142,13 @@ export const action = (args: Route.ActionArgs) =>
   )
 
 const CreateSetupSafes = ({
-  loaderData: { missingChainIds, stepsByAccount, defaultWallets, walletLabels },
+  loaderData: {
+    missingChainIds,
+    stepsByAccount,
+    defaultWallets,
+    walletLabels,
+    allSetUp,
+  },
   params: { workspaceId },
 }: Route.ComponentProps) => {
   const navigate = useNavigate()
@@ -152,6 +163,13 @@ const CreateSetupSafes = ({
       title="Create setup safes"
       description="We'll create a personal safe that you will control to perform all actions in this deployment. It will be owned by the default wallet you configured for each chain."
     >
+      {allSetUp && (
+        <Info>
+          Everything has been set up. You can close this window and retry the
+          role deployment.
+        </Info>
+      )}
+
       {missingChainIds != null && (
         <Error title="Missing default wallet">
           We cannot create all safes required to set up this role because you
@@ -222,7 +240,7 @@ const CreateSetupSafes = ({
       )}
 
       <Modal.Actions>
-        <Modal.CloseAction>Cancel</Modal.CloseAction>
+        <Modal.CloseAction>Close</Modal.CloseAction>
       </Modal.Actions>
     </Modal>
   )
