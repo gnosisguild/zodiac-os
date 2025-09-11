@@ -29,6 +29,7 @@ import {
   randomAddress,
   waitForPendingActions,
 } from '@zodiac/test-utils'
+import { mockAccount } from '@zodiac/web3/test-utils'
 import { href } from 'react-router'
 import { beforeEach, describe, expect, vi } from 'vitest'
 import { Intent } from './intents'
@@ -382,6 +383,8 @@ describe('Managed roles', () => {
 
           await setActiveAccounts(dbClient(), role, [account.id])
           await setRoleMembers(dbClient(), role, [user.id])
+
+          mockAccount({ address: wallet.address, chainId: Chain.ETH })
 
           await render(
             href('/workspace/:workspaceId/roles', {

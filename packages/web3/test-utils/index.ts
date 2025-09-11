@@ -1,0 +1,1 @@
+export { mockAccount } from './mockAccount'
