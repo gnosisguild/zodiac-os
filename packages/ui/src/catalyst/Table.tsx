@@ -191,8 +191,17 @@ export function TableCell({
   )
 }
 
-export const TableRowActions = ({ children }: PropsWithChildren) => (
-  <div className="flex justify-end gap-1 opacity-0 transition-opacity focus-within:opacity-100 active:opacity-100 group-hover:opacity-100">
+export const TableRowActions = ({
+  children,
+  autoHide = true,
+}: PropsWithChildren<{ autoHide?: boolean }>) => (
+  <div
+    className={classNames(
+      'flex justify-end gap-1',
+      autoHide &&
+        'opacity-0 transition-opacity focus-within:opacity-100 active:opacity-100 group-hover:opacity-100',
+    )}
+  >
     {children}
   </div>
 )
