@@ -92,7 +92,7 @@
     "react-stick": "5.0.7",
     "ser-kit": "3.14.0",
     "viem": "2.37.5",
-    "zod": "4.1.6",
+    "zod": "4.1.8",
     "zodiac-roles-sdk": "3.2.5"
   }
 }
