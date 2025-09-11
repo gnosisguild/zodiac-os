@@ -854,8 +854,8 @@ importers:
         specifier: 4.2.1
         version: 4.2.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@shazow/whatsabi':
-        specifier: 0.22.2
-        version: 0.22.2(@noble/hashes@1.8.0)(typescript@5.9.2)(zod@4.1.6)
+        specifier: 0.23.0
+        version: 0.23.0(@noble/hashes@1.8.0)(typescript@5.9.2)(zod@4.1.6)
       '@zodiac/chains':
         specifier: workspace:*
         version: link:../chains
@@ -4614,8 +4614,8 @@ packages:
     resolution: {integrity: sha512-MeTAHMmTOgBPMAjeW7/ONyXwgScZdaFFtNiALKcAODnVqC7eoHdSRIWeH5mkLr2Dvs7nqtBaDpKxRjUBgfm9LQ==}
     engines: {node: '>= 14'}
 
-  '@shazow/whatsabi@0.22.2':
-    resolution: {integrity: sha512-I/8JkT473CnB4fJYHRklc/Lr9T7cw7OZ2HGQq++jCZT5tPDlEmUTJDsjKfzIDT9RhNk4LtRZaWi/kuUl4E9zIg==}
+  '@shazow/whatsabi@0.23.0':
+    resolution: {integrity: sha512-40jW6gd7uRmEqwOta7SianYfJ7T+6Mjd7COJDS8teqcD56sG10IhX2nsly5SJi9Uae6A4kgKhZRXkESEY34MsA==}
     peerDependencies:
       '@noble/hashes': ^1
 
@@ -8366,16 +8366,16 @@ packages:
       typescript:
         optional: true
 
-  ox@0.7.2:
-    resolution: {integrity: sha512-JJHxdef3KqwQ8xW9H+UVLWaQiCUh/DeFN/Ii65XwbHTvSuXZveihTV2gs9hhLw5XEWPBrcH7sQBM0rqG7/QurQ==}
+  ox@0.9.3:
+    resolution: {integrity: sha512-KzyJP+fPV4uhuuqrTZyok4DC7vFzi7HLUFiUNEmpbyh59htKWkOC98IONC1zgXJPbHAhQgqs6B0Z6StCGhmQvg==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  ox@0.9.3:
-    resolution: {integrity: sha512-KzyJP+fPV4uhuuqrTZyok4DC7vFzi7HLUFiUNEmpbyh59htKWkOC98IONC1zgXJPbHAhQgqs6B0Z6StCGhmQvg==}
+  ox@0.9.6:
+    resolution: {integrity: sha512-8SuCbHPvv2eZLYXrNmC0EC12rdzXQLdhnOMlHDW2wiCPLxBrOOJwX5L5E61by+UjTPOryqQiRSnjIKCI+GykKg==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -15050,10 +15050,10 @@ snapshots:
       - encoding
       - supports-color
 
-  '@shazow/whatsabi@0.22.2(@noble/hashes@1.8.0)(typescript@5.9.2)(zod@4.1.6)':
+  '@shazow/whatsabi@0.23.0(@noble/hashes@1.8.0)(typescript@5.9.2)(zod@4.1.6)':
     dependencies:
       '@noble/hashes': 1.8.0
-      ox: 0.7.2(typescript@5.9.2)(zod@4.1.6)
+      ox: 0.9.6(typescript@5.9.2)(zod@4.1.6)
     transitivePeerDependencies:
       - typescript
       - zod
@@ -19833,11 +19833,11 @@ snapshots:
   ox@0.6.7(typescript@5.9.2)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
-      '@noble/curves': 1.8.1
-      '@noble/hashes': 1.7.1
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.9.2)(zod@3.25.76)
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.1.0(typescript@5.9.2)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.2
@@ -19852,21 +19852,6 @@ snapshots:
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
       abitype: 1.1.0(typescript@5.9.2)(zod@3.25.76)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.9.2
-    transitivePeerDependencies:
-      - zod
-
-  ox@0.7.2(typescript@5.9.2)(zod@4.1.6):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.0
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.7
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.2)(zod@4.1.6)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.2
@@ -19904,6 +19889,21 @@ snapshots:
       - zod
 
   ox@0.9.3(typescript@5.9.2)(zod@4.1.6):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.1.0(typescript@5.9.2)(zod@4.1.6)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.2
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.9.6(typescript@5.9.2)(zod@4.1.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/ciphers': 1.3.0

@@ -23,7 +23,7 @@
   "dependencies": {
     "@epic-web/invariant": "1.0.0",
     "@gnosis-guild/zodiac": "4.2.1",
-    "@shazow/whatsabi": "0.22.2",
+    "@shazow/whatsabi": "0.23.0",
     "@zodiac/chains": "workspace:*",
     "@zodiac/schema": "workspace:*",
     "ethers": "6.15.0",
