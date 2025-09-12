@@ -1,12 +1,12 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 import { visit } from 'unist-util-visit'
 
-export const cn = (...inputs: ClassValue[]) => {
-  return twMerge(clsx(inputs))
-}
+export const copyAgentMessage = async (text: string) => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || !navigator?.clipboard) {
+    console.warn('Clipboard API not available in this environment')
+    return
+  }
 
-export const copyToClipboard = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text)
   } catch (err) {

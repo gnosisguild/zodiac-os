@@ -17,10 +17,22 @@ export function toBigInt(value: string | number): bigint {
 }
 
 export function encodeBytes32Ascii(str: string): string {
-  const buf = Buffer.from(str, 'utf8')
+  // Browser-compatible implementation using TextEncoder
+  const encoder = new TextEncoder()
+  const buf = encoder.encode(str)
   if (buf.length > 32) throw new Error('String too long for bytes32')
-  const padded = Buffer.concat([buf, Buffer.alloc(32 - buf.length)])
-  return '0x' + padded.toString('hex')
+
+  // Create a 32-byte array and fill it
+  const padded = new Uint8Array(32)
+  padded.set(buf, 0)
+
+  // Convert to hex string
+  return (
+    '0x' +
+    Array.from(padded)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+  )
 }
 
 export function parseAmountToUnits(

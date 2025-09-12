@@ -32,6 +32,14 @@ const SubmitLayout = ({
       Sign Transaction Bundle
     </Page.Header>
 
+    <button
+      onClick={() => {
+        console.log('Button clicked!')
+      }}
+    >
+      Test
+    </button>
+
     <Page.Main>
       <Outlet />
     </Page.Main>

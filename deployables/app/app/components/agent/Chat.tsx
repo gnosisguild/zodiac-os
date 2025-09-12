@@ -1,4 +1,4 @@
-import { copyToClipboard } from '@zodiac/agent'
+import { copyAgentMessage } from '@zodiac/agent'
 import { useAutoScroll } from '@zodiac/hooks'
 import {
   AgentMessageCopy,
@@ -9,7 +9,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router'
 import AnimatedMessageContent from '../../components/agent/AnimatedMessageContent'
-import TestButtons, { testMessages } from '../../components/agent/TestButtons'
+import TestButtons from '../../components/agent/TestButtons'
 
 interface Message {
   id: string
@@ -32,10 +32,10 @@ export const Chat = ({
   placeholder,
 }: ChatProps) => {
   const location = useLocation()
-  //const [messages, setMessages] = useState<Message[]>([])
-  const [messages, setMessages] = useState<Message[]>([
-    ...(testMessages as Message[]),
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
+  // const [messages, setMessages] = useState<Message[]>([
+  //   ...(testMessages as Message[]),
+  // ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   // Track which assistant messages finished animating
@@ -289,7 +289,7 @@ export const Chat = ({
   // Full chat interface
   return (
     <div
-      className="mx-auto mt-8 flex max-w-4xl flex-col overflow-hidden"
+      className="mx-auto flex max-w-4xl flex-col overflow-hidden bg-gray-50"
       style={{ height: 'calc(100vh - 2rem)' }}
     >
       {/* Messages */}
@@ -339,7 +339,7 @@ export const Chat = ({
                       onClick={async () => {
                         console.log('Copy button clicked!')
                         try {
-                          await copyToClipboard(message.content)
+                          await copyAgentMessage(message.content)
                           setCopiedByMessageId((prev) => ({
                             ...prev,
                             [message.id]: true,

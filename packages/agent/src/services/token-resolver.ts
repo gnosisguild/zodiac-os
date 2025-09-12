@@ -1,9 +1,38 @@
-import { readFileSync } from 'fs'
-import { dirname, join } from 'path'
-import { fileURLToPath } from 'url'
+// Browser-compatible imports - only import Node.js modules when available
+let readFileSync: typeof import('fs').readFileSync | null = null
+let dirname: typeof import('path').dirname | null = null
+let join: typeof import('path').join | null = null
+let fileURLToPath: typeof import('url').fileURLToPath | null = null
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+// Check if we're in a Node.js environment
+const isNode =
+  typeof process !== 'undefined' && process.versions && process.versions.node
+
+if (isNode) {
+  try {
+    // Use dynamic imports for Node.js modules
+    const fs = require('fs')
+    const path = require('path')
+    const url = require('url')
+    readFileSync = fs.readFileSync
+    dirname = path.dirname
+    join = path.join
+    fileURLToPath = url.fileURLToPath
+  } catch (error) {
+    console.warn('Failed to load Node.js modules:', error)
+  }
+}
+
+// Get current directory for Node.js environments
+let __dirname: string | null = null
+if (isNode && fileURLToPath && dirname) {
+  try {
+    const __filename = fileURLToPath(import.meta.url)
+    __dirname = dirname(__filename)
+  } catch (error) {
+    console.warn('Failed to get current directory:', error)
+  }
+}
 
 // Chain ID to DeFi Kit chain mapping
 const CHAIN_ID_MAP: Record<number, string> = {
@@ -57,9 +86,21 @@ export class TokenResolver {
   }
 
   /**
-   * Load the Uniswap token list from local file
+   * Load the Uniswap token list from local file (Node.js only)
+   * In browser environments, this will initialize with empty data
    */
   private loadTokenList(): void {
+    // Only attempt to load from file system in Node.js environments
+    if (!isNode || !readFileSync || !join || !__dirname) {
+      console.log(
+        '🌐 Token Resolver initialized in browser mode (no file system access)',
+      )
+      this.tokensByChain = new Map()
+      this.tokensByChainByAddress = new Map()
+      this.lastLoaded = Date.now()
+      return
+    }
+
     try {
       const tokenListPath = join(__dirname, '../data/token-list-uni.json')
       const rawData = readFileSync(tokenListPath, 'utf8')
@@ -79,6 +120,7 @@ export class TokenResolver {
       console.error('❌ Failed to load token list:', error)
       // Initialize with empty maps to prevent crashes
       this.tokensByChain = new Map()
+      this.tokensByChainByAddress = new Map()
     }
   }
 
@@ -257,6 +299,12 @@ export class TokenResolver {
    * Refresh token list (for future use with dynamic updates)
    */
   async refreshTokenList(): Promise<void> {
+    // In browser environments, this is a no-op since we can't access file system
+    if (!isNode || !readFileSync || !join || !__dirname) {
+      console.log('🔄 Token list refresh skipped in browser environment')
+      return
+    }
+
     // For now, just reload from file
     // In the future, this could fetch from IPFS or HTTP
     this.loadTokenList()

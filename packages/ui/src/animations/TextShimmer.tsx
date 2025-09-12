@@ -1,4 +1,4 @@
-import { cn } from '@zodiac/agent'
+import cn from 'classnames'
 import { motion } from 'framer-motion'
 import React, { memo, useMemo, type JSX } from 'react'
 
