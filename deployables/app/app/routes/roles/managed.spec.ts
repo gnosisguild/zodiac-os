@@ -4,9 +4,10 @@ import userEvent from '@testing-library/user-event'
 import { Chain } from '@zodiac/chains'
 import {
   dbClient,
+  getDeployment,
+  getDeploymentSlices,
   getRoleDeployment,
   getRoleDeployments,
-  getRoleDeploymentSlices,
   getSetupSafeAddress,
   setActiveAccounts,
   setDefaultWallet,
@@ -17,6 +18,7 @@ import { RoleDeploymentIssue } from '@zodiac/db/schema'
 import {
   accountFactory,
   dbIt,
+  deploymentFactory,
   roleDeploymentFactory,
   roleFactory,
   tenantFactory,
@@ -94,13 +96,12 @@ describe('Managed roles', () => {
 
       await waitForPendingActions()
 
-      const [deployment] = await getRoleDeployments(dbClient(), role.id)
+      const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
 
       await expectRouteToBe(
-        href('/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/role-deployments/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
-          roleId: role.id,
-          deploymentId: deployment.id,
+          deploymentId,
         }),
       )
     })
@@ -134,8 +135,8 @@ describe('Managed roles', () => {
 
       await waitForPendingActions()
 
-      const [deployment] = await getRoleDeployments(dbClient(), role.id)
-      const slices = await getRoleDeploymentSlices(dbClient(), deployment.id)
+      const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
+      const slices = await getDeploymentSlices(dbClient(), deploymentId)
 
       expect(slices).toMatchObject([
         {
@@ -211,9 +212,10 @@ describe('Managed roles', () => {
 
         await waitForPendingActions()
 
-        const [deployment] = await getRoleDeployments(dbClient(), role.id)
+        const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
+        const roleDeployment = await getRoleDeployment(dbClient(), deploymentId)
 
-        expect(deployment).toHaveProperty('issues', [
+        expect(roleDeployment).toHaveProperty('issues', [
           RoleDeploymentIssue.MissingDefaultWallet,
         ])
       })
@@ -225,7 +227,11 @@ describe('Managed roles', () => {
         const tenant = await tenantFactory.create(user)
 
         const role = await roleFactory.create(tenant, user)
-        const deployment = await roleDeploymentFactory.create(user, role)
+        const deployment = await deploymentFactory.create(tenant, user)
+        const roleDeployment = await roleDeploymentFactory.create(
+          deployment,
+          role,
+        )
 
         await render(
           href('/workspace/:workspaceId/roles', {
@@ -242,14 +248,10 @@ describe('Managed roles', () => {
         )
 
         await expectRouteToBe(
-          href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-            {
-              deploymentId: deployment.id,
-              roleId: role.id,
-              workspaceId: tenant.defaultWorkspaceId,
-            },
-          ),
+          href('/workspace/:workspaceId/role-deployments/:deploymentId', {
+            deploymentId: roleDeployment.deploymentId,
+            workspaceId: tenant.defaultWorkspaceId,
+          }),
         )
       })
 
@@ -260,7 +262,11 @@ describe('Managed roles', () => {
           const tenant = await tenantFactory.create(user)
 
           const role = await roleFactory.create(tenant, user)
-          const deployment = await roleDeploymentFactory.create(user, role)
+          const deployment = await deploymentFactory.create(tenant, user)
+          const roleDeployment = await roleDeploymentFactory.create(
+            deployment,
+            role,
+          )
 
           await render(
             href('/workspace/:workspaceId/roles', {
@@ -279,7 +285,7 @@ describe('Managed roles', () => {
           await waitForPendingActions()
 
           await expect(
-            getRoleDeployment(dbClient(), deployment.id),
+            getDeployment(dbClient(), roleDeployment.deploymentId),
           ).resolves.toMatchObject({
             cancelledAt: new Date(),
             cancelledById: user.id,

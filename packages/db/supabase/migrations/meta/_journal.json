@@ -526,6 +526,20 @@
       "when": 1757579637998,
       "tag": "0074_add setup safe table",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1757664976822,
+      "tag": "0075_generalized deployments",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1757664998763,
+      "tag": "0076_role deployment table",
+      "breakpoints": true
     }
   ]
 }

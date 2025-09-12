@@ -1,87 +1,37 @@
-import { invariant } from '@epic-web/invariant'
-import { assertRoleDeployment } from '@zodiac/db'
 import {
+  Deployment,
   Role,
   RoleDeployment,
   RoleDeploymentCreateInput,
   RoleDeploymentTable,
-  User,
 } from '@zodiac/db/schema'
-import { randomUUID } from 'crypto'
 import { createFactory } from './createFactory'
 
 export const roleDeploymentFactory = createFactory<
   RoleDeploymentCreateInput,
   RoleDeployment,
-  [createdBy: User, role: Role]
+  [deployment: Deployment, role: Role]
 >({
-  build(createdBy, role, data) {
+  build(deployment, role, { issues = [] } = {}) {
     return {
-      createdById: createdBy.id,
+      deploymentId: deployment.id,
       roleId: role.id,
-      tenantId: role.tenantId,
-      workspaceId: role.workspaceId,
-
-      ...data,
+      issues,
     }
   },
   async create(db, data) {
-    const [deployment] = await db
+    const [roleDeployment] = await db
       .insert(RoleDeploymentTable)
       .values(data)
       .returning()
 
-    assertRoleDeployment(deployment)
-
-    return deployment
+    return roleDeployment
   },
-  createWithoutDb({ completedAt, cancelledAt, cancelledById, ...input }) {
-    if (completedAt != null) {
-      return {
-        id: randomUUID(),
-
-        cancelledAt: null,
-        cancelledById: null,
-        completedAt,
-        createdAt: new Date(),
-        updatedAt: null,
-        issues: [],
-
-        ...input,
-      }
-    }
-
-    if (cancelledAt != null) {
-      invariant(
-        cancelledById != null,
-        'Cancelled deployments must specify who cancelled them',
-      )
-
-      return {
-        id: randomUUID(),
-
-        cancelledAt,
-        cancelledById,
-        completedAt: null,
-        createdAt: new Date(),
-        updatedAt: null,
-        issues: [],
-
-        ...input,
-      }
-    }
-
+  createWithoutDb({ deploymentId, roleId, issues = [] }) {
     return {
-      id: randomUUID(),
-
-      cancelledAt: null,
-      cancelledById: null,
-      completedAt: null,
-      createdAt: new Date(),
-      updatedAt: null,
-      issues: [],
-
-      ...input,
+      deploymentId,
+      roleId,
+      issues,
     } satisfies RoleDeployment
   },
 })

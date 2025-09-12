@@ -1,11 +1,12 @@
 import { authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
 import {
-  completeRoleDeploymentIfNeeded,
-  completeRoleDeploymentSlice,
+  completeDeploymentIfNeeded,
+  completeDeploymentSlice,
   dbClient,
+  findRoleDeployment,
+  getDeploymentSlice,
   getProposedTransaction,
-  getRoleDeploymentSlice,
   getSignedTransaction,
   getUser,
 } from '@zodiac/db'
@@ -19,7 +20,7 @@ export const action = (args: Route.LoaderArgs) =>
     args,
     async ({
       request,
-      params: { workspaceId, deploymentId, roleId, deploymentSliceId },
+      params: { workspaceId, deploymentId, deploymentSliceId },
     }) => {
       invariantResponse(
         isUUID(deploymentSliceId),
@@ -46,21 +47,24 @@ export const action = (args: Route.LoaderArgs) =>
       const user = await getUser(dbClient(), transaction.userId)
 
       await dbClient().transaction(async (tx) => {
-        await completeRoleDeploymentSlice(tx, user, {
-          roleDeploymentSliceId: deploymentSliceId,
+        await completeDeploymentSlice(tx, user, {
+          deploymentSliceId: deploymentSliceId,
           transactionHash: getHexString(data, 'transactionHash'),
         })
 
-        await completeRoleDeploymentIfNeeded(tx, deploymentId)
+        await completeDeploymentIfNeeded(tx, deploymentId)
       })
+
+      const roleDeployment = await findRoleDeployment(dbClient(), deploymentId)
 
       return Response.json({
         redirectTo: href(
-          '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
+          roleDeployment != null
+            ? '/workspace/:workspaceId/role-deployments/:deploymentId'
+            : '/workspace/:workspaceId/deployments/:deploymentId',
           {
             workspaceId,
             deploymentId,
-            roleId,
           },
         ),
       })
@@ -89,14 +93,14 @@ export const action = (args: Route.LoaderArgs) =>
           '"deploymentSliceId" is not a UUID',
         )
 
-        const deploymentSlice = await getRoleDeploymentSlice(
+        const deploymentSlice = await getDeploymentSlice(
           dbClient(),
           deploymentSliceId,
         )
 
         return (
           deploymentSlice.tenantId === proposal.tenantId &&
-          deploymentSlice.roleDeploymentId === deploymentId &&
+          deploymentSlice.deploymentId === deploymentId &&
           deploymentSlice.workspaceId === workspaceId
         )
       },

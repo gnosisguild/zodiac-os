@@ -1,4 +1,5 @@
 export * from './accounts'
+export * from './deployments'
 export * from './features'
 export * from './roles'
 export * from './routes'

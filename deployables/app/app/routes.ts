@@ -172,9 +172,24 @@ export default [
           route('on-chain', 'routes/roles/on-chain.tsx'),
         ]),
 
-        ...prefix('roles/:roleId/deployment/:deploymentId', [
-          index('routes/roles/deploy-role.tsx'),
-        ]),
+        route(
+          'deployments/:deploymentId',
+          'routes/deployments/generic-deployment.tsx',
+          [
+            index('routes/deployments/deployment.tsx', {
+              id: 'generic-deployment',
+            }),
+          ],
+        ),
+        route(
+          'role-deployments/:deploymentId',
+          'routes/deployments/role-deployment.tsx',
+          [
+            index('routes/deployments/deployment.tsx', {
+              id: 'role-deployment',
+            }),
+          ],
+        ),
 
         ...prefix('roles', [
           route('create', 'routes/roles/create.tsx'),
@@ -270,8 +285,8 @@ export default [
   ]),
 
   route(
-    '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
-    'routes/roles/sign-callback.ts',
+    '/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback',
+    'routes/deployments/sign-callback.ts',
   ),
 
   layout('routes/system-admin/layout.tsx', [

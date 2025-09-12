@@ -1,25 +1,25 @@
 import { invariant } from '@epic-web/invariant'
 import {
-  ActiveRoleDeployment,
-  CancelledRoleDeployment,
-  RoleDeploymentSliceTable,
-  RoleDeploymentTable,
+  ActiveDeployment,
+  CancelledDeployment,
+  DeploymentSliceTable,
+  DeploymentTable,
   User,
 } from '@zodiac/db/schema'
 import { eq } from 'drizzle-orm'
 import { DBClient } from '../../dbClient'
 
-export const cancelRoleDeployment = async (
+export const cancelDeployment = async (
   db: DBClient,
   user: User,
-  activeDeployment: ActiveRoleDeployment,
-): Promise<CancelledRoleDeployment> => {
+  activeDeployment: ActiveDeployment,
+): Promise<CancelledDeployment> => {
   return db.transaction(async (tx) => {
     const [{ cancelledAt, cancelledById, completedAt, ...deployment }] =
       await tx
-        .update(RoleDeploymentTable)
+        .update(DeploymentTable)
         .set({ cancelledAt: new Date(), cancelledById: user.id })
-        .where(eq(RoleDeploymentTable.id, activeDeployment.id))
+        .where(eq(DeploymentTable.id, activeDeployment.id))
         .returning()
 
     invariant(
@@ -33,9 +33,9 @@ export const cancelRoleDeployment = async (
     )
 
     await tx
-      .update(RoleDeploymentSliceTable)
+      .update(DeploymentSliceTable)
       .set({ cancelledAt, cancelledById })
-      .where(eq(RoleDeploymentSliceTable.roleDeploymentId, activeDeployment.id))
+      .where(eq(DeploymentSliceTable.deploymentId, activeDeployment.id))
 
     return { cancelledAt, cancelledById, completedAt, ...deployment }
   })

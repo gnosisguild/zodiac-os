@@ -1,9 +1,9 @@
 import { invariant } from '@epic-web/invariant'
-import { ActiveRoleDeployment, BaseRoleDeployment } from '@zodiac/db/schema'
+import { ActiveDeployment, BaseDeployment } from '@zodiac/db/schema'
 
-export function assertActiveRoleDeployment(
-  deployment: BaseRoleDeployment,
-): asserts deployment is ActiveRoleDeployment {
+export function assertActiveDeployment(
+  deployment: BaseDeployment,
+): asserts deployment is ActiveDeployment {
   invariant(
     deployment.completedAt == null,
     'Deployment has already been completed',

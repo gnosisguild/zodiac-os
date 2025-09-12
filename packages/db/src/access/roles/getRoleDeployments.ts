@@ -6,7 +6,4 @@ export const getRoleDeployments = (db: DBClient, roleId: UUID) =>
     where(fields, { eq }) {
       return eq(fields.roleId, roleId)
     },
-    orderBy(fields, { desc }) {
-      return desc(fields.createdAt)
-    },
   })

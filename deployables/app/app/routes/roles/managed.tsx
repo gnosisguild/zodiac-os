@@ -1,15 +1,15 @@
 import { authorizedAction, authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
 import {
-  assertActiveRoleDeployment,
-  cancelRoleDeployment,
+  assertActiveDeployment,
+  cancelDeployment,
+  createDeploymentSlice,
   createRoleDeployment,
-  createRoleDeploymentSlice,
   dbClient,
   findPendingRoleDeployment,
   getActivatedAccounts,
+  getDeployment,
   getRole,
-  getRoleDeployment,
   getRoleMembers,
   getRoles,
   getSetupSafeAddresses,
@@ -139,7 +139,7 @@ export const action = (args: Route.ActionArgs) =>
             const allSlices = slices.values().flatMap((value) => value)
 
             for (const slice of allSlices) {
-              await createRoleDeploymentSlice(tx, deployment, {
+              await createDeploymentSlice(tx, deployment, {
                 from: slice.from,
                 steps: slice.accountBuilderResult,
               })
@@ -149,25 +149,21 @@ export const action = (args: Route.ActionArgs) =>
           })
 
           return redirect(
-            href(
-              '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-              {
-                deploymentId: deployment.id,
-                roleId: deployment.roleId,
-                workspaceId: deployment.workspaceId,
-              },
-            ),
+            href('/workspace/:workspaceId/role-deployments/:deploymentId', {
+              deploymentId: deployment.id,
+              workspaceId: deployment.workspaceId,
+            }),
           )
         }
         case Intent.CancelDeployment: {
-          const deployment = await getRoleDeployment(
+          const deployment = await getDeployment(
             dbClient(),
             getUUID(data, 'deploymentId'),
           )
 
-          assertActiveRoleDeployment(deployment)
+          assertActiveDeployment(deployment)
 
-          await cancelRoleDeployment(dbClient(), user, deployment)
+          await cancelDeployment(dbClient(), user, deployment)
 
           return null
         }
@@ -188,7 +184,7 @@ export const action = (args: Route.ActionArgs) =>
             )
           }
           case Intent.CancelDeployment: {
-            const deployment = await getRoleDeployment(
+            const deployment = await getDeployment(
               dbClient(),
               getUUID(data, 'deploymentId'),
             )
@@ -236,7 +232,7 @@ const ManagedRoles = ({
               <TableCell>
                 <DateValue>{role.createdAt}</DateValue>
               </TableCell>
-              <TableCell>{role.createBy.fullName}</TableCell>
+              <TableCell>{role.createdBy.fullName}</TableCell>
               <TableCell>
                 {activatedAccounts[role.id] == null ? (
                   <Empty />
@@ -417,14 +413,10 @@ const PendingDeploymentModal = ({ workspaceId }: { workspaceId: string }) => {
     >
       <Modal.Actions>
         <PrimaryLinkButton
-          to={href(
-            '/workspace/:workspaceId/roles/:roleId/deployment/:deploymentId',
-            {
-              workspaceId,
-              roleId: actionData.roleId,
-              deploymentId: actionData.pendingDeploymentId,
-            },
-          )}
+          to={href('/workspace/:workspaceId/role-deployments/:deploymentId', {
+            workspaceId,
+            deploymentId: actionData.pendingDeploymentId,
+          })}
         >
           Open deployment
         </PrimaryLinkButton>

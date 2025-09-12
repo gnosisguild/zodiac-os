@@ -11,9 +11,9 @@ import {
   UserRoundPlus,
 } from 'lucide-react'
 import { AccountBuilderCall, AccountType } from 'ser-kit'
+import { parseRefillPeriod } from '../roles/planRoleUpdate/getRefillPeriod'
 import { LabeledAddress } from './AddressLabelContext'
 import { FeedEntry, LabeledItem } from './FeedEntry'
-import { parseRefillPeriod } from './planRoleUpdate/getRefillPeriod'
 import { LabeledRoleKey } from './RoleLabelContext'
 
 type CallProps = { chainId: ChainId; callData: AccountBuilderCall }
