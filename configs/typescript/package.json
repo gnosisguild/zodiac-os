@@ -8,10 +8,6 @@
   "exports": {
     ".": {
       "default": "./tsconfig.json"
-    },
-    "./better-types": {
-      "types": "./better-types.d.ts",
-      "import": "./better-types.d.ts"
     }
   },
   "peerDependencies": {
