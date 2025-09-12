@@ -1,0 +1,2 @@
+ALTER TABLE "ProposedTransaction" ADD COLUMN "routeId" uuid;--> statement-breakpoint
+ALTER TABLE "ProposedTransaction" ADD CONSTRAINT "ProposedTransaction_routeId_Route_id_fk" FOREIGN KEY ("routeId") REFERENCES "public"."Route"("id") ON DELETE set null ON UPDATE no action;

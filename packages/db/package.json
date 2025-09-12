@@ -13,7 +13,7 @@
     "stop": "npx supabase stop",
     "test": "dotenvx run --env-file=.env.test -- vitest",
     "create-migration": "dotenvx run -- drizzle-kit generate --name $1",
-    "migrate": "dotenvx run -- drizzle-kit migrate",
+    "migrate": "dotenvx run -- npx supabase migration up",
     "migrate-test": "dotenvx run --env-file=.env.test -- drizzle-kit migrate"
   },
   "exports": {
@@ -47,8 +47,8 @@
     "drizzle-orm": "0.44.5",
     "drizzle-zod": "0.8.3",
     "postgres": "3.4.7",
-    "ser-kit": "3.13.1",
-    "zod": "4.1.5"
+    "ser-kit": "3.14.0",
+    "zod": "4.1.8"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "1.49.0",

@@ -1,5 +1,5 @@
 {
-  "id": "13372255-2620-45cc-8283-185d92bd49d1",
+  "id": "2e4f4024-0f4e-4792-90be-22d37d0cb91b",
   "prevId": "088d3acc-504b-4108-8168-ff3cde1d5ec5",
   "version": "7",
   "dialect": "postgresql",
@@ -1209,497 +1209,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.DeploymentSlice": {
-      "name": "DeploymentSlice",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "index": {
-          "name": "index",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "proposedTransactionId": {
-          "name": "proposedTransactionId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "signedTransactionId": {
-          "name": "signedTransactionId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "chainId": {
-          "name": "chainId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "steps": {
-          "name": "steps",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "from": {
-          "name": "from",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transactionHash": {
-          "name": "transactionHash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "completedAt": {
-          "name": "completedAt",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "completedById": {
-          "name": "completedById",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "cancelledAt": {
-          "name": "cancelledAt",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "cancelledById": {
-          "name": "cancelledById",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "deploymentId": {
-          "name": "deploymentId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tenantId": {
-          "name": "tenantId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "workspaceId": {
-          "name": "workspaceId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "DeploymentSlice_deploymentId_index": {
-          "name": "DeploymentSlice_deploymentId_index",
-          "columns": [
-            {
-              "expression": "deploymentId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "DeploymentSlice_proposedTransactionId_index": {
-          "name": "DeploymentSlice_proposedTransactionId_index",
-          "columns": [
-            {
-              "expression": "proposedTransactionId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "DeploymentSlice_signedTransactionId_index": {
-          "name": "DeploymentSlice_signedTransactionId_index",
-          "columns": [
-            {
-              "expression": "signedTransactionId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "DeploymentSlice_tenantId_index": {
-          "name": "DeploymentSlice_tenantId_index",
-          "columns": [
-            {
-              "expression": "tenantId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "DeploymentSlice_workspaceId_index": {
-          "name": "DeploymentSlice_workspaceId_index",
-          "columns": [
-            {
-              "expression": "workspaceId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "DeploymentSlice_completedById_index": {
-          "name": "DeploymentSlice_completedById_index",
-          "columns": [
-            {
-              "expression": "completedById",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "DeploymentSlice_cancelledById_index": {
-          "name": "DeploymentSlice_cancelledById_index",
-          "columns": [
-            {
-              "expression": "cancelledById",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "DeploymentSlice_proposedTransactionId_ProposedTransaction_id_fk": {
-          "name": "DeploymentSlice_proposedTransactionId_ProposedTransaction_id_fk",
-          "tableFrom": "DeploymentSlice",
-          "tableTo": "ProposedTransaction",
-          "columnsFrom": [
-            "proposedTransactionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "DeploymentSlice_signedTransactionId_SignedTransaction_id_fk": {
-          "name": "DeploymentSlice_signedTransactionId_SignedTransaction_id_fk",
-          "tableFrom": "DeploymentSlice",
-          "tableTo": "SignedTransaction",
-          "columnsFrom": [
-            "signedTransactionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "DeploymentSlice_completedById_User_id_fk": {
-          "name": "DeploymentSlice_completedById_User_id_fk",
-          "tableFrom": "DeploymentSlice",
-          "tableTo": "User",
-          "columnsFrom": [
-            "completedById"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "DeploymentSlice_cancelledById_User_id_fk": {
-          "name": "DeploymentSlice_cancelledById_User_id_fk",
-          "tableFrom": "DeploymentSlice",
-          "tableTo": "User",
-          "columnsFrom": [
-            "cancelledById"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "DeploymentSlice_deploymentId_Deployment_id_fk": {
-          "name": "DeploymentSlice_deploymentId_Deployment_id_fk",
-          "tableFrom": "DeploymentSlice",
-          "tableTo": "Deployment",
-          "columnsFrom": [
-            "deploymentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "DeploymentSlice_tenantId_Tenant_id_fk": {
-          "name": "DeploymentSlice_tenantId_Tenant_id_fk",
-          "tableFrom": "DeploymentSlice",
-          "tableTo": "Tenant",
-          "columnsFrom": [
-            "tenantId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "DeploymentSlice_workspaceId_Workspace_id_fk": {
-          "name": "DeploymentSlice_workspaceId_Workspace_id_fk",
-          "tableFrom": "DeploymentSlice",
-          "tableTo": "Workspace",
-          "columnsFrom": [
-            "workspaceId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Deployment": {
-      "name": "Deployment",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "completedAt": {
-          "name": "completedAt",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "cancelledAt": {
-          "name": "cancelledAt",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "cancelledById": {
-          "name": "cancelledById",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "issues": {
-          "name": "issues",
-          "type": "DeploymentIssue[]",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "createdById": {
-          "name": "createdById",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tenantId": {
-          "name": "tenantId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "workspaceId": {
-          "name": "workspaceId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "Deployment_createdById_index": {
-          "name": "Deployment_createdById_index",
-          "columns": [
-            {
-              "expression": "createdById",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "Deployment_tenantId_index": {
-          "name": "Deployment_tenantId_index",
-          "columns": [
-            {
-              "expression": "tenantId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "Deployment_workspaceId_index": {
-          "name": "Deployment_workspaceId_index",
-          "columns": [
-            {
-              "expression": "workspaceId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "Deployment_cancelledById_User_id_fk": {
-          "name": "Deployment_cancelledById_User_id_fk",
-          "tableFrom": "Deployment",
-          "tableTo": "User",
-          "columnsFrom": [
-            "cancelledById"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "Deployment_createdById_User_id_fk": {
-          "name": "Deployment_createdById_User_id_fk",
-          "tableFrom": "Deployment",
-          "tableTo": "User",
-          "columnsFrom": [
-            "createdById"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "Deployment_tenantId_Tenant_id_fk": {
-          "name": "Deployment_tenantId_Tenant_id_fk",
-          "tableFrom": "Deployment",
-          "tableTo": "Tenant",
-          "columnsFrom": [
-            "tenantId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "Deployment_workspaceId_Workspace_id_fk": {
-          "name": "Deployment_workspaceId_Workspace_id_fk",
-          "tableFrom": "Deployment",
-          "tableTo": "Workspace",
-          "columnsFrom": [
-            "workspaceId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.Feature": {
       "name": "Feature",
       "schema": "",
@@ -1773,6 +1282,12 @@
         "callbackState": {
           "name": "callbackState",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "routeId": {
+          "name": "routeId",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -1897,6 +1412,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ProposedTransaction_routeId_Route_id_fk": {
+          "name": "ProposedTransaction_routeId_Route_id_fk",
+          "tableFrom": "ProposedTransaction",
+          "tableTo": "Route",
+          "columnsFrom": [
+            "routeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "ProposedTransaction_userId_User_id_fk": {
@@ -2128,6 +1656,531 @@
           "tableTo": "User",
           "columnsFrom": [
             "createdById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.RoleDeploymentSlice": {
+      "name": "RoleDeploymentSlice",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "index": {
+          "name": "index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposedTransactionId": {
+          "name": "proposedTransactionId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signedTransactionId": {
+          "name": "signedTransactionId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "chainId": {
+          "name": "chainId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "steps": {
+          "name": "steps",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "from": {
+          "name": "from",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transactionHash": {
+          "name": "transactionHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "completedAt": {
+          "name": "completedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "completedById": {
+          "name": "completedById",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelledAt": {
+          "name": "cancelledAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelledById": {
+          "name": "cancelledById",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "roleDeploymentId": {
+          "name": "roleDeploymentId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tenantId": {
+          "name": "tenantId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "RoleDeploymentSlice_roleDeploymentId_index": {
+          "name": "RoleDeploymentSlice_roleDeploymentId_index",
+          "columns": [
+            {
+              "expression": "roleDeploymentId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeploymentSlice_proposedTransactionId_index": {
+          "name": "RoleDeploymentSlice_proposedTransactionId_index",
+          "columns": [
+            {
+              "expression": "proposedTransactionId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeploymentSlice_signedTransactionId_index": {
+          "name": "RoleDeploymentSlice_signedTransactionId_index",
+          "columns": [
+            {
+              "expression": "signedTransactionId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeploymentSlice_tenantId_index": {
+          "name": "RoleDeploymentSlice_tenantId_index",
+          "columns": [
+            {
+              "expression": "tenantId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeploymentSlice_workspaceId_index": {
+          "name": "RoleDeploymentSlice_workspaceId_index",
+          "columns": [
+            {
+              "expression": "workspaceId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeploymentSlice_completedById_index": {
+          "name": "RoleDeploymentSlice_completedById_index",
+          "columns": [
+            {
+              "expression": "completedById",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeploymentSlice_cancelledById_index": {
+          "name": "RoleDeploymentSlice_cancelledById_index",
+          "columns": [
+            {
+              "expression": "cancelledById",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "RoleDeploymentSlice_proposedTransactionId_ProposedTransaction_id_fk": {
+          "name": "RoleDeploymentSlice_proposedTransactionId_ProposedTransaction_id_fk",
+          "tableFrom": "RoleDeploymentSlice",
+          "tableTo": "ProposedTransaction",
+          "columnsFrom": [
+            "proposedTransactionId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "RoleDeploymentSlice_signedTransactionId_SignedTransaction_id_fk": {
+          "name": "RoleDeploymentSlice_signedTransactionId_SignedTransaction_id_fk",
+          "tableFrom": "RoleDeploymentSlice",
+          "tableTo": "SignedTransaction",
+          "columnsFrom": [
+            "signedTransactionId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "RoleDeploymentSlice_completedById_User_id_fk": {
+          "name": "RoleDeploymentSlice_completedById_User_id_fk",
+          "tableFrom": "RoleDeploymentSlice",
+          "tableTo": "User",
+          "columnsFrom": [
+            "completedById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "RoleDeploymentSlice_cancelledById_User_id_fk": {
+          "name": "RoleDeploymentSlice_cancelledById_User_id_fk",
+          "tableFrom": "RoleDeploymentSlice",
+          "tableTo": "User",
+          "columnsFrom": [
+            "cancelledById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "RoleDeploymentSlice_roleDeploymentId_RoleDeployment_id_fk": {
+          "name": "RoleDeploymentSlice_roleDeploymentId_RoleDeployment_id_fk",
+          "tableFrom": "RoleDeploymentSlice",
+          "tableTo": "RoleDeployment",
+          "columnsFrom": [
+            "roleDeploymentId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "RoleDeploymentSlice_tenantId_Tenant_id_fk": {
+          "name": "RoleDeploymentSlice_tenantId_Tenant_id_fk",
+          "tableFrom": "RoleDeploymentSlice",
+          "tableTo": "Tenant",
+          "columnsFrom": [
+            "tenantId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "RoleDeploymentSlice_workspaceId_Workspace_id_fk": {
+          "name": "RoleDeploymentSlice_workspaceId_Workspace_id_fk",
+          "tableFrom": "RoleDeploymentSlice",
+          "tableTo": "Workspace",
+          "columnsFrom": [
+            "workspaceId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.RoleDeployment": {
+      "name": "RoleDeployment",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "completedAt": {
+          "name": "completedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelledAt": {
+          "name": "cancelledAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelledById": {
+          "name": "cancelledById",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "issues": {
+          "name": "issues",
+          "type": "RoleDeploymentIssue[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "roleId": {
+          "name": "roleId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdById": {
+          "name": "createdById",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tenantId": {
+          "name": "tenantId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "RoleDeployment_roleId_index": {
+          "name": "RoleDeployment_roleId_index",
+          "columns": [
+            {
+              "expression": "roleId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeployment_createdById_index": {
+          "name": "RoleDeployment_createdById_index",
+          "columns": [
+            {
+              "expression": "createdById",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeployment_tenantId_index": {
+          "name": "RoleDeployment_tenantId_index",
+          "columns": [
+            {
+              "expression": "tenantId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "RoleDeployment_workspaceId_index": {
+          "name": "RoleDeployment_workspaceId_index",
+          "columns": [
+            {
+              "expression": "workspaceId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "RoleDeployment_cancelledById_User_id_fk": {
+          "name": "RoleDeployment_cancelledById_User_id_fk",
+          "tableFrom": "RoleDeployment",
+          "tableTo": "User",
+          "columnsFrom": [
+            "cancelledById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "RoleDeployment_roleId_Role_id_fk": {
+          "name": "RoleDeployment_roleId_Role_id_fk",
+          "tableFrom": "RoleDeployment",
+          "tableTo": "Role",
+          "columnsFrom": [
+            "roleId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "RoleDeployment_createdById_User_id_fk": {
+          "name": "RoleDeployment_createdById_User_id_fk",
+          "tableFrom": "RoleDeployment",
+          "tableTo": "User",
+          "columnsFrom": [
+            "createdById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "RoleDeployment_tenantId_Tenant_id_fk": {
+          "name": "RoleDeployment_tenantId_Tenant_id_fk",
+          "tableFrom": "RoleDeployment",
+          "tableTo": "Tenant",
+          "columnsFrom": [
+            "tenantId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "RoleDeployment_workspaceId_Workspace_id_fk": {
+          "name": "RoleDeployment_workspaceId_Workspace_id_fk",
+          "tableFrom": "RoleDeployment",
+          "tableTo": "Workspace",
+          "columnsFrom": [
+            "workspaceId"
           ],
           "columnsTo": [
             "id"
@@ -3573,15 +3626,6 @@
         "yearly"
       ]
     },
-    "public.DeploymentIssue": {
-      "name": "DeploymentIssue",
-      "schema": "public",
-      "values": [
-        "NoActiveAccounts",
-        "NoActiveMembers",
-        "MissingDefaultWallet"
-      ]
-    },
     "public.RoleActionType": {
       "name": "RoleActionType",
       "schema": "public",
@@ -3591,6 +3635,15 @@
         "bridge",
         "transfer",
         "custom"
+      ]
+    },
+    "public.RoleDeploymentIssue": {
+      "name": "RoleDeploymentIssue",
+      "schema": "public",
+      "values": [
+        "NoActiveAccounts",
+        "NoActiveMembers",
+        "MissingDefaultWallet"
       ]
     }
   },

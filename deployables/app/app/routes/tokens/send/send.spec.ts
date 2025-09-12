@@ -2,24 +2,10 @@ import { getChain, getTokenBalances, isValidToken } from '@/balances-server'
 import { createMockChain, createMockTokenBalance, render } from '@/test-utils'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Chain } from '@zodiac/chains'
 import { randomAddress } from '@zodiac/test-utils'
-import { useAccount } from '@zodiac/web3'
+import { mockAccount } from '@zodiac/web3/test-utils'
 import { href } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-vi.mock('@zodiac/web3', async (importOriginal) => {
-  const module = await importOriginal<typeof import('@zodiac/web3')>()
-
-  return {
-    ...module,
-
-    useAccount: vi.fn(module.useAccount),
-    useConnectorClient: vi.fn(module.useConnectorClient),
-  }
-})
-
-const mockUseAccount = vi.mocked(useAccount)
 
 const mockGetChain = vi.mocked(getChain)
 const mockIsValidToken = vi.mocked(isValidToken)
@@ -27,11 +13,7 @@ const mockGetTokenBalances = vi.mocked(getTokenBalances)
 
 describe.sequential('Send Tokens', { skip: process.env.CI != null }, () => {
   beforeEach(async () => {
-    // @ts-expect-error OK for this test
-    mockUseAccount.mockReturnValue({
-      address: randomAddress(),
-      chainId: Chain.ETH,
-    })
+    mockAccount()
 
     mockGetChain.mockResolvedValue(createMockChain())
     mockIsValidToken.mockResolvedValue(true)

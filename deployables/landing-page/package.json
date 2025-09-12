@@ -13,14 +13,14 @@
     "@zodiac/ui": "workspace:*",
     "classnames": "2.5.1",
     "isbot": "5.1.30",
-    "lucide-react": "0.543.0",
+    "lucide-react": "0.544.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-router": "7.8.2",
     "rough-notation": "0.5.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20250910.0",
+    "@cloudflare/workers-types": "4.20250911.0",
     "@react-router/dev": "7.8.2",
     "@tailwindcss/vite": "4.1.13",
     "@types/node": "22.14.1",

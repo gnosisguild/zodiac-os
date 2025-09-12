@@ -387,6 +387,17 @@ const DefaultWalletRelations = relations(DefaultWalletTable, ({ one }) => ({
   }),
 }))
 
+export const SetupSafeTable = pgTable(
+  'SetupSafe',
+  {
+    ...userReference,
+    ...chainReference,
+
+    address: text().$type<HexAddress>().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.chainId] })],
+)
+
 export const RouteTable = pgTable(
   'Route',
   {
@@ -503,6 +514,10 @@ export const ProposedTransactionTable = pgTable(
 
     callbackUrl: text(),
     callbackState: text(),
+
+    routeId: uuid()
+      .$type<UUID>()
+      .references(() => RouteTable.id, { onDelete: 'set null' }),
 
     ...userReference,
     ...tenantReference,
@@ -917,6 +932,7 @@ export const schema = {
   deployment: DeploymentTable,
   roleDeployment: RoleDeploymentTable,
   deploymentSlice: DeploymentSliceTable,
+  setupSafe: SetupSafeTable,
 
   TenantRelations,
   FeatureRelations,

@@ -20,6 +20,7 @@ export default defineConfig({
       './vitest.setup.ts',
       '@zodiac/test-utils/setup-chrome-mock',
       '@zodiac/db/setup-tests',
+      '@zodiac/web3/setup-tests',
     ],
     include: ['./app/**/*.{spec,test}.{ts,tsx}'],
     mockReset: true,

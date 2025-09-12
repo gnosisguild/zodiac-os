@@ -69,7 +69,7 @@
     "@epic-web/invariant": "1.0.0",
     "@gnosis-guild/zodiac": "4.2.1",
     "@headlessui/react": "2.2.7",
-    "@sentry/browser": "10.10.0",
+    "@sentry/browser": "10.11.0",
     "@zodiac/chains": "workspace:*",
     "@zodiac/db": "workspace:*",
     "@zodiac/env": "workspace:*",
@@ -83,16 +83,16 @@
     "@zodiac/web3": "workspace:*",
     "classnames": "2.5.1",
     "date-fns": "4.1.0",
-    "lucide-react": "0.543.0",
+    "lucide-react": "0.544.0",
     "nanoid": "5.1.5",
     "node-stdlib-browser": "1.3.1",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-router": "7.8.2",
     "react-stick": "5.0.7",
-    "ser-kit": "3.13.1",
+    "ser-kit": "3.14.0",
     "viem": "2.37.5",
-    "zod": "4.1.5",
+    "zod": "4.1.8",
     "zodiac-roles-sdk": "3.2.5"
   }
 }

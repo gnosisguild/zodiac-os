@@ -21,13 +21,13 @@
     "viem": "2.37.5"
   },
   "peerDependencies": {
-    "ser-kit": "3.13.1"
+    "ser-kit": "3.14.0"
   },
   "devDependencies": {
     "@types/node": "22.14.1",
     "@zodiac/eslint-config": "workspace:*",
     "@zodiac/typescript-config": "workspace:*",
     "eslint": "9.35.0",
-    "ser-kit": "3.13.1"
+    "ser-kit": "3.14.0"
   }
 }

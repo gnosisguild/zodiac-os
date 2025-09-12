@@ -2,7 +2,6 @@ import { simulateTransactionBundle } from '@/simulation-server'
 import { render } from '@/test-utils'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Chain } from '@zodiac/chains'
 import { CompanionAppMessageType } from '@zodiac/messages'
 import {
   createMockExecutionRoute,
@@ -17,7 +16,7 @@ import {
   randomPrefixedAddress,
   waitForPendingActions,
 } from '@zodiac/test-utils'
-import { useAccount, useConnectorClient } from '@zodiac/web3'
+import { mockAccount } from '@zodiac/web3/test-utils'
 import { href } from 'react-router'
 import {
   checkPermissions,
@@ -48,20 +47,6 @@ const mockExecute = vi.mocked(execute)
 const mockQueryRoutes = vi.mocked(queryRoutes)
 const mockCheckPermissions = vi.mocked(checkPermissions)
 
-vi.mock('@zodiac/web3', async (importOriginal) => {
-  const module = await importOriginal<typeof import('@zodiac/web3')>()
-
-  return {
-    ...module,
-
-    useAccount: vi.fn(module.useAccount),
-    useConnectorClient: vi.fn(module.useConnectorClient),
-  }
-})
-
-const mockUseAccount = vi.mocked(useAccount)
-const mockUseConnectorClient = vi.mocked(useConnectorClient)
-
 vi.mock('@/simulation-server', async (importOriginal) => {
   const module = await importOriginal<typeof import('@/simulation-server')>()
 
@@ -75,21 +60,13 @@ vi.mock('@/simulation-server', async (importOriginal) => {
 const mockSimulateTransactionBundle = vi.mocked(simulateTransactionBundle)
 
 describe('Sign', () => {
-  const chainId = Chain.ETH
   const initiator = randomPrefixedAddress({ chainId: undefined })
 
   beforeEach(() => {
     // @ts-expect-error We only needs an empty array
     vi.mocked(planExecution).mockResolvedValue([])
 
-    // @ts-expect-error We really only want to use this subset
-    mockUseAccount.mockReturnValue({
-      address: unprefixAddress(initiator),
-      chainId,
-    })
-
-    // @ts-expect-error We just need this to be there
-    mockUseConnectorClient.mockReturnValue({ data: {} })
+    mockAccount({ address: unprefixAddress(initiator) })
 
     mockSimulateTransactionBundle.mockResolvedValue({
       error: null,

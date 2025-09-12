@@ -13,18 +13,26 @@
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts"
+    },
+    "./setup-tests": {
+      "types": "./test-utils/setup-tests.ts",
+      "import": "./test-utils/setup-tests.ts"
+    },
+    "./test-utils": {
+      "types": "./test-utils/index.ts",
+      "import": "./test-utils/index.ts"
     }
   },
   "dependencies": {
     "@epic-web/invariant": "1.0.0",
-    "@tanstack/react-query": "5.87.1",
+    "@tanstack/react-query": "5.87.4",
     "@zodiac/chains": "workspace:*",
     "@zodiac/schema": "workspace:*",
     "@zodiac/ui": "workspace:*",
     "classnames": "2.5.1",
     "connectkit": "1.9.1",
     "ethereum-blockies-base64": "1.0.2",
-    "lucide-react": "0.543.0",
+    "lucide-react": "0.544.0",
     "viem": "2.37.5",
     "wagmi": "2.16.9"
   },
@@ -32,11 +40,13 @@
     "@types/node": "22.14.1",
     "@types/react": "19.1.12",
     "@zodiac/eslint-config": "workspace:*",
+    "@zodiac/test-utils": "workspace:*",
     "@zodiac/typescript-config": "workspace:*",
-    "eslint": "9.35.0"
+    "eslint": "9.35.0",
+    "vitest": "3.2.4"
   },
   "peerDependencies": {
     "react": "19.1.1",
-    "ser-kit": "3.13.1"
+    "ser-kit": "3.14.0"
   }
 }

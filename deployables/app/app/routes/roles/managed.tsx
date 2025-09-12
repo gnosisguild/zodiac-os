@@ -13,6 +13,7 @@ import {
   getRole,
   getRoleMembers,
   getRoles,
+  getSetupSafeAddresses,
   getWorkspace,
 } from '@zodiac/db'
 import { getEnumValue, getUUID } from '@zodiac/form-data'
@@ -42,7 +43,7 @@ import { Address } from '@zodiac/web3'
 import { UUID } from 'crypto'
 import { CloudUpload, Pencil } from 'lucide-react'
 import { useState } from 'react'
-import { href, redirect, useActionData } from 'react-router'
+import { href, Outlet, redirect, useActionData } from 'react-router'
 import type { Route } from './+types/managed'
 import { Intent } from './intents'
 import { Issues } from './issues'
@@ -82,6 +83,7 @@ export const action = (args: Route.ActionArgs) =>
       context: {
         auth: { user },
       },
+      params: { workspaceId },
     }) => {
       const data = await request.formData()
 
@@ -100,6 +102,24 @@ export const action = (args: Route.ActionArgs) =>
 
           if (pendingDeployment != null) {
             return { pendingDeploymentId: pendingDeployment.id, roleId }
+          }
+
+          const accounts = await getActivatedAccounts(dbClient(), { roleId })
+          const chainIds = new Set(accounts.map((account) => account.chainId))
+
+          const setupSafes = await getSetupSafeAddresses(
+            dbClient(),
+            user,
+            Array.from(chainIds),
+          )
+
+          if (setupSafes.length !== chainIds.size) {
+            return redirect(
+              href(
+                '/workspace/:workspaceId/roles/managed/:roleId/create-setup-safes',
+                { workspaceId, roleId },
+              ),
+            )
           }
 
           const { slices, issues } = await planRoleUpdate(roleId, ZERO_ADDRESS) // TODO: pass the user's personal safe instead of ZERO_ADDRESS to enable setting up circular account topologies
@@ -278,6 +298,8 @@ const ManagedRoles = ({
           ))}
         </TableBody>
       </Table>
+
+      <Outlet />
     </>
   )
 }

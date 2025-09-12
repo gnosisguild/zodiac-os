@@ -23,14 +23,14 @@
   "dependencies": {
     "@epic-web/invariant": "1.0.0",
     "@gnosis-guild/zodiac": "4.2.1",
-    "@shazow/whatsabi": "0.22.2",
+    "@shazow/whatsabi": "0.23.0",
     "@zodiac/chains": "workspace:*",
     "@zodiac/schema": "workspace:*",
     "ethers": "6.15.0",
     "evm-proxy-detection": "2.1.0",
     "nanoid": "5.1.5",
-    "ser-kit": "3.13.1",
-    "zod": "4.1.5",
+    "ser-kit": "3.14.0",
+    "zod": "4.1.8",
     "zodiac-roles-deployments": "3.1.2",
     "zodiac-roles-sdk": "3.2.5"
   },
