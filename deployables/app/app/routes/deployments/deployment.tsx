@@ -124,7 +124,7 @@ export const action = (args: Route.ActionArgs) =>
           defaultRouteId: defaultRoute.routeId,
 
           context: {
-            roleDeploymentSliceId: deploymentSlice.id,
+            deploymentSliceId: deploymentSlice.id,
             from: prefixAddress(account.chainId, account.address),
           },
         } as const
