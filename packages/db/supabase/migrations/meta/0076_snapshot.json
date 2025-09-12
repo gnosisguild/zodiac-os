@@ -1,6 +1,6 @@
 {
-  "id": "751fe3a7-db7a-4cf4-9771-d432ba030a35",
-  "prevId": "eea9cae7-bf39-46b8-ac26-967e7d56f38f",
+  "id": "d6915c2f-a236-4761-b9a1-bc8a3fe82044",
+  "prevId": "216d86aa-06f7-4c14-9ccb-15b1a029f5bb",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1768,6 +1768,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "routeId": {
+          "name": "routeId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "userId": {
           "name": "userId",
           "type": "uuid",
@@ -1889,6 +1895,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ProposedTransaction_routeId_Route_id_fk": {
+          "name": "ProposedTransaction_routeId_Route_id_fk",
+          "tableFrom": "ProposedTransaction",
+          "tableTo": "Route",
+          "columnsFrom": [
+            "routeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "ProposedTransaction_userId_User_id_fk": {
@@ -2727,6 +2746,59 @@
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.SetupSafe": {
+      "name": "SetupSafe",
+      "schema": "",
+      "columns": {
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chainId": {
+          "name": "chainId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "SetupSafe_userId_User_id_fk": {
+          "name": "SetupSafe_userId_User_id_fk",
+          "tableFrom": "SetupSafe",
+          "tableTo": "User",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "SetupSafe_userId_chainId_pk": {
+          "name": "SetupSafe_userId_chainId_pk",
+          "columns": [
+            "userId",
+            "chainId"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

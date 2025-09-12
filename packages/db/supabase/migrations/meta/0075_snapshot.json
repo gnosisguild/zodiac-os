@@ -1,6 +1,6 @@
 {
-  "id": "eea9cae7-bf39-46b8-ac26-967e7d56f38f",
-  "prevId": "4bc4b7da-4f3c-44e4-b0ad-400135626baa",
+  "id": "216d86aa-06f7-4c14-9ccb-15b1a029f5bb",
+  "prevId": "77c94641-9468-4ad4-8219-00e2d5054429",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1768,6 +1768,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "routeId": {
+          "name": "routeId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "userId": {
           "name": "userId",
           "type": "uuid",
@@ -1889,6 +1895,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ProposedTransaction_routeId_Route_id_fk": {
+          "name": "ProposedTransaction_routeId_Route_id_fk",
+          "tableFrom": "ProposedTransaction",
+          "tableTo": "Route",
+          "columnsFrom": [
+            "routeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "ProposedTransaction_userId_User_id_fk": {
@@ -2120,82 +2139,6 @@
           "tableTo": "User",
           "columnsFrom": [
             "createdById"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.RoleDeployment": {
-      "name": "RoleDeployment",
-      "schema": "",
-      "columns": {
-        "issues": {
-          "name": "issues",
-          "type": "RoleDeploymentIssue[]",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "deploymentId": {
-          "name": "deploymentId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "roleId": {
-          "name": "roleId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "RoleDeployment_roleId_index": {
-          "name": "RoleDeployment_roleId_index",
-          "columns": [
-            {
-              "expression": "roleId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "RoleDeployment_deploymentId_Deployment_id_fk": {
-          "name": "RoleDeployment_deploymentId_Deployment_id_fk",
-          "tableFrom": "RoleDeployment",
-          "tableTo": "Deployment",
-          "columnsFrom": [
-            "deploymentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "RoleDeployment_roleId_Role_id_fk": {
-          "name": "RoleDeployment_roleId_Role_id_fk",
-          "tableFrom": "RoleDeployment",
-          "tableTo": "Role",
-          "columnsFrom": [
-            "roleId"
           ],
           "columnsTo": [
             "id"
@@ -2712,6 +2655,59 @@
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.SetupSafe": {
+      "name": "SetupSafe",
+      "schema": "",
+      "columns": {
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chainId": {
+          "name": "chainId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "SetupSafe_userId_User_id_fk": {
+          "name": "SetupSafe_userId_User_id_fk",
+          "tableFrom": "SetupSafe",
+          "tableTo": "User",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "SetupSafe_userId_chainId_pk": {
+          "name": "SetupSafe_userId_chainId_pk",
+          "columns": [
+            "userId",
+            "chainId"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
