@@ -26,6 +26,7 @@
   },
   "include": [
     ".react-router/types/**/*",
+    "./node_modules/@zodiac/typescript-config/better-types.d.ts",
     "vitest.setup.ts",
     "drizzle.config.ts",
     "abitype.d.ts",
