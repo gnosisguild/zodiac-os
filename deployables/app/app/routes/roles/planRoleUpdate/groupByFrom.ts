@@ -15,15 +15,20 @@ export const groupByFrom = (
 ): GroupByFromResult => {
   const stepsByChain = groupBy(ungroupedResult, (step) => step.account.chain)
 
-  return Object.entries(stepsByChain).reduce<GroupByFromResult>(
-    (result, [chainId, accountBuilderResults]) => {
+  return stepsByChain
+    .entries()
+    .reduce<GroupByFromResult>((result, [chainId, accountBuilderResults]) => {
       const ANYONE = 'ANYONE'
-      const { [ANYONE]: stepsFromAnyone, ...stepsByFrom } = groupBy(
+      const groups = groupBy(
         accountBuilderResults,
         (step) => step.from ?? ANYONE,
       )
-      // include steps without a `from` in the first group
-      const firstGroup = Object.values(stepsByFrom)[0]
+
+      const stepsFromAnyone = groups.get(ANYONE)
+
+      groups.delete(ANYONE)
+
+      const firstGroup = groups.values().next().value
 
       if (firstGroup == null) {
         const from = accountForSetup.get(chainId)
@@ -32,6 +37,8 @@ export const groupByFrom = (
           from != null,
           `Could not find a setup safe for chain "${chainId}"`,
         )
+
+        invariant(stepsFromAnyone != null, 'No steps defined to be executed')
 
         // all steps can be executed by anyone – use specified accountForSetup
         return result.set(chainId, [
@@ -48,14 +55,15 @@ export const groupByFrom = (
 
       return result.set(
         chainId,
-        Object.entries(stepsByFrom).map(([from, steps]) => ({
-          from: from as HexAddress,
-          accountBuilderResult: steps,
-        })),
+        groups
+          .entries()
+          .map(([from, steps]) => ({
+            from: from as HexAddress,
+            accountBuilderResult: steps,
+          }))
+          .toArray(),
       )
-    },
-    new Map(),
-  )
+    }, new Map())
 }
 
 /**
@@ -67,17 +75,18 @@ export const groupByFrom = (
 export function groupBy<T, K extends string | number | symbol>(
   array: T[],
   keySelector: (item: T) => K,
-): Record<K, T[]> {
-  return array.reduce(
-    (groups, item) => {
-      const key = keySelector(item)
-      if (!groups[key]) {
-        groups[key] = []
-      }
-      groups[key].push(item)
+): Map<K, T[]> {
+  const result = new Map<K, T[]>()
 
-      return groups
-    },
-    {} as Record<K, T[]>,
-  )
+  for (const item of array) {
+    const key = keySelector(item)
+
+    if (!result.has(key)) {
+      result.set(key, [])
+    }
+
+    result.get(key)?.push(item)
+  }
+
+  return result
 }

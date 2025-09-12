@@ -3,9 +3,5 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"]
   },
-  "include": [
-    "./src/**/*",
-    "./test-utils/**/*",
-    "./node_modules/@zodiac/typescript-config/better-types.d.ts"
-  ]
+  "include": ["./src/**/*", "./test-utils/**/*"]
 }

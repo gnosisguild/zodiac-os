@@ -67,7 +67,7 @@ export const loader = (args: Route.LoaderArgs) =>
       const setupSafes = await getSetupSafeAddresses(dbClient(), user, chainIds)
 
       const missingChainIds = chainIds.filter(
-        (chainId) => !setupSafes.some((safe) => safe.chainId === chainId),
+        (chainId) => !setupSafes.has(chainId),
       )
 
       if (missingChainIds.length === 0) {
@@ -86,18 +86,30 @@ export const loader = (args: Route.LoaderArgs) =>
           accountForSetup: ZERO_ADDRESS,
         })
 
-        const actions = groupByFrom(executionPlan, ZERO_ADDRESS)
+        const actions = groupByFrom(
+          executionPlan,
+          getEmptySetupSafes(missingChainIds),
+        )
 
-        invariantResponse(actions.length === 1, 'Too many actions')
+        const steps = actions
+          .values()
+          .flatMap((value) => {
+            invariantResponse(value.length === 1, 'Too many actions')
 
-        const [{ steps }] = actions
+            const [{ accountBuilderResult }] = value
+
+            return accountBuilderResult
+          })
+          .toArray()
 
         return {
           stepsByAccount: steps,
           defaultWallets: await getDefaultWallets(dbClient(), user.id),
           walletLabels: await getWalletLabels(dbClient(), user.id),
         }
-      } catch {
+      } catch (error) {
+        console.error(error)
+
         return { missingChainIds }
       }
     },
@@ -326,4 +338,14 @@ const DeploySafe = ({
       </TableCell>
     </TableRow>
   )
+}
+
+const getEmptySetupSafes = (chainIds: ChainId[]): Map<ChainId, HexAddress> => {
+  const result = new Map()
+
+  for (const chainId of chainIds) {
+    result.set(chainId, ZERO_ADDRESS)
+  }
+
+  return result
 }

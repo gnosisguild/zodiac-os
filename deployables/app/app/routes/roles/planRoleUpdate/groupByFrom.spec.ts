@@ -11,7 +11,7 @@ describe('groupByFrom', () => {
 
     const result = groupByFrom(
       [{ account, steps: [], from: undefined }],
-      new Map(Object.entries({ [Chain.ETH]: setupSafe })),
+      new Map().set(Chain.ETH, setupSafe),
     )
 
     expect(Object.fromEntries(result.entries())).toEqual({
@@ -31,7 +31,7 @@ describe('groupByFrom', () => {
 
     const result = groupByFrom(
       [{ account, steps: [], from }],
-      new Map(Object.entries({ [Chain.ETH]: setupSafe })),
+      new Map().set(Chain.ETH, setupSafe),
     )
 
     expect(Object.fromEntries(result.entries())).toEqual({
@@ -53,7 +53,7 @@ describe('groupByFrom', () => {
         { account: accountA, steps: [], from: undefined },
         { account: accountB, steps: [], from: undefined },
       ],
-      new Map(Object.entries({ [Chain.ETH]: safeA, [Chain.GNO]: safeB })),
+      new Map().set(Chain.ETH, safeA).set(Chain.GNO, safeB),
     )
 
     expect(Object.fromEntries(result.entries())).toEqual({
