@@ -214,7 +214,7 @@ describe('Sign callback', () => {
     )
 
     await expect(response.json()).resolves.toEqual({
-      redirectTo: `/workspace/${tenant.defaultWorkspaceId}/deployment/${deployment.id}`,
+      redirectTo: `/workspace/${tenant.defaultWorkspaceId}/deployments/${deployment.id}`,
     })
   })
 
@@ -262,7 +262,7 @@ describe('Sign callback', () => {
     )
 
     await expect(response.json()).resolves.toEqual({
-      redirectTo: `/workspace/${tenant.defaultWorkspaceId}/role-deployment/${deployment.id}`,
+      redirectTo: `/workspace/${tenant.defaultWorkspaceId}/role-deployments/${deployment.id}`,
     })
   })
 })
