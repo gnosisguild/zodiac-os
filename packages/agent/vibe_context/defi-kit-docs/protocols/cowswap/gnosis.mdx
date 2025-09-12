@@ -1,0 +1,241 @@
+import { Callout } from "nextra/components"
+
+# CowSwap on Gnosis Chain
+
+**Deployments**
+
+| Name               | Address                                                                                                                |
+| :----------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `GPv2VaultRelayer` | [0xC92E8bdf79f0507f65a392b0ab4667716BFE0110](https://gnosisscan.io/address/0xC92E8bdf79f0507f65a392b0ab4667716BFE0110) |
+| `OrderSigner`      | [0x23dA9AdE38E4477b23770DeD512fD37b12381FAB](https://gnosisscan.io/address/0x23dA9AdE38E4477b23770DeD512fD37b12381FAB) |
+| `ComposableCow`    | [0xfdaFc9d1902f4e0b84f65F49f244b32b31013b74](https://gnosisscan.io/address/0xfdaFc9d1902f4e0b84f65F49f244b32b31013b74) |
+| `TWAP`             | [0x6cF1e9cA41f7611dEf408122793c358a3d11E5a5](https://gnosisscan.io/address/0x6cF1e9cA41f7611dEf408122793c358a3d11E5a5) |
+
+**Other Deployments**
+
+| Name                           | Address                                                                                                                |
+| :----------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `ExtensibleFallbackHandler`    | [0x2f55e8b20D0B9FEFA187AA7d00B6Cbe563605bF5](https://gnosisscan.io/address/0x2f55e8b20D0B9FEFA187AA7d00B6Cbe563605bF5) |
+| `CurrentBlockTimestampFactory` | [0x23dA9AdE38E4477b23770DeD512fD37b12381FAB](https://gnosisscan.io/address/0x23dA9AdE38E4477b23770DeD512fD37b12381FAB) |
+
+## Action: `swap`
+
+**Parameters**
+
+| Name          | Type                  | Description                                                           |
+| :------------ | :-------------------- | :-------------------------------------------------------------------- |
+| `sell`        | _string[] (required)_ | XDAI \| `Token` address                                               |
+| `buy`         | _string[] (optional)_ | XDAI \| `Token` address                                               |
+| `feeAmountBp` | _int (optional)_      | Fee amount basis points (0-10000), where 0 is 0% and 10000 is 100%    |
+| `twap`        | _bool (optional)_     | false = Market Order / true = TWAP Order                              |
+| `receiver`    | _address (optional)_  | Address that will receive output tokens when a TWAP Order is executed |
+
+<Callout type="info">
+  When using the Pilot Extension, all swaps will be routed through a delegate
+  call to the [`OrderSigner`](https://github.com/gnosisguild/cow-order-signer)
+  in order to facilitate parameter scoping and minimize risks.
+</Callout>
+
+<Callout type="info">
+  To allow XDAI as `sell` or `buy` token, either the "XDAI" literal or the
+  `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` address can be used.
+</Callout>
+
+<Callout type="info">
+  If `buy` is left `undefined`, there would be no restriction on the buy side of
+  the swap.
+</Callout>
+
+<Callout type="info">
+  `SELL_TOKEN` below refers to the ERC-20 token address of each element given in
+  `sell`.
+</Callout>
+
+<Callout type="info">
+  `BUY_TOKEN` below refers to the ERC-20 token address of each element given in
+  `buy`.
+</Callout>
+
+<Callout type="info">
+  `FEE_AMOUNT_BP` specifies the fee amount in basis points given in
+  `feeAmountBp`. It accepts a value between 0 and 10000, where 0 represents 0%
+  and 10000 represents 100%.
+</Callout>
+
+<Callout type="info">
+  `RECEIVER` below refers to the address given in the `receiver` parameter. 
+  This address will receive the output tokens from the TWAP Order.
+</Callout>
+
+<Callout type="error">
+  If `twap` is set to `true`, then `receiver` must be a valid address.
+  Otherwise, the following error will be thrown: "If `twap` is `true` then
+  `receiver` must be a valid address".
+</Callout>
+
+<Callout type="info">
+  While not strictly enforced, `receiver` is expected to be the `AVATAR` Safe.
+  Using a different address may result in permission scopes that are not
+  meaningful or functional.
+</Callout>
+
+### `SELL_TOKEN · approve`
+
+Approve `GPv2VaultRelayer` to spend `SELL_TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `SELL_TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                  |
+  | :-------- | :-------------------------- |
+  | `spender` | equal to `GPv2VaultRelayer` |
+  | `amount`  | -                           |
+
+### If XDAI is `SELL_TOKEN`:
+
+#### `WXDAI · approve`
+
+Approve `GPv2VaultRelayer` to spend `WXDAI` tokens on behalf of the avatar.
+
+- **Contract:** `WXDAI`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                  |
+  | :-------- | :-------------------------- |
+  | `spender` | equal to `GPv2VaultRelayer` |
+  | `amount`  | -                           |
+
+#### `WXDAI · deposit`
+
+Deposit XDAI and receive `WXDAI` tokens.
+
+- **Contract:** `WXDAI`
+- **Function:** `deposit()` Ξ _allow sending XDAI_
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+### If `TWAP` is `true`:
+
+#### `RECEIVER · setFallbackHandler`
+
+Set the fallback handler on `RECEIVER` to allow execution of the TWAP Order.
+This setup is required once per Safe to enable compatibility with the CoW protocol’s
+order settlement logic.
+
+- **Contract:** `RECEIVER (Safe contract)`
+- **Function:** `setFallbackHandler(address)`
+
+  | Parameter | Constraint                           |
+  | :-------- | :----------------------------------- |
+  | `handler` | equal to `ExtensibleFallbackHandler` |
+
+<Callout type="info"> 
+  Learn more about how the CoW Swap fallback handler works and why it’s needed in 
+  [this article by CoW Swap](https://cow.fi/learn/all-you-need-to-know-about-cow-swap-new-safe-fallback-handler). 
+</Callout>
+
+#### `RECEIVER · setDomainVerifier`
+
+Configure the domain verifier required to validate signed CoW Orders.
+This function is exposed via the `ExtensibleFallbackHandler`, which must be
+previously set using `setFallbackHandler`.
+
+- **Contract:** `RECEIVER (Safe contract)`
+- **Function:** `setDomainVerifier(bytes32,address)`
+
+  | Parameter         | Constraint                                                                    |
+  | :---------------- | :---------------------------------------------------------------------------- |
+  | `domainSeparator` | equal to `0xc078f884a2676e1345748b1feace7b0abee5d00ecadb6e574dcdd109a63e8943` |
+  | `newVerifier`     | equal to `ComposableCow`                                                      |
+
+#### `ComposableCow · createWithContext`
+
+Creates a TWAP Order with predefined parameters and a contextualized factory for time-based execution.
+This is the core function used to submit TWAP Orders via the `ComposableCow` contract.
+
+- **Contract:** `ComposableCow`
+- **Function:** `createWithContext((address,bytes32,bytes),address,bytes,bool)`
+
+  | Parameter            | Constraint                              |
+  | :------------------- | :-------------------------------------- |
+  | `params.handler`     | equal to `TWAP`                         |
+  | `params.salt`        | -                                       |
+  | `params.staticInput` | See breakdown below                     |
+  | `factory`            | equal to `CurrentBlockTimestampFactory` |
+  | `data`               | equal to `0x`                           |
+  | `dispatch`           | -                                       |
+
+<Callout type="info">
+  The `handler` contract (TWAP) defines the execution strategy, while `factory`
+  provides dynamic inputs such as the current timestamp.
+</Callout>
+
+**Breakdown of `params.staticInput` Parameter Scoping**  
+The `staticInput` structure is defined in the [ComposableCow repository](https://github.com/cowprotocol/composable-cow).
+
+| Field          | Scoped | Description                                                                                    |
+| -------------- | ------ | ---------------------------------------------------------------------------------------------- |
+| sellToken      | Yes    | Address of the token being sold. Scoped using the tokens listed in `sell`.                     |
+| buyToken       | Yes    | Address of the token being bought. Scoped using the tokens listed in `buy`.                    |
+| receiver       | Yes    | Receiver of the swap proceeds (address(0) = Safe itself). Scoped as `AVATAR` or `ZeroAddress`. |
+| partSellAmount | No     | Amount of sellToken per TWAP chunk.                                                            |
+| minPartLimit   | No     | Minimum expected buyToken per chunk.                                                           |
+| t0             | No     | Start time (unix timestamp).                                                                   |
+| n              | No     | Number of parts in the TWAP.                                                                   |
+| t              | No     | Interval duration between parts (in seconds).                                                  |
+| span           | No     | Optional active span within each interval (in seconds).                                        |
+
+### If `TWAP` is `false`:
+
+#### `OrderSigner · signOrder`
+
+Sign order to swap `SELL_TOKEN` for `BUY_TOKEN`.
+
+- **Contract:** `OrderSigner`
+- **Function:** `signOrder((address,address,address,uint256,uint256,uint32,bytes32,uint256,bytes32,bool,bytes32,bytes32),uint32,uint256)` → delegatecall
+
+  | Parameter                 | Constraint                        |
+  | :------------------------ | :-------------------------------- |
+  | `order.sellToken`         | equal to `SELL_TOKEN`             |
+  | `order.buyToken`          | equal to `BUY_TOKEN`              |
+  | `order.receiver`          | equal to `AVATAR`                 |
+  | `order.sellAmount`        | -                                 |
+  | `order.buyAmount`         | -                                 |
+  | `order.validTo`           | -                                 |
+  | `order.appData`           | -                                 |
+  | `order.feeAmount`         | -                                 |
+  | `order.kind`              | -                                 |
+  | `order.partiallyFillable` | -                                 |
+  | `order.sellTokenBalance`  | -                                 |
+  | `order.buyTokenBalance`   | -                                 |
+  | `validDuration`           | -                                 |
+  | `feeAmountBp`             | lower or equal to `FEE_AMOUNT_BP` |
+
+<Callout type="info">
+  The `signOrder` function does not allow sending XDAI. Therefore, XDAI must be
+  wrapped in order to be sent as a sell token.
+</Callout>
+
+#### `OrderSigner · unsignOrder`
+
+Unsign and cancel order.
+
+- **Contract:** `OrderSigner`
+- **Function:** `unsignOrder((address,address,address,uint256,uint256,uint32,bytes32,uint256,bytes32,bool,bytes32,bytes32))` → delegatecall
+
+  | Parameter                 | Constraint            |
+  | :------------------------ | :-------------------- |
+  | `order.sellToken`         | equal to `SELL_TOKEN` |
+  | `order.buyToken`          | equal to `BUY_TOKEN`  |
+  | `order.receiver`          | equal to `AVATAR`     |
+  | `order.sellAmount`        | -                     |
+  | `order.buyAmount`         | -                     |
+  | `order.validTo`           | -                     |
+  | `order.appData`           | -                     |
+  | `order.feeAmount`         | -                     |
+  | `order.kind`              | -                     |
+  | `order.partiallyFillable` | -                     |
+  | `order.sellTokenBalance`  | -                     |
+  | `order.buyTokenBalance`   | -                     |

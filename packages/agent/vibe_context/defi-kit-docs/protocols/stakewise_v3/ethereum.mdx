@@ -1,0 +1,106 @@
+import { Callout } from "nextra/components"
+
+# StakeWise v3 on Ethereum
+
+## Action: `stake`
+
+**Parameters**
+
+| Name      | Type                  | Description                |
+| :-------- | :-------------------- | :------------------------- |
+| `targets` | _string[] (required)_ | `Vault` id \| `Vault` name |
+
+<Callout type="info">
+  `TARGET_VAULT` below refers to the address of the StakeWise v3 Vault.
+</Callout>
+
+### `TARGET_VAULT · deposit`
+
+Stake ETH to the corresponding StakeWise v3 Vault.
+
+- **Contract:** `TARGET_VAULT`
+- **Function:** `deposit(address,address)` Ξ _allow sending ETH_
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `receiver` | equal to `AVATAR` |
+  | `referrer` | -                 |
+
+### `TARGET_VAULT · updateState`
+
+Updates the total amount of assets in the Vault and its exit queue.
+
+- **Contract:** `TARGET_VAULT`
+- **Function:** `updateState((bytes32,int160,uint160,bytes32[]))`
+
+  | Parameter           | Constraint |
+  | :------------------ | :--------- |
+  | `rewardsRoot`       | -          |
+  | `reward`            | -          |
+  | `unlockedMevReward` | -          |
+  | `proof`             | -          |
+
+### `TARGET_VAULT · updateStateAndDeposit`
+
+Updates Vault state and deposits ETH to the Vault.
+
+- **Contract:** `TARGET_VAULT`
+- **Function:** `updateStateAndDeposit(address,address,(bytes32,int160,uint160,bytes32[]))` Ξ _allow sending ETH_
+
+  | Parameter           | Constraint        |
+  | :------------------ | :---------------- |
+  | `receiver`          | equal to `AVATAR` |
+  | `referrer`          | -                 |
+  | `rewardsRoot`       | -                 |
+  | `reward`            | -                 |
+  | `unlockedMevReward` | -                 |
+  | `proof`             | -                 |
+
+### `TARGET_VAULT · mintOsToken`
+
+Mints osToken shares to the specified receiver.
+
+- **Contract:** `TARGET_VAULT`
+- **Function:** `mintOsToken(address,uint256,address)`
+
+  | Parameter       | Constraint        |
+  | :-------------- | :---------------- |
+  | `receiver`      | equal to `AVATAR` |
+  | `osTokenShares` | -                 |
+  | `referrer`      | -                 |
+
+### `TARGET_VAULT · burnOsToken`
+
+Burns osToken shares.
+
+- **Contract:** `TARGET_VAULT`
+- **Function:** `burnOsToken(uint128)`
+
+  | Parameter       | Constraint |
+  | :-------------- | :--------- |
+  | `osTokenShares` | -          |
+
+### `TARGET_VAULT · enterExitQueue`
+
+Locks shares in the exit queue. The shares will continue earning rewards until they are burned by the Vault.
+
+- **Contract:** `TARGET_VAULT`
+- **Function:** `enterExitQueue(uint256,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `shares`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+
+### `TARGET_VAULT · claimExitedAssets`
+
+Claims assets that were withdrawn by the Vault. It can be called only after the `enterExitQueue` call by the `receiver`.
+
+- **Contract:** `TARGET_VAULT`
+- **Function:** `claimExitedAssets(uint256,uint256,uint256)`
+
+  | Parameter        | Constraint |
+  | :--------------- | :--------- |
+  | `positionTicket` | -          |
+  | `timestamp`      | -          |
+  | `exitQueueIndex` | -          |

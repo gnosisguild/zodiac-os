@@ -1,0 +1,257 @@
+import { Callout } from "nextra/components"
+
+# Compound v2 on Ethereum
+
+**Deployments**
+
+| Name          | Address                                                                                                               |
+| :------------ | :-------------------------------------------------------------------------------------------------------------------- |
+| `Comptroller` | [0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B](https://etherscan.io/address/0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B) |
+| `Maximillion` | [0xf859A1AD94BcF445A406B892eF0d3082f4174088](https://etherscan.io/address/0xf859A1AD94BcF445A406B892eF0d3082f4174088) |
+| `cETH`        | [0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5](https://etherscan.io/address/0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                          |
+| :-------- | :-------------------- | :----------------------------------- |
+| `targets` | _string[] (required)_ | `Token` symbols \| `Token` addresses |
+
+### Target: ERC-20
+
+For targets that are ERC-20 tokens, the following functions are allowed:
+
+<Callout type="info">
+  `TARGET` below refers to the ERC-20 token address of each element given in
+  `targets`.
+</Callout>
+
+#### `TARGET · approve`
+
+Approve `cToken` to spend `TARGET` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `spender` | equal to `cToken` |
+  | `amount`  | -                 |
+
+#### `cToken · mint`
+
+Deposit `TARGET` and receive `cToken` tokens in exchange.
+
+- **Contract:** `cToken`
+- **Function:** `mint(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `Comptroller · enterMarkets`
+
+Set deposited asset as collateral.
+
+- **Contract:** `Comptroller`
+- **Function:** `enterMarkets(address[])`
+
+  | Parameter  | Constraint          |
+  | :--------- | :------------------ |
+  | `cToken[]` | equal to `[cToken]` |
+
+#### `Comptroller · exitMarket`
+
+Unset deposited asset as collateral.
+
+- **Contract:** `Comptroller`
+- **Function:** `exitMarket(address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `cToken`  | equal to `cToken` |
+
+#### `cToken · redeem`
+
+Redeem `cToken` and withdraw `TARGET` tokens.<br/>
+This function is called when MAX underlying amount is withdrawn.
+
+- **Contract:** `cToken`
+- **Function:** `redeem(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `cToken · redeemUnderlying`
+
+Redeem `cToken` and withdraw `TARGET` tokens.
+
+- **Contract:** `cToken`
+- **Function:** `redeemUnderlying(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `Comptroller · claimComp`
+
+Claim `COMP` rewards.
+
+- **Contract:** `Comptroller`
+- **Function:** `claimComp(address,address[])`
+
+  | Parameter  | Constraint          |
+  | :--------- | :------------------ |
+  | `holder`   | equal to `AVATAR`   |
+  | `cToken[]` | equal to `[cToken]` |
+
+### Target: ETH
+
+For ETH as an element of `targets`, the following functions are allowed:
+
+#### `cETH · mint`
+
+Deposit ETH and receive `cETH` tokens in exchange.
+
+- **Contract:** `cETH`
+- **Function:** `mint()` Ξ _allow sending ETH_
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `Comptroller · enterMarkets`
+
+Set deposited asset as collateral.
+
+- **Contract:** `Comptroller`
+- **Function:** `enterMarkets(address[])`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `cToken[]` | equal to `[cETH]` |
+
+#### `Comptroller · exitMarket`
+
+Unset deposited asset as collateral.
+
+- **Contract:** `Comptroller`
+- **Function:** `exitMarket(address)`
+
+  | Parameter | Constraint      |
+  | :-------- | :-------------- |
+  | `cToken`  | equal to `cETH` |
+
+#### `cETH · redeem`
+
+Redeem `cETH` and withdraw ETH tokens.<br/>
+This functions is called when MAX underlying amount is withdrawn.
+
+- **Contract:** `cETH`
+- **Function:** `redeem(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `cETH · redeemUnderlying`
+
+Redeem `cETH` and withdraw ETH tokens.
+
+- **Contract:** `cETH`
+- **Function:** `redeemUnderlying(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `Comptroller · claimComp`
+
+Claim `COMP` rewards.
+
+- **Contract:** `Comptroller`
+- **Function:** `claimComp(address,address[])`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `holder`   | equal to `AVATAR` |
+  | `cToken[]` | equal to `[cETH]` |
+
+## Action: `borrow`
+
+**Parameters:**
+
+| Name      | Type                  | Description                          |
+| :-------- | :-------------------- | :----------------------------------- |
+| `targets` | _string[] (required)_ | `Token` symbols \| `Token` addresses |
+
+### Target: ERC-20
+
+For targets that are ERC-20 tokens, the following functions are allowed:
+
+<Callout type="info">
+  `TARGET` below refers to the ERC-20 token address of each element given in
+  `targets`.
+</Callout>
+
+#### `TARGET · approve`
+
+Approve `cToken` to spend `TARGET` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `spender` | equal to `cToken` |
+  | `amount`  | -                 |
+
+#### `cToken · borrow`
+
+Receive `TARGET` tokens.
+
+- **Contract:** `cToken`
+- **Function:** `borrow(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `cToken · repayBorrow`
+
+Repay borrowed `TARGET` tokens.
+
+- **Contract:** `cToken`
+- **Function:** `repayBorrow(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+### Target: ETH
+
+For ETH as an element of `targets`, the following functions are allowed:
+
+#### `cETH · borrow`
+
+Receive ETH.
+
+- **Contract:** `cETH`
+- **Function:** `borrow(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `Maximillion · repayBehalf`
+
+Repay borrowed ETH.
+
+- **Contract:** `Maximillion`
+- **Function:** `repayBehalf(address)` Ξ _allow sending ETH_
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `borrower` | equal to `AVATAR` |

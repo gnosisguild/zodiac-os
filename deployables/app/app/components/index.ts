@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 
+export * from './agent'
 export { AvatarInput } from './AvatarInput'
 export { ProvideDevelopmentContext, useIsDev } from './DevelopmentContext'
 export { InitiatorInput } from './InitiatorInput'

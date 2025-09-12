@@ -1,0 +1,213 @@
+import { Callout } from "nextra/components"
+
+# Aave v3 Repertoire on Ethereum
+
+**Deployments**
+
+| Name                         | Address                                                                                                               |
+| :--------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `PoolCoreV3`                 | [0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2](https://etherscan.io/address/0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2) |
+| `WrappedTokenGatewayCoreV3`  | [0xA434D495249abE33E031Fe71a969B81f3c07950D](https://etherscan.io/address/0xA434D495249abE33E031Fe71a969B81f3c07950D) |
+| `aEthWETH`                   | [0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8](https://etherscan.io/address/0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8) |
+| `PoolPrimeV3`                | [0x4e033931ad43597d96D6bcc25c280717730B58B1](https://etherscan.io/address/0x4e033931ad43597d96D6bcc25c280717730B58B1) |
+| `WrappedTokenGatewayPrimeV3` | [0x0B8C700917a6991FEa7198dDFC80bc8962b5055D](https://etherscan.io/address/0x0B8C700917a6991FEa7198dDFC80bc8962b5055D) |
+| `aEthLidoWeth`               | [0xfA1fDbBD71B0aA16162D76914d69cD8CB3Ef92da](https://etherscan.io/address/0xfA1fDbBD71B0aA16162D76914d69cD8CB3Ef92da) |
+| `PoolEtherFiV3`              | [0x0AA97c284e98396202b6A04024F5E2c65026F3c0](https://etherscan.io/address/0x0AA97c284e98396202b6A04024F5E2c65026F3c0) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name     | Type                | Description                                                |
+| :------- | :------------------ | :--------------------------------------------------------- |
+| `market` | _string (optional)_ | `Market` names \| `Market` poolAddresses (default: `Core`) |
+| `token`  | _string (required)_ | ETH \| `Token` symbols \| `Token` addresses                |
+
+Deposit `token` tokens into the specified `market` in Aave v3.
+
+### Permissions:
+
+#### Target: ERC-20
+
+For ERC-20 tokens, the following functions are allowed:
+
+<Callout type="info">
+  The `MARKET` parameter determines which Aave `market` is targeted (`Core`,
+  `Prime`, or `EtherFi`). Provide either the market name or the pool address. If
+  omitted, the default market is `Core`.
+</Callout>
+<Callout type="info">
+  The `POOLV3` placeholder represents the pool of the selected `MARKET`.
+</Callout>
+<Callout type="error">
+  If the `token` provided is not supported by the selected `market`, an error
+  will be thrown.
+</Callout>
+
+##### `token · approve`
+
+Approve `POOLV3` to spend `token` tokens on behalf of the avatar.
+
+- **Contract:** `token`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `spender` | equal to `POOLV3` |
+  | `amount`  | -                 |
+
+##### `POOLV3 · supply`
+
+Deposit `token` and receive `aToken` tokens in exchange.
+
+- **Contract:** `POOLV3`
+- **Function:** `supply(address,uint256,address,uint16)`
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `asset`        | equal to `token`  |
+  | `amount`       | -                 |
+  | `onBehalfOf`   | equal to `AVATAR` |
+  | `referralCode` | -                 |
+
+#### Target: ETH
+
+When `token` is ETH, the following functions are allowed:
+
+<Callout type="info">
+  The `aETH` placeholder represents the aToken for ETH in the selected `market`.
+</Callout>
+<Callout type="info">
+  The `POOLV3` placeholder represents the pool of the selected `MARKET`.
+</Callout>
+<Callout type="info">
+  The `WRAPPEDTOKENGATEWAYV3` placeholder represents the Wrapped Token Gateway
+  of the selected `MARKET`.
+</Callout>
+
+##### `WRAPPEDTOKENGATEWAYV3 · depositETH`
+
+Deposit ETH and receive `aETH` tokens in exchange.
+
+- **Contract:** `WRAPPEDTOKENGATEWAYV3`
+- **Function:** `depositETH(address,address,uint16)` Ξ _allow sending ETH_
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `address`      | equal to `POOLV3` |
+  | `onBehalfOf`   | equal to `AVATAR` |
+  | `referralCode` | -                 |
+
+## Action: `withdraw`
+
+**Parameters**
+
+| Name     | Type                | Description                                                |
+| :------- | :------------------ | :--------------------------------------------------------- |
+| `market` | _string (optional)_ | `Market` names \| `Market` poolAddresses (default: `Core`) |
+| `token`  | _string (required)_ | ETH \| `Token` symbols \| `Token` addresses                |
+
+Withdraw `token` tokens from the specified `market` in Aave v3.
+
+### Permissions:
+
+#### Target: ERC-20
+
+For ERC-20 tokens, the following functions are allowed:
+
+<Callout type="info">
+  The `MARKET` parameter determines which Aave `market` is targeted (`Core`,
+  `Prime`, or `EtherFi`). Provide either the market name or the pool address. If
+  omitted, the default market is `Core`.
+</Callout>
+<Callout type="info">
+  The `POOLV3` placeholder represents the pool of the selected `MARKET`.
+</Callout>
+<Callout type="error">
+  If the `token` provided is not supported by the selected `market`, an error
+  will be thrown.
+</Callout>
+
+##### `POOLV3 · withdraw`
+
+Redeem `aToken` and withdraw `token` tokens.
+
+- **Contract:** `POOLV3`
+- **Function:** `withdraw(address,uint256,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `asset`   | equal to `token`  |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+#### Target: ETH
+
+When `token` is ETH, the following functions are allowed:
+
+<Callout type="info">
+  The `aETH` placeholder represents the aToken for ETH in the selected `market`.
+</Callout>
+<Callout type="info">
+  The `POOLV3` placeholder represents the pool of the selected `MARKET`.
+</Callout>
+<Callout type="info">
+  The `WRAPPEDTOKENGATEWAYV3` placeholder represents the Wrapped Token Gateway
+  of the selected `MARKET`.
+</Callout>
+
+##### `aETH · approve`
+
+Approve `WRAPPEDTOKENGATEWAYV3` to spend `aETH` tokens on behalf of the avatar.
+
+- **Contract:** `aETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                       |
+  | :-------- | :------------------------------- |
+  | `spender` | equal to `WRAPPEDTOKENGATEWAYV3` |
+  | `amount`  | -                                |
+
+##### `WRAPPEDTOKENGATEWAYV3 · withdrawETH`
+
+Redeem `aETH` and withdraw ETH tokens.
+
+- **Contract:** `WRAPPEDTOKENGATEWAYV3`
+- **Function:** `withdrawETH(address,uint256,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `address` | equal to `POOLV3` |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+## Action: `set_collateralisation`
+
+**Parameters**
+
+| Name              | Type                 | Description                                                |
+| :---------------- | :------------------- | :--------------------------------------------------------- |
+| `market`          | _string (optional)_  | `Market` names \| `Market` poolAddresses (default: `Core`) |
+| `token`           | _string (required)_  | ETH \| `Token` symbols \| `Token` addresses                |
+| `useAsCollateral` | _boolean (required)_ | `true` \| `false`                                          |
+
+Enable or disable `token` as collateral in the specified `market`.
+
+### Permissions:
+
+<Callout type="error">
+  If the `token` provided is not supported by the selected `market`, an error
+  will be thrown.
+</Callout>
+
+#### `POOLV3 · setUserUseReserveAsCollateral`
+
+Enable or disable `token` as collateral.
+
+- **Contract:** `POOLV3`
+- **Function:** `setUserUseReserveAsCollateral(address,bool)`
+
+  | Parameter         | Constraint                 |
+  | :---------------- | :------------------------- |
+  | `asset`           | equal to `token`           |
+  | `useAsCollateral` | equal to `useAsCollateral` |

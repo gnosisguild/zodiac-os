@@ -1,0 +1,105 @@
+import { Callout } from "nextra/components"
+
+# Circle CCTP v1 on Arbitrum
+
+**Deployments**
+
+| Name                 | Address                                                                                                              |
+| :------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| `TokenMessenger`     | [0x19330d10D9Cc8751218eaf51E8885D058642E08A](https://arbiscan.io/address/0x19330d10D9Cc8751218eaf51E8885D058642E08A) |
+| `MessageTransmitter` | [0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca](https://arbiscan.io/address/0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca) |
+| `USDC`               | [0xaf88d065e77c8cC2239327C5EDb3A432268e5831](https://arbiscan.io/address/0xaf88d065e77c8cC2239327C5EDb3A432268e5831) |
+
+## Action: `bridge`
+
+**Parameters**
+
+| Name        | Type                  | Description                                            |
+| :---------- | :-------------------- | :----------------------------------------------------- |
+| `targets`   | _string[] (required)_ | Destination `Chains` prefixes \| `Chains` descriptions |
+| `recipient` | _string (required)_   | Recipient address on the destination chain(s)          |
+
+<Callout type="error">
+  The source and destination blockchains cannot be the same. If the same
+  blockchain is provided in the `targets` parameter, an error will be thrown.
+</Callout>
+
+### `USDC · approve`
+
+Approve `TokenMessenger` to spend `USDC` tokens on behalf of the avatar.
+
+- **Contract:** `USDC`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                |
+  | :-------- | :------------------------ |
+  | `spender` | equal to `TokenMessenger` |
+  | `amount`  | -                         |
+
+### `TokenMessenger · depositForBurn`
+
+Bridge `USDC` tokens to the `recipient` address on the destination blockchain.
+
+- **Contract:** `TokenMessenger`
+- **Function:** `depositForBurn(uint256,uint32,bytes32,address)`
+
+  | Parameter           | Constraint                                                |
+  | :------------------ | :-------------------------------------------------------- |
+  | `amount`            | -                                                         |
+  | `destinationDomain` | equal to `DOMAIN` (see reference table below)             |
+  | `mintRecipient`     | equal to `recipient` (left-padded with zeros to 32 bytes) |
+  | `burnToken`         | equal to `USDC`                                           |
+
+**Blockchain-to-Domain Mapping:**
+
+| Blockchain | Domain |
+| ---------- | ------ |
+| Ethereum   | 0      |
+| Optimism   | 2      |
+| Arbitrum   | 3      |
+| Base       | 6      |
+
+## Action: `receive`
+
+**Parameters**
+
+| Name        | Type                  | Description                                       |
+| :---------- | :-------------------- | :------------------------------------------------ |
+| `targets`   | _string[] (required)_ | Source `Chains` prefixes \| `Chains` descriptions |
+| `sender`    | _string (required)_   | Sender address on the source chain(s)             |
+| `recipient` | _string (required)_   | Recipient address on the destination chain(s)     |
+
+<Callout type="error">
+  The source and destination blockchains cannot be the same. If the same
+  blockchain is provided in the `targets` parameter, an error will be thrown.
+</Callout>
+
+### `TokenMessenger · receiveMessage`
+
+Claim `USDC` tokens for the `recipient` address on the destination blockchain.
+
+- **Contract:** `TokenMessenger`
+- **Function:** `receiveMessage(bytes,bytes)`
+
+| Parameter     | Constraint          |
+| :------------ | :------------------ |
+| `message`     | See breakdown below |
+| `attestation` | -                   |
+
+**Breakdown of `message` Parameter Scoping**  
+The `message` parameter contains structured data that is scoped to enforce specific values. The table below details how each part is extracted and validated.
+
+| Field                               | Bytes (from/to) | Scoped | Description                                                                              |
+| ----------------------------------- | --------------- | ------ | ---------------------------------------------------------------------------------------- |
+| Version                             | `0-3`           | No     | Message format version                                                                   |
+| Source Domain                       | `4-7`           | Yes    | Expected source blockchain domain                                                        |
+| Destination Domain                  | `8-11`          | Yes    | Expected destination blockchain domain                                                   |
+| Nonce                               | `12-19`         | No     | Unique transaction identifier                                                            |
+| Source Token Messenger Address      | `20-51`         | Yes    | Token Messenger on the source blockchain (12-byte zero-padding + 20-byte address)        |
+| Destination Token Messenger Address | `52-83`         | Yes    | Token Messenger on the destination blockchain (12-byte zero-padding + 20-byte address)   |
+| Selector                            | `84-87`         | No     | Function selector                                                                        |
+| Padding Chunk                       | `88-119`        | No     | 32-byte zero-padding                                                                     |
+| Bridged Token Address (USDC)        | `120-151`       | Yes    | USDC token address **on the source blockchain** (12-byte zero-padding + 20-byte address) |
+| Recipient Address                   | `152-183`       | Yes    | Actual recipient address (12-byte zero-padding + 20-byte address)                        |
+| Amount                              | `184-215`       | No     | Bridged amount                                                                           |
+| Sender Address                      | `216-247`       | Yes    | Actual sender address (12-byte zero-padding + 20-byte address)                           |

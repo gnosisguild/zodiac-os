@@ -1,0 +1,162 @@
+import { Callout } from "nextra/components"
+
+# Aura Repertoire on Gnosis Chain
+
+**Deployments**
+
+| Name            | Address                                                                                                                |
+| :-------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `BalancerVault` | [0xBA12222222228d8Ba445958a75a0704d566BF2C8](https://gnosisscan.io/address/0xBA12222222228d8Ba445958a75a0704d566BF2C8) |
+
+## Action: `unstake`
+
+**Parameters**
+
+| Name       | Type                | Description        |
+| :--------- | :------------------ | :----------------- |
+| `rewarder` | _string (required)_ | `Address` rewarder |
+
+Withdraw funds from Aura.
+
+### Permissions:
+
+<Callout type="info">
+  `REWARDER` below refers to the `auraBaseRewardPool` contract address for the
+  corresponding Aura pool.
+</Callout>
+
+#### `REWARDER · withdrawAndUnwrap`
+
+Redeem `REWARDER` tokens, then withdraw and unwrap `BPT` tokens.
+
+- **Contract:** `REWARDER`
+- **Function:** `withdrawAndUnwrap(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+## Action: `unstake_withdraw_proportional`
+
+**Parameters**
+
+| Name       | Type                | Description        |
+| :--------- | :------------------ | :----------------- |
+| `rewarder` | _string (required)_ | `Address` rewarder |
+
+Withdraw funds from Aura, then from the Balancer pool, withdrawing all assets proportionally.
+
+### Permissions:
+
+<Callout type="info">
+  `REWARDER` below refers to the `auraBaseRewardPool` contract address for the
+  corresponding Aura pool.
+</Callout>
+<Callout type="info">
+  `TOKEN` below refers to the ERC-20 token address of the corresponding pool.
+</Callout>
+<Callout type="info">`PID` below refers to the Balancer pool ID.</Callout>
+
+#### `REWARDER · withdrawAndUnwrap`
+
+Redeem `REWARDER` tokens, then withdraw and unwrap `BPT` tokens.
+
+- **Contract:** `REWARDER`
+- **Function:** `withdrawAndUnwrap(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+#### `BalancerVault · exitPool`
+
+Redeem `BPT` tokens from the corresponding Balancer pool and receive proportional amounts of `TOKEN` tokens in exchange.
+
+- **Contract:** `BalancerVault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint                      |
+  | :-------------------------- | :------------------------------ |
+  | `poolId`                    | equal to `PID`                  |
+  | `sender`                    | equal to `AVATAR`               |
+  | `recipient`                 | equal to `AVATAR`               |
+  | `request.assets`            | -                               |
+  | `request.minAmountsOut`     | -                               |
+  | `request.userData`          | See the note below for details. |
+  | `request.toInternalBalance` | -                               |
+
+<Callout type="info">
+  **Note on `userData`:**  
+  - `userData` is a **bytes-like** parameter that must be **ABI-encoded**.  
+  - Scoping details:  
+    - For `ComposableStable` Pools: `userData` is scoped as **[2]**, encoded as **["uint256"]**.  
+    - For all other pool types: `userData` is scoped as **[1]**, encoded as **["uint256"]**.
+</Callout>
+<Callout type="info">
+ **Additional Resources:** 
+  - [Balancer subgraphs](https://docs.balancer.fi/reference/subgraph/) for obtaining `PoolType`.  
+  - [Balancer documentation](https://docs.balancer.fi/reference/joins-and-exits/pool-exits.html#userdata) for `userData` structure.  
+</Callout>
+
+## Action: `unstake_withdraw_single_token`
+
+**Parameters**
+
+| Name               | Type                | Description                |
+| :----------------- | :------------------ | :------------------------- |
+| `rewarder`         | _string (required)_ | `Address` rewarder         |
+| `exitTokenAddress` | _string (required)_ | `Address` exitTokenAddress |
+
+Withdraw funds from Aura, then from the Balancer pool, receiving a single asset specified by the `exitTokenAddress`.
+
+### Permissions:
+
+<Callout type="info">
+  `REWARDER` below refers to the `auraBaseRewardPool` contract address for the
+  corresponding Aura pool.
+</Callout>
+<Callout type="info">`PID` below refers to the Balancer pool ID.</Callout>
+
+#### `REWARDER · withdrawAndUnwrap`
+
+Redeem `REWARDER` tokens, then withdraw and unwrap `BPT` tokens.
+
+- **Contract:** `REWARDER`
+- **Function:** `withdrawAndUnwrap(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+#### `BalancerVault · exitPool`
+
+Redeem `BPT` tokens from the corresponding Balancer pool and receive `exitTokenAddress` tokens in exchange.
+
+- **Contract:** `BalancerVault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint                      |
+  | :-------------------------- | :------------------------------ |
+  | `poolId`                    | equal to `PID`                  |
+  | `sender`                    | equal to `AVATAR`               |
+  | `recipient`                 | equal to `AVATAR`               |
+  | `request.assets`            | -                               |
+  | `request.minAmountsOut`     | -                               |
+  | `request.userData`          | See the note below for details. |
+  | `request.toInternalBalance` | -                               |
+
+<Callout type="info">
+  **Note on `userData`:**  
+  - `userData` is a **bytes-like** parameter that must be **ABI-encoded**.  
+  - Scoping details:  
+    - For all pool types, `userData` is scoped as `[0, undefined, exitTokenIndex]`, encoded as `["uint256", "uint256", "uint256"]`.
+    - Where `exitTokenIndex` is determined by the position of `exitTokenAddress` within the pool's tokens.
+</Callout>
+<Callout type="info">
+ **Additional Resources:** 
+  - [Balancer subgraphs](https://docs.balancer.fi/reference/subgraph/) for obtaining `PoolType`.  
+  - [Balancer documentation](https://docs.balancer.fi/reference/joins-and-exits/pool-exits.html#userdata) for `userData` structure.  
+</Callout>

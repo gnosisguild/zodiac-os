@@ -1,0 +1,79 @@
+import { Callout } from "nextra/components"
+
+# Lido Repertoire on Ethereum
+
+**Deployments**
+
+| Name      | Address                                                                                                               |
+| :-------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `stETH`   | [0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84](https://etherscan.io/address/0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84) |
+| `unstETH` | [0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1](https://etherscan.io/address/0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1) |
+| `wstETH`  | [0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0](https://etherscan.io/address/0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0) |
+
+## Action: `unstake_stETH`
+
+**Parameters:**
+
+N/A.
+
+Unstakes `stETH` from Lido.
+
+### Permissions:
+
+### `stETH · approve`
+
+Approve `unstETH` to spend `stETH` tokens on behalf of the avatar.
+
+- **Contract:** `stETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint         |
+  | :-------- | :----------------- |
+  | `spender` | equal to `unstETH` |
+  | `amount`  | -                  |
+
+### `unstETH · requestWithdrawals`
+
+Locks your `stETH` in the queue. In exchange you receive an NFT, that represents your position in the queue.
+
+- **Contract:** `unstETH`
+- **Function:** `requestWithdrawals(uint256[],address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `amounts` | -                 |
+  | `owner`   | equal to `AVATAR` |
+
+## Action: `unwrap_and_unstake_wstETH`
+
+**Parameters:**
+
+N/A.
+
+Unwraps `wstETH` and unstakes it for ETH on Lido.
+
+### Permissions:
+
+### `wstETH · approve`
+
+Approve `unstETH` to spend `wstETH` tokens on behalf of the avatar.
+
+- **Contract:** `wstETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint         |
+  | :-------- | :----------------- |
+  | `spender` | equal to `unstETH` |
+  | `amount`  | -                  |
+
+### `unstETH · requestWithdrawalsWstETH`
+
+Transfers the `wstETH` to the `unstETH` to be burned in exchange for `stETH`. Then it locks your `stETH` in the queue. In exchange you receive an NFT, that represents your position in the queue.
+
+- **Contract:** `unstETH`
+- **Function:** `requestWithdrawalsWstETH(uint256[],address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `amounts` | -                 |
+  | `owner`   | equal to `AVATAR` |

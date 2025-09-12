@@ -1,0 +1,500 @@
+import { Callout } from "nextra/components"
+
+# Aura on Ethereum
+
+**Deployments**
+
+| Name                              | Address                                                                                                               |
+| :-------------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `Booster`                         | [0xA57b8d98dAE62B26Ec3bcC4a365338157060B234](https://etherscan.io/address/0xA57b8d98dAE62B26Ec3bcC4a365338157060B234) |
+| `RewardPoolDepositWrapper`        | [0xB188b1CB84Fb0bA13cb9ee1292769F903A9feC59](https://etherscan.io/address/0xB188b1CB84Fb0bA13cb9ee1292769F903A9feC59) |
+| `auraBAL`                         | [0x616e8BfA43F920657B3497DBf40D6b1A02D4608d](https://etherscan.io/address/0x616e8BfA43F920657B3497DBf40D6b1A02D4608d) |
+| `BalDepositorWrapper`             | [0x68655AD9852a99C87C0934c7290BB62CFa5D4123](https://etherscan.io/address/0x68655AD9852a99C87C0934c7290BB62CFa5D4123) |
+| `AuraBalBaseRewardPool`           | [0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2](https://etherscan.io/address/0x00A7BA8Ae7bca0B10A32Ea1f8e2a1Da980c6CAd2) |
+| `AuraBalStaker`                   | [0xa3fCaFCa8150636C3B736A16Cd73d49cC8A7E10E](https://etherscan.io/address/0xa3fCaFCa8150636C3B736A16Cd73d49cC8A7E10E) |
+| `stkauraBAL`                      | [0xfAA2eD111B4F580fCb85C48E6DC6782Dc5FCD7a6](https://etherscan.io/address/0xfAA2eD111B4F580fCb85C48E6DC6782Dc5FCD7a6) |
+| `AuraBalBptDepositor`             | [0xeAd792B55340Aa20181A80d6a16db6A0ECd1b827](https://etherscan.io/address/0xeAd792B55340Aa20181A80d6a16db6A0ECd1b827) |
+| `AuraBalVirtualBalanceRewardPool` | [0xAc16927429c5c7Af63dD75BC9d8a58c63FfD0147](https://etherscan.io/address/0xAc16927429c5c7Af63dD75BC9d8a58c63FfD0147) |
+| `vlAURA`                          | [0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC](https://etherscan.io/address/0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC) |
+| `AURA`                            | [0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF](https://etherscan.io/address/0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                            |
+| :-------- | :-------------------- | :------------------------------------- |
+| `targets` | _string[] (required)_ | `Pool` name \| `Pool` bpt \| `Pool` id |
+| `tokens`  | _string[] (optional)_ | `Token` symbol \| `Token` address      |
+
+Each Aura pool is connected to exactly one Balancer Pool token (BPT) and we allow specifying the deposit targets using any of the following identifiers:
+
+- BPT symbol (`Pool` name).
+- BPT address (`Pool` bpt).
+- Aura pool ID (`Pool` id).
+
+<Callout type="info">
+  `TARGET_BPT` below refers to the address of Aura pool's BPT.
+</Callout>
+<Callout type="info">`TARGET_ID` below refers to the Aura pool ID.</Callout>
+<Callout type="info">
+  `TARGET_REWARDER` below refers to the `auraBaseRewardPool` contract address
+  for the target Aura pool.
+</Callout>
+
+<Callout type="info">
+  `TOKEN` below refers to the ERC-20 token address of each element given in
+  `tokens`. If `tokens` is not specified then the pool tokens of each `TARGET`
+  are considered.
+</Callout>
+
+### `TARGET_BPT · approve`
+
+Approve `Booster` to spend `TARGET_BPT` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET_BPT`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint         |
+  | :-------- | :----------------- |
+  | `spender` | equal to `Booster` |
+  | `amount`  | -                  |
+
+### `TOKEN · approve`
+
+Approve `RewardPoolDepositWrapper` to spend `TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                          |
+  | :-------- | :---------------------------------- |
+  | `spender` | equal to `RewardPoolDepositWrapper` |
+  | `amount`  | -                                   |
+
+### `Booster · deposit`
+
+Deposit `TARGET_BPT` tokens to the corresponding Aura pool and receive `TARGET_REWARDER` tokens in exchange.
+
+- **Contract:** `Booster`
+- **Function:** `deposit(uint256,uint256,bool)`
+
+  | Parameter | Constraint           |
+  | :-------- | :------------------- |
+  | `pid`     | equal to `TARGET_ID` |
+  | `amount`  | -                    |
+  | `stake`   | -                    |
+
+### `RewardPoolDepositWrapper · depositSingle`
+
+Deposit `TOKEN` tokens to the corresponding Aura pool and receive `TARGET_REWARDER` tokens in exchange.
+
+- **Contract:** `RewardPoolDepositWrapper`
+- **Function:** `depositSingle(address,address,uint256,bytes32,(address[],uint256[],bytes,bool))`
+
+  | Parameter                     | Constraint                 |
+  | :---------------------------- | :------------------------- |
+  | `rewardPoolAddress`           | equal to `TARGET_REWARDER` |
+  | `inputToken`                  | equal to `TOKEN`           |
+  | `inputAmount`                 | -                          |
+  | `balancerPoolId`              | equal to `balancerPoolId`  |
+  | `request.assets`              | -                          |
+  | `request.maxAmountsIn`        | -                          |
+  | `request.userData`            | -                          |
+  | `request.fromInternalBalance` | -                          |
+
+### `TARGET_REWARDER · withdrawAndUnwrap`
+
+Redeem `TARGET_REWARDER` tokens and withdraw and unwrap `TARGET_BPT` tokens.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `withdrawAndUnwrap(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+### `TARGET_REWARDER · getReward`
+
+Claim `Pool` rewards.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+### `TARGET_REWARDER · getReward(address,bool)`
+
+Claim `Pool` rewards of a specific account.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `getReward(address,bool)`
+
+  | Parameter     | Constraint        |
+  | :------------ | :---------------- |
+  | `account`     | equal to `AVATAR` |
+  | `claimExtras` | -                 |
+
+## Action: `stake`
+
+**Parameters:**
+
+| Name      | Type                  | Constraint                                     |
+| :-------- | :-------------------- | :--------------------------------------------- |
+| `targets` | _string[] (required)_ | `StakeToken` symbols \| `StakeToken` addresses |
+
+### Target: `BAL`
+
+If the `BAL` token is given as an element of `targets`, the following functions will be allowed:
+
+#### `BAL · approve`
+
+Approve `BalDepositorWrapper` to spend `BAL` tokens on behalf of avatar.
+
+- **Contract:** `BAL`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                     |
+  | :-------- | :----------------------------- |
+  | `spender` | equal to `BalDepositorWrapper` |
+  | `amount`  | -                              |
+
+#### `BalDepositorWrapper · deposit`
+
+Mint and optionally stake `auraBAL` using `BAL`.
+
+- **Contract:** `BalDepositorWrapper`
+- **Function:** `deposit(uint256,uint256,bool,address)`
+
+  | Parameter      | Constraint                                                                                            |
+  | :------------- | :---------------------------------------------------------------------------------------------------- |
+  | `amount`       | -                                                                                                     |
+  | `minOut`       | -                                                                                                     |
+  | `lock`         | -                                                                                                     |
+  | `stakeAddress` | equal to (`0x0000000000000000000000000000000000000000` or `AuraBalBaseRewardPool` or `AuraBalStaker`) |
+
+- If the `stakeAddress` is:
+  - `0x0000000000000000000000000000000000000000`: mint `auraBAL`.
+  - `AuraBalBaseRewardPool`: mint `auraBAL`, stake it and receive `AuraBalBaseRewardPool` tokens in exchange.
+  - `AuraBalStaker`: mint `auraBAL`, stake it and receive `stkauraBAL` tokens in exchange.
+
+#### `AuraBalBaseRewardPool · withdraw`
+
+Redeem `AuraBalBaseRewardPool` tokens and receive `auraBAL` tokens in exchange.
+
+- **Contract:** `AuraBalBaseRewardPool`
+- **Function:** `withdraw(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+#### `AuraBalBaseRewardPool · getReward`
+
+Claim `auraBAL` staking rewards.
+
+- **Contract:** `AuraBalBaseRewardPool`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `stkauraBAL · withdraw`
+
+Redeem `stkauraBAL` tokens and receive `auraBAL` tokens in exchange.
+
+- **Contract:** `stkauraBAL`
+- **Function:** `withdraw(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `amount`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `stkauraBAL · redeem`
+
+Redeem `stkauraBAL` tokens and receive `auraBAL` tokens in exchange (it is called when MAX underlying amount is withdrawn).
+
+- **Contract:** `stkauraBAL`
+- **Function:** `redeem(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `amount`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `AuraBalVirtualBalanceRewardPool · getReward`
+
+Claim `auraBAL` compounding rewards.
+
+- **Contract:** `AuraBalVirtualBalanceRewardPool`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+### Target: `B-80BAL-20WETH`
+
+If the `B-80BAL-20WETH` token is given as an element of `targets`, the following functions will be allowed:
+
+#### `B-80BAL-20WETH · approve`
+
+Approve `AuraBalBptDepositor` to spend `B-80BAL-20WETH` tokens on behalf of avatar.
+
+- **Contract:** `B-80BAL-20WETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                     |
+  | :-------- | :----------------------------- |
+  | `spender` | equal to `AuraBalBptDepositor` |
+  | `amount`  | -                              |
+
+#### `AuraBalBptDepositor · deposit`
+
+Mint and optionally stake `auraBAL` using `B-80BAL-20WETH`.
+
+- **Contract:** `AuraBalBptDepositor`
+- **Function:** `deposit(uint256,uint256,bool,address)`
+
+  | Parameter      | Constraint                                                                                            |
+  | :------------- | :---------------------------------------------------------------------------------------------------- |
+  | `amount`       | -                                                                                                     |
+  | `minOut`       | -                                                                                                     |
+  | `lock`         | -                                                                                                     |
+  | `stakeAddress` | equal to (`0x0000000000000000000000000000000000000000` or `AuraBalBaseRewardPool` or `AuraBalStaker`) |
+
+- If the `stakeAddress` is:
+  - `0x0000000000000000000000000000000000000000`: mint `auraBAL`.
+  - `AuraBalBaseRewardPool`: mint `auraBAL`, stake it and receive `AuraBalBaseRewardPool` tokens in exchange.
+  - `AuraBalStaker`: mint `auraBAL`, stake it and receive `stkauraBAL` tokens in exchange.
+
+#### `AuraBalBaseRewardPool · withdraw`
+
+Redeem `AuraBalBaseRewardPool` tokens and receive `auraBAL` tokens in exchange.
+
+- **Contract:** `AuraBalBaseRewardPool`
+- **Function:** `withdraw(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+#### `AuraBalBaseRewardPool · getReward`
+
+Claim `auraBAL` staking rewards.
+
+- **Contract:** `AuraBalBaseRewardPool`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `stkauraBAL · withdraw`
+
+Redeem `stkauraBAL` tokens and receive `auraBAL` tokens in exchange.
+
+- **Contract:** `stkauraBAL`
+- **Function:** `withdraw(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `amount`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `stkauraBAL · redeem`
+
+Redeem `stkauraBAL` tokens and receive `auraBAL` tokens in exchange (it is called when MAX underlying amount is withdrawn).
+
+- **Contract:** `stkauraBAL`
+- **Function:** `redeem(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `amount`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `AuraBalVirtualBalanceRewardPool · getReward`
+
+Claim `auraBAL` compounding rewards.
+
+- **Contract:** `AuraBalVirtualBalanceRewardPool`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+### Target: `auraBAL`
+
+If the `auraBAL` token is given as an element of `targets`, the following functions will be allowed:
+
+#### `auraBAL · approve(spender: AuraBalBaseRewardPool)`
+
+Approve `AuraBalBaseRewardPool` to spend `auraBAL` tokens on behalf of avatar.
+
+- **Contract:** `auraBAL`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                       |
+  | :-------- | :------------------------------- |
+  | `spender` | equal to `AuraBalBaseRewardPool` |
+  | `amount`  | -                                |
+
+#### `AuraBalBaseRewardPool · stake`
+
+Stake `auraBAL` tokens and receive `AuraBalBaseRewardPool` tokens in exchange.
+
+- **Contract:** `auraBAL`
+- **Function:** `stake(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `auraBAL · approve(spender: stkauraBAL)`
+
+Approve `stkauraBAL` to spend `auraBAL` tokens on behalf of avatar.
+
+- **Contract:** `auraBAL`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint            |
+  | :-------- | :-------------------- |
+  | `spender` | equal to `stkauraBAL` |
+  | `amount`  | -                     |
+
+#### `stkauraBAL · deposit`
+
+Deposit `auraBAL` tokens and receive `stkauraBAL` tokens in exchange.
+
+- **Contract:** `stkauraBAL`
+- **Function:** `deposit(uint256,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `amount`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+
+#### `AuraBalBaseRewardPool · withdraw`
+
+Redeem `AuraBalBaseRewardPool` tokens and receive `auraBAL` tokens in exchange.
+
+- **Contract:** `AuraBalBaseRewardPool`
+- **Function:** `withdraw(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+#### `AuraBalBaseRewardPool · getReward`
+
+Claim `auraBAL` staking rewards.
+
+- **Contract:** `AuraBalBaseRewardPool`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `stkauraBAL · withdraw`
+
+Redeem `stkauraBAL` tokens and receive `auraBAL` tokens in exchange.
+
+- **Contract:** `stkauraBAL`
+- **Function:** `withdraw(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `amount`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `stkauraBAL · redeem`
+
+Redeem `stkauraBAL` tokens and receive `auraBAL` tokens in exchange (it is called when MAX underlying amount is withdrawn).
+
+- **Contract:** `stkauraBAL`
+- **Function:** `redeem(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `amount`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `AuraBalVirtualBalanceRewardPool · getReward`
+
+Claim `auraBAL` compounding rewards.
+
+- **Contract:** `AuraBalVirtualBalanceRewardPool`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+## Action: `lock`
+
+**Parameters:**
+
+N/A.
+
+### `AURA · approve`
+
+Approve `vlAURA` to spend `AURA` tokens on behalf of the avatar.
+
+- **Contract:** `AURA`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `spender` | equal to `vlAURA` |
+  | `amount`  | -                 |
+
+### `vlAURA · lock`
+
+Lock `AURA` tokens and receive `vlAURA` tokens in exchange.
+
+- **Contract:** `vlAURA`
+- **Function:** `lock(address,unit256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `account` | equal to `AVATAR` |
+  | `amount`  | -                 |
+
+### `vlAURA · processExpiredLocks`
+
+Process expired `AURA` locks.
+
+- **Contract:** `vlAURA`
+- **Function:** `processExpiredLocks(bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `relock`  | -          |
+
+### `vlAURA · getReward`
+
+Claim `AURA` locking rewards.
+
+- **Contract:** `vlAURA`
+- **Function:** `getReward(address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `account` | equal to `AVATAR` |

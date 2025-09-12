@@ -84,6 +84,21 @@ export default [
         ]),
       ]),
 
+      route(
+        'agent',
+        'routes/agent/layout.tsx',
+        { id: 'offline-agent-layout' },
+        [
+          index('routes/agent/chat.tsx', { id: 'offline-agent-chat' }),
+          route('api/chat', 'routes/agent/api/chat.ts', {
+            id: 'offline-agent-api-chat',
+          }),
+          route('api/txchat', 'routes/agent/api/txchat.ts', {
+            id: 'offline-agent-api-txchat',
+          }),
+        ],
+      ),
+
       layout('routes/walletProvider.tsx', { id: 'offline-wallet-provider' }, [
         route(
           'accounts',
@@ -279,6 +294,16 @@ export default [
               route(':routeId', 'routes/sign/proposal/sign.tsx'),
             ]),
           ]),
+        ]),
+
+        route('agent', 'routes/agent/layout.tsx', { id: 'agent-layout' }, [
+          index('routes/agent/chat.tsx', { id: 'agent-chat' }),
+          route('api/chat', 'routes/agent/api/chat.ts', {
+            id: 'agent-api-chat',
+          }),
+          route('api/txchat', 'routes/agent/api/txchat.ts', {
+            id: 'agent-api-txchat',
+          }),
         ]),
       ]),
     ]),

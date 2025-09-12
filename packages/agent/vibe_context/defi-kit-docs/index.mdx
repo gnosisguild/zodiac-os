@@ -1,0 +1,11 @@
+# Overview
+
+DeFi Kit is a set of carefully designed permissions covering interactions with DeFi protocols.
+In combination with [Zodiac Roles](https://github.com/gnosisguild/zodiac-modifier-roles) they allow enforcing safe treasury management practices for funds held in a [Safe](https://safe.global).
+
+Zodiac Roles is a Safe module that allows to define custom roles and assign them to addresses.
+These accounts will then be able to make the Safe execute transactions within the scope of permissions granted to the role.
+
+Defining permissions requires an intricate understanding of the underlying protocols and their security implications.
+DeFi Kit helps in this endeavor by defining a set of [standard actions](/learn/actions) abstracting over implementation specific differences between protocols.
+The [protocols catalogue](/learn/protocols) provides an overview of the supported protocols and their contract functions that are used by the standard actions.

@@ -1,0 +1,94 @@
+import { Callout } from "nextra/components"
+
+# Actions
+
+One of the main goals of the project is systematizing the DeFi ecosystem using a set of standard actions.
+
+## `deposit`
+
+Deposit to and withdraw funds from a money market or AMM pool.
+
+#### Parameters
+
+| Name      | Type                  | Description                                                                                          |
+| :-------- | :-------------------- | :--------------------------------------------------------------------------------------------------- |
+| `targets` | _string[] (required)_ | The set of money markets or AMM pools for depositing funds, can be contract addresses or pool labels |
+
+## `borrow`
+
+Borrow assets against collateral deposited on money markets.
+
+#### Parameters
+
+| Name     | Type                  | Description                                                                        |
+| :------- | :-------------------- | :--------------------------------------------------------------------------------- |
+| `tokens` | _string[] (required)_ | The set of tokens that can be borrowed, can be contract addresses or token symbols |
+
+## `stake`
+
+Stake and unstake LP tokens into a vault or gauge.
+
+#### Parameters
+
+| Name      | Type                  | Description                                                                        |
+| :-------- | :-------------------- | :--------------------------------------------------------------------------------- |
+| `targets` | _string[] (required)_ | The set of vaults for staking LP tokens, can be contract addresses or vault labels |
+
+## `lock`
+
+Locking and unlocking tokens within a protocol.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| N/A  | N/A  | N/A         |
+
+## `delegate`
+
+Delegate and undelegate tokens within a protocol.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| N/A  | N/A  | N/A         |
+
+## `swap`
+
+Swap tokens on a DEX.
+
+#### Parameters
+
+| Name   | Type       | Description                                                                      |
+| :----- | :--------- | :------------------------------------------------------------------------------- |
+| `sell` | _string[]_ | The set of tokens that can be sold, can be contract addresses or token symbols   |
+| `buy`  | _string[]_ | The set of tokens that can be bought, can be contract addresses or token symbols |
+
+<Callout type="info">
+  **Note:** Parameter requirements may vary depending on the DEX, as different
+  exchanges may require specific formats or additional fields.
+</Callout>
+
+## `bridge`
+
+Bridge tokens between blockchains.
+
+#### Parameters
+
+| Name        | Type                  | Description                                   |
+| :---------- | :-------------------- | :-------------------------------------------- |
+| `targets`   | _string[] (required)_ | Destination blockchains for bridging tokens   |
+| `recipient` | _string (required)_   | Recipient address on the destination chain(s) |
+
+## `receive`
+
+Claim received tokens on the destination blockchains.
+
+#### Parameters
+
+| Name        | Type                  | Description                                            |
+| :---------- | :-------------------- | :----------------------------------------------------- |
+| `targets`   | _string[] (required)_ | Source blockchains from which tokens are being bridged |
+| `sender`    | _string (required)_   | Sender address on the source chain(s)                  |
+| `recipient` | _string (required)_   | Recipient address on the destination chain(s)          |

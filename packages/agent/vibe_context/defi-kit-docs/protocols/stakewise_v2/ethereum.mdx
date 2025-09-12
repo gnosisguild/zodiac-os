@@ -1,0 +1,200 @@
+import { Callout } from "nextra/components"
+
+# StakeWise v2 on Ethereum
+
+**Deployments**
+
+<Callout type="info">
+  Since StakeWise leverages Uniswap v3 pools for farming, many of its
+  whitelisted functions are a subset of those available in Uniswap v3. The
+  `PositionsNFT` contract below is, in fact, a deployment of Uniswap v3.
+</Callout>
+
+| Name                | Address                                                                                                               |
+| :------------------ | :-------------------------------------------------------------------------------------------------------------------- |
+| `PositionsNFT`      | [0xC36442b4a4522E871399CD717aBDD847Ab11FE88](https://etherscan.io/address/0xC36442b4a4522E871399CD717aBDD847Ab11FE88) |
+| `MerkleDistributor` | [0xA3F21010e8b9a3930996C8849Df38f9Ca3647c20](https://etherscan.io/address/0xA3F21010e8b9a3930996C8849Df38f9Ca3647c20) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                   |
+| :-------- | :-------------------- | :---------------------------- |
+| `targets` | _string[] (required)_ | `Pool` name \| `Pool` address |
+
+<Callout type="warning">
+  If the avatar has approved the Uniswap v3 Positions NFT contract to spend
+  tokens other than the ones specified in `tokens`, the role will be able to
+  increase any existing positions' liquidity in these tokens as well.
+</Callout>
+
+For each StakeWise v2 pool we allow specifying the deposit targets using any of the following identifiers:
+
+- `Pool` name.
+- `Pool` address.
+
+<Callout type="info">
+  `TOKEN` below refers to the pool tokens of each element given in `targets`.
+</Callout>
+
+<Callout type="info">
+  `FEE` below refers to the fee percentage of each element given in `targets`.
+</Callout>
+
+### `TOKEN · approve`
+
+Approve `PositionsNFT` to spend `TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `PositionsNFT` |
+  | `amount`  | -                       |
+
+### `mint · PositionsNFT`
+
+Deposit `TOKEN` tokens to the corresponding Uniswap v3 pool and receive an ERC-721 token (NFT) representing the newly minted liquidity position.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))` Ξ _allow sending ETH_
+
+  | Parameter               | Constraint       |
+  | :---------------------- | :--------------- |
+  | `params.token0`         | equal to `TOKEN` |
+  | `params.token1`         | equal to `TOKEN` |
+  | `params.fee`            | equal to `FEE`   |
+  | `params.tickLower`      | -                |
+  | `params.tickUpper`      | -                |
+  | `params.amount0Desired` | -                |
+  | `params.amount1Desired` | -                |
+  | `params.amount0Min`     | -                |
+  | `params.amount1Min`     | -                |
+  | `params.deadline`       | -                |
+
+Increase the liquidity in a NFT position by adding the desired amounts of `token0` and `token1`.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))` Ξ _allow sending ETH_
+
+  | Parameter               | Constraint |
+  | :---------------------- | :--------- |
+  | `params.tokenId`        | -          |
+  | `params.amount0Desired` | -          |
+  | `params.amount1Desired` | -          |
+  | `params.amount0Min`     | -          |
+  | `params.amount1Min`     | -          |
+  | `params.deadline`       | -          |
+
+<Callout type="info">
+  All positions owned by the `avatar` will be considered. Ownership is checked
+  dynamically at condition evaluation time through the
+  [AvatarIsOwnerOfERC721](https://github.com/gnosisguild/zodiac-modifier-roles/blob/main/packages/evm/contracts/adapters/AvatarIsOwnerOfERC721.sol)
+  custom condition applied to `params.tokenId`.
+</Callout>
+
+### `decreaseLiquidity · PositionsNFT`
+
+Decrease the liquidity in a NFT position by removing the desired liquidity amount.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))`
+
+  | Parameter           | Constraint |
+  | :------------------ | :--------- |
+  | `params.tokenId`    | -          |
+  | `params.liquidity`  | -          |
+  | `params.amount0Min` | -          |
+  | `params.amount1Min` | -          |
+  | `params.deadline`   | -          |
+
+### `collect · PositionsNFT`
+
+Collect accumulated fees from a specific NFT position.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `collect((uint256,address,uint128,uint128))`
+
+  | Parameter           | Constraint        |
+  | :------------------ | :---------------- |
+  | `params.tokenId`    | -                 |
+  | `params.recipient`  | equal to `AVATAR` |
+  | `params.amount0Max` | -                 |
+  | `params.amount1Max` | -                 |
+
+### `MerkleDistributor · claim`
+
+Claim accrued rewards in `rETH2` and `SWISE` tokens.
+
+- **Contract:** `MerkleDistributor`
+- **Function:** `	claim(uint256,address,address[],uint256[],bytes32[])`
+
+  | Parameter     | Constraint        |
+  | :------------ | :---------------- |
+  | `index`       | -                 |
+  | `account`     | equal to `AVATAR` |
+  | `tokens`      | -                 |
+  | `amounts`     | -                 |
+  | `merkleProof` | -                 |
+
+### If WETH is involved:
+
+#### `collect · PositionsNFT`
+
+Collect accumulated fees from a specific NFT position.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `collect((uint256,address,uint128,uint128))`
+
+  | Parameter           | Constraint                                            |
+  | :------------------ | :---------------------------------------------------- |
+  | `params.tokenId`    | -                                                     |
+  | `params.recipient`  | equal to `0x0000000000000000000000000000000000000000` |
+  | `params.amount0Max` | -                                                     |
+  | `params.amount1Max` | -                                                     |
+
+<Callout type="info">
+  In the Uniswap v3 PositionsNFT contract, the `collect` function has a special
+  modifier called `isAuthorizedForToken`. This modifier acts like a gatekeeper,
+  ensuring that only authorized senders can perform this action. Uniswap v3 has
+  these checks built into its system, so there's no need for additional
+  constraints.
+</Callout>
+
+#### `refundETH · PositionsNFT`
+
+Refunds the unused ETH to the sender address.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `refundETH()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `unwrapWETH9 · PositionsNFT`
+
+Unwraps a specified amount of `WETH` and transfers the corresponding ETH to the designated recipient address.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `unwrapWETH9(uint256,address)`
+
+  | Parameter       | Constraint        |
+  | :-------------- | :---------------- |
+  | `amountMinimum` | -                 |
+  | `recipient`     | equal to `AVATAR` |
+
+#### `sweepToken · PositionsNFT`
+
+Transfers the specified `token` amount from the `PositionsNFT` contract balance to the provided recipient address.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `sweepToken(address,uint256,address)`
+
+  | Parameter       | Constraint        |
+  | :-------------- | :---------------- |
+  | `token`         | -                 |
+  | `amountMinimum` | -                 |
+  | `recipient`     | equal to `AVATAR` |

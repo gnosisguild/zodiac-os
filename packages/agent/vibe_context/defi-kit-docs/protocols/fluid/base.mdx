@@ -1,0 +1,156 @@
+import { Callout } from "nextra/components"
+
+# Fluid on Ethereum
+
+**Deployments**
+
+| Name                | Address                                                                                                               |
+| :------------------ | :-------------------------------------------------------------------------------------------------------------------- |
+| `fWETH`             | [0x9272D6153133175175Bc276512B2336BE3931CE9](https://basescan.org/address/0x9272D6153133175175Bc276512B2336BE3931CE9) |
+| `MerkleDistributor` | [0x94312a608246Cecfce6811Db84B3Ef4B2619054E](https://basescan.org/address/0x94312a608246Cecfce6811Db84B3Ef4B2619054E) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                                 |
+| :-------- | :-------------------- | :------------------------------------------ |
+| `targets` | _string[] (required)_ | ETH \| `Token` symbols \| `Token` addresses |
+
+### Target: ERC-20
+
+For targets that are ERC-20 tokens, the following functions are allowed:
+
+<Callout type="info">
+  `TARGET` below refers to the ERC-20 token address of each element given in
+  `targets`.
+</Callout>
+<Callout type="info">
+  `FTOKEN` below refers to the corresponding Fluid wrapper (`fToken`) address
+  for each token listed in `targets`.
+</Callout>
+
+#### `TARGET · approve`
+
+Approve `FTOKEN` to spend `TARGET` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `spender` | equal to `FTOKEN` |
+  | `amount`  | -                 |
+
+#### `FTOKEN · deposit`
+
+Deposit `TARGET` and receive `FTOKEN` tokens in exchange.
+
+- **Contract:** `FTOKEN`
+- **Function:** `deposit(uint256,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `assets`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+
+#### `FTOKEN · withdraw`
+
+Withdraw a specific amount of `TARGET` tokens by specifying the desired `assets` amount. The corresponding amount of `FTOKEN` shares will be redeemed automatically.
+
+- **Contract:** `FTOKEN`
+- **Function:** `withdraw(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `assets`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `FTOKEN · redeem`
+
+Redeem a specific amount of `FTOKEN` shares to receive the corresponding amount of `TARGET` tokens.
+
+- **Contract:** `FTOKEN`
+- **Function:** `redeem(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `shares`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `MerkleDistributor · claim`
+
+Claim incentive rewards.
+
+- **Contract:** `MerkleDistributor`
+- **Function:** `claim(address,uint256,uint8,bytes32,uint256,bytes32[],bytes)`
+
+  | Parameter          | Constraint        |
+  | :----------------- | :---------------- |
+  | `recipient`        | equal to `AVATAR` |
+  | `cumulativeAmount` | -                 |
+  | `positionType`     | -                 |
+  | `positionId`       | -                 |
+  | `cycle`            | -                 |
+  | `merkleProof`      | -                 |
+  | `metadata`         | -                 |
+
+### Target: ETH
+
+For ETH as an element of `targets`, the following functions are allowed:
+
+#### `fWETH · depositNative`
+
+Deposit ETH and receive `fWETH` tokens in exchange.
+
+- **Contract:** `fWETH`
+- **Function:** `depositNative(address)` Ξ _allow sending ETH_
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `receiver` | equal to `AVATAR` |
+
+#### `fWETH · withdrawNative`
+
+Withdraw a specific amount of ETH by specifying the desired `assets` amount. The corresponding amount of `fWETH` shares will be redeemed automatically.
+
+- **Contract:** `fWETH`
+- **Function:** `withdrawNative(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `assets`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `fWETH · redeemNative`
+
+Redeem a specific amount of `fWETH` shares to receive the corresponding amount of ETH.
+
+- **Contract:** `fWETH`
+- **Function:** `redeemNative(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `shares`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `MerkleDistributor · claim`
+
+Claim incentive rewards.
+
+- **Contract:** `MerkleDistributor`
+- **Function:** `claim(address,uint256,uint8,bytes32,uint256,bytes32[],bytes)`
+
+  | Parameter          | Constraint        |
+  | :----------------- | :---------------- |
+  | `recipient`        | equal to `AVATAR` |
+  | `cumulativeAmount` | -                 |
+  | `positionType`     | -                 |
+  | `positionId`       | -                 |
+  | `cycle`            | -                 |
+  | `merkleProof`      | -                 |
+  | `metadata`         | -                 |

@@ -1,0 +1,46 @@
+# Endpoints
+
+The API offers endpoints for all supported protocols and actions.
+The full list of endpoints can be found in the OpenAPI docs at [https://kit.karpatkey.com/api-docs](/api-docs).
+They generally follow the structure outlined below.
+
+## Request structure
+
+```
+GET https://kit.karpatkey.com/api/v1/<chain>:<address>/<role>/<allow|revoke>/<protocol>/<action>?<query>
+```
+
+- `chain`: chain short name (see [official list](https://github.com/ethereum-lists/chains))
+- `address`: address of the Roles mod
+- `role`: key of the role to update
+- `protocol`: protocol name
+- `action`: `deposit`/`stake`/`borrow`/`claim`/`swap`
+- `query`: action specific query parameters
+
+For an overview of action specific query parameters refer to the [Actions](/learn/actions) section.
+
+## Response structure
+
+All responses are in JSON format with the following structure:
+
+```json
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1683187179279,
+  "meta": {
+    "name": "",
+    "description": "",
+    "txBuilderVersion": "1.16.2"
+  },
+  "transactions": [
+    {
+      "to": "0x...",
+      "data": "0x...",
+      "value": "0"
+    }
+  ]
+}
+```
+
+This JSON can be uploaded to the [Safe Transaction Builder](https://help.safe.global/en/articles/40841-transaction-builder) for execution.

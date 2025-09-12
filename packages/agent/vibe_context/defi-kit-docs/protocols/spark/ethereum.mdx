@@ -1,0 +1,756 @@
+import { Callout } from "nextra/components"
+
+# Spark on Ethereum
+
+**Deployments**
+
+| Name                    | Address                                                                                                               |
+| :---------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `SparkLendingPoolV3`    | [0xC13e21B648A5Ee794902342038FF3aDAB66BE987](https://etherscan.io/address/0xC13e21B648A5Ee794902342038FF3aDAB66BE987) |
+| `WrappedTokenGatewayV3` | [0xBD7D6a9ad7865463DE44B05F04559f65e3B11704](https://etherscan.io/address/0xBD7D6a9ad7865463DE44B05F04559f65e3B11704) |
+| `spWETH`                | [0x59cD1C87501baa753d0B5B5Ab5D8416A45cD71DB](https://etherscan.io/address/0x59cD1C87501baa753d0B5B5Ab5D8416A45cD71DB) |
+| `variableDebtWETH`      | [0x2e7576042566f8D6990e07A1B61Ad1efd86Ae70d](https://etherscan.io/address/0x2e7576042566f8D6990e07A1B61Ad1efd86Ae70d) |
+| `sDAI`                  | [0x83F20F44975D03b1b09e64809B757c47f942BEeA](https://etherscan.io/address/0x83F20F44975D03b1b09e64809B757c47f942BEeA) |
+| `RewardsController`     | [0x4370D3b6C9588E02ce9D22e684387859c7Ff5b34](https://etherscan.io/address/0x4370D3b6C9588E02ce9D22e684387859c7Ff5b34) |
+| `MigrationActions`      | [0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89](https://etherscan.io/address/0xf86141a5657Cf52AEB3E30eBccA5Ad3a8f714B89) |
+| `USDS`                  | [0xdC035D45d973E3EC169d2276DDab16f1e407384F](https://etherscan.io/address/0xdC035D45d973E3EC169d2276DDab16f1e407384F) |
+| `sUSDS`                 | [0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD](https://etherscan.io/address/0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD) |
+| `StakingRewards`        | [0x0650CAF159C5A49f711e8169D4336ECB9b950275](https://etherscan.io/address/0x0650CAF159C5A49f711e8169D4336ECB9b950275) |
+| `PsmUsdcSdai`           | [0x5803199F1085d52D1Bb527f24Dc1A2744e80A979](https://etherscan.io/address/0x5803199F1085d52D1Bb527f24Dc1A2744e80A979) |
+| `UsdsPsmWrapper`        | [0xA188EEC8F81263234dA3622A406892F3D630f98c](https://etherscan.io/address/0xA188EEC8F81263234dA3622A406892F3D630f98c) |
+| `PsmUsdcSusds`          | [0xd0A61F2963622e992e6534bde4D52fd0a89F39E0](https://etherscan.io/address/0xd0A61F2963622e992e6534bde4D52fd0a89F39E0) |
+| `sUSDC`                 | [0xBc65ad17c5C0a2A4D159fa5a503f4992c7B545FE](https://etherscan.io/address/0xBc65ad17c5C0a2A4D159fa5a503f4992c7B545FE) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                                                                     |
+| :-------- | :-------------------- | :------------------------------------------------------------------------------ |
+| `targets` | _string[] (required)_ | ETH \| DSR_sDAI \| SKY_USDS \| SKY_USDC \| `Token` symbols \| `Token` addresses |
+
+### Target: ERC-20
+
+For targets that are ERC-20 tokens, the following functions are allowed:
+
+<Callout type="info">
+  `TARGET` below refers to the ERC-20 token address of each element given in
+  `targets`.
+</Callout>
+
+#### `TARGET · approve`
+
+Approve `SparkLendingPoolV3` to spend `TARGET` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                    |
+  | :-------- | :---------------------------- |
+  | `spender` | equal to `SparkLendingPoolV3` |
+  | `amount`  | -                             |
+
+#### `SparkLendingPoolV3 · supply`
+
+Deposit `TARGET` and receive `spToken` tokens in exchange.
+
+- **Contract:** `SparkLendingPoolV3`
+- **Function:** `supply(address,uint256,address,uint16)`
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `asset`        | equal to `TARGET` |
+  | `amount`       | -                 |
+  | `onBehalfOf`   | equal to `AVATAR` |
+  | `referralCode` | -                 |
+
+#### `SparkLendingPoolV3 · setUserUseReserveAsCollateral`
+
+Enable or disable `TARGET` as collateral.
+
+- **Contract:** `SparkLendingPoolV3`
+- **Function:** `setUserUseReserveAsCollateral(address,bool)`
+
+  | Parameter         | Constraint        |
+  | :---------------- | :---------------- |
+  | `asset`           | equal to `TARGET` |
+  | `useAsCollateral` | -                 |
+
+#### `SparkLendingPoolV3 · withdraw`
+
+Redeem `spToken` and withdraw `TARGET` tokens.
+
+- **Contract:** `SparkLendingPoolV3`
+- **Function:** `withdraw(address,uint256,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `asset`   | equal to `TARGET` |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+#### `RewardsController · claimRewards`
+
+Claim rewards.
+
+- **Contract:** `RewardsController`
+- **Function:** `claimRewards(address[],uint256,address,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `assets`  | -                 |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+  | `reward`  | -                 |
+
+#### `RewardsController · claimAllRewards`
+
+Claim all rewards.
+
+- **Contract:** `RewardsController`
+- **Function:** `claimAllRewards(address[],address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `assets`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+### Target: ETH
+
+For ETH as an element of `targets`, the following functions are allowed:
+
+#### `spWETH · approve`
+
+Approve `WrappedTokenGatewayV3` to spend `spWETH` tokens on behalf of the avatar.
+
+- **Contract:** `spWETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                       |
+  | :-------- | :------------------------------- |
+  | `spender` | equal to `WrappedTokenGatewayV3` |
+  | `amount`  | -                                |
+
+#### `WrappedTokenGatewayV3 · depositETH`
+
+Deposit ETH and receive `spWETH` tokens in exchange.
+
+- **Contract:** `WrappedTokenGatewayV3`
+- **Function:** `depositETH(address,address,uint16)` Ξ _allow sending ETH_
+
+  | Parameter      | Constraint                    |
+  | :------------- | :---------------------------- |
+  | `address`      | equal to `SparkLendingPoolV3` |
+  | `onBehalfOf`   | equal to `AVATAR`             |
+  | `referralCode` | -                             |
+
+#### `SparkLendingPoolV3 · setUserUseReserveAsCollateral`
+
+Enable or disable `TARGET` as collateral.
+
+- **Contract:** `SparkLendingPoolV3`
+- **Function:** `setUserUseReserveAsCollateral(address,bool)`
+
+  | Parameter         | Constraint        |
+  | :---------------- | :---------------- |
+  | `asset`           | equal to `TARGET` |
+  | `useAsCollateral` | -                 |
+
+#### `WrappedTokenGatewayV3 · withdrawETH`
+
+Redeem `spWETH` and withdraw ETH tokens.
+
+- **Contract:** `WrappedTokenGatewayV3`
+- **Function:** `withdrawETH(address,uint256,address)`
+
+  | Parameter | Constraint                    |
+  | :-------- | :---------------------------- |
+  | `address` | equal to `SparkLendingPoolV3` |
+  | `amount`  | -                             |
+  | `to`      | equal to `AVATAR`             |
+
+#### `RewardsController · claimRewards`
+
+Claim rewards.
+
+- **Contract:** `RewardsController`
+- **Function:** `claimRewards(address[],uint256,address,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `assets`  | -                 |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+  | `reward`  | -                 |
+
+#### `RewardsController · claimAllRewards`
+
+Claim all rewards.
+
+- **Contract:** `RewardsController`
+- **Function:** `claimAllRewards(address[],address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `assets`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+### Target: DSR_sDAI
+
+#### `DAI · approve - sDAI as spender`
+
+Approve `sDAI` to spend `DAI` tokens on behalf of the avatar.
+
+- **Contract:** `DAI`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint      |
+  | :-------- | :-------------- |
+  | `spender` | equal to `sDAI` |
+  | `amount`  | -               |
+
+#### `USDC · approve - PsmUsdcSdai as spender`
+
+Approve `PsmUsdcSdai` to spend `USDC` tokens on behalf of the avatar.
+
+- **Contract:** `USDC`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint             |
+  | :-------- | :--------------------- |
+  | `spender` | equal to `PsmUsdcSdai` |
+  | `amount`  | -                      |
+
+#### `sDAI · approve - PsmUsdcSdai as spender`
+
+Approve `PsmUsdcSdai` to spend `sDAI` tokens on behalf of the avatar.
+
+- **Contract:** `sDAI`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint             |
+  | :-------- | :--------------------- |
+  | `spender` | equal to `PsmUsdcSdai` |
+  | `amount`  | -                      |
+
+#### `sDAI · deposit`
+
+Deposit `DAI` and receive `sDAI` tokens in exchange.
+
+- **Contract:** `sDAI`
+- **Function:** `deposit(uint256,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `assets`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+
+#### `sDAI · redeem`
+
+Redeem `sDAI` and withdraw `DAI`.
+
+- **Contract:** `sDAI`
+- **Function:** `redeem(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `shares`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `sDAI · withdraw`
+
+Redeem `sDAI` and withdraw `DAI` tokens.
+
+- **Contract:** `sDAI`
+- **Function:** `withdraw(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `shares`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `PsmUsdcSdai · swapAndDeposit`
+
+Deposit `USDC` and receive `sDAI` tokens in exchange.
+
+- **Contract:** `PsmUsdcSdai`
+- **Function:** `swapAndDeposit(address,uint256,uint256)`
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `receiver`     | equal to `AVATAR` |
+  | `amountIn`     | -                 |
+  | `minAmountOut` | -                 |
+
+#### `PsmUsdcSdai · withdrawAndSwap`
+
+Redeem `sDAI` and withdraw `USDC`.
+
+- **Contract:** `PsmUsdcSdai`
+- **Function:** `withdrawAndSwap(address,uint256,uint256)`
+
+  | Parameter     | Constraint        |
+  | :------------ | :---------------- |
+  | `receiver`    | equal to `AVATAR` |
+  | `amountOut`   | -                 |
+  | `maxAmountIn` | -                 |
+
+#### `PsmUsdcSdai · redeemAndSwap`
+
+Redeem `sDAI` and withdraw `USDC`.
+
+- **Contract:** `PsmUsdcSdai`
+- **Function:** `redeemAndSwap(address,uint256,uint256)`
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `receiver`     | equal to `AVATAR` |
+  | `shares`       | -                 |
+  | `minAmountOut` | -                 |
+
+### Target: SKY_USDS
+
+#### `DAI · approve - MigrationActions as spender`
+
+Approve `MigrationActions` to spend `DAI` tokens on behalf of the avatar.
+
+- **Contract:** `DAI`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                  |
+  | :-------- | :-------------------------- |
+  | `spender` | equal to `MigrationActions` |
+  | `amount`  | -                           |
+
+#### `USDS · approve - MigrationActions as spender`
+
+Approve `MigrationActions` to spend `USDS` tokens on behalf of the avatar.
+
+- **Contract:** `USDS`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                  |
+  | :-------- | :-------------------------- |
+  | `spender` | equal to `MigrationActions` |
+  | `amount`  | -                           |
+
+#### `USDS · approve - sUSDS as spender`
+
+Approve `sUSDS` to spend `USDS` tokens on behalf of the avatar.
+
+- **Contract:** `USDS`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `spender` | equal to `sUSDS` |
+  | `amount`  | -                |
+
+#### `USDC · approve - UsdsPsmWrapper as spender`
+
+Approve `UsdsPsmWrapper` to spend `USDC` tokens on behalf of the avatar.
+
+- **Contract:** `USDC`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                |
+  | :-------- | :------------------------ |
+  | `spender` | equal to `UsdsPsmWrapper` |
+  | `amount`  | -                         |
+
+#### `USDS · approve - UsdsPsmWrapper as spender`
+
+Approve `UsdsPsmWrapper` to spend `USDS` tokens on behalf of the avatar.
+
+- **Contract:** `USDS`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                |
+  | :-------- | :------------------------ |
+  | `spender` | equal to `UsdsPsmWrapper` |
+  | `amount`  | -                         |
+
+#### `USDC · approve - PsmUsdcSusds as spender`
+
+Approve `PsmUsdcSusds` to spend `USDC` tokens on behalf of the avatar.
+
+- **Contract:** `USDC`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `PsmUsdcSusds` |
+  | `amount`  | -                       |
+
+#### `sUSDS · approve - PsmUsdcSusds as spender`
+
+Approve `PsmUsdcSusds` to spend `sUSDS` tokens on behalf of the avatar.
+
+- **Contract:** `sUSDS`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `PsmUsdcSusds` |
+  | `amount`  | -                       |
+
+#### `MigrationActions · migrateDAIToUSDS`
+
+Burns `DAI` and mints `USDS` tokens for the receiver.
+
+- **Contract:** `MigrationActions`
+- **Function:** `migrateDAIToUSDS(address,uint256)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `receiver` | equal to `AVATAR` |
+  | `assetsIn` | -                 |
+
+#### `MigrationActions · migrateDAIToSUSDS`
+
+Burns `DAI` and mints `sUSDS` tokens for the receiver.
+
+- **Contract:** `MigrationActions`
+- **Function:** `migrateDAIToSUSDS(address,uint256)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `receiver` | equal to `AVATAR` |
+  | `assetsIn` | -                 |
+
+#### `MigrationActions · downgradeUSDSToDAI`
+
+Burns `USDS` and mints `DAI` tokens for the receiver.
+
+- **Contract:** `MigrationActions`
+- **Function:** `downgradeUSDSToDAI(address,uint256)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `receiver` | equal to `AVATAR` |
+  | `assetsIn` | -                 |
+
+#### `sUSDS · deposit`
+
+Deposit `USDS` and receive `sUSDS` tokens in exchange.
+
+- **Contract:** `sUSDS`
+- **Function:** `deposit(uint256,address,uint16)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `assets`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `referral` | -                 |
+
+#### `sUSDS · withdraw`
+
+Redeem `sUSDS` and withdraw `USDS` tokens.
+
+- **Contract:** `sUSDS`
+- **Function:** `withdraw(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `assets`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `sUSDS · redeem`
+
+Redeem `sUSDS` and withdraw `USDS` tokens.
+
+- **Contract:** `sUSDS`
+- **Function:** `redeem(uint256,address,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `shares`   | -                 |
+  | `receiver` | equal to `AVATAR` |
+  | `owner`    | equal to `AVATAR` |
+
+#### `UsdsPsmWrapper · sellGem`
+
+Converts `USDC` into `USDS` tokens and transfers the resulting `USDS` to the avatar.
+
+- **Contract:** `UsdsPsmWrapper`
+- **Function:** `sellGem(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `usr`     | equal to `AVATAR` |
+  | `gemAmt`  | -                 |
+
+#### `UsdsPsmWrapper · buyGem`
+
+Converts `USDS` into `USDC` tokens and transfers the resulting `USDC` to the avatar.
+
+- **Contract:** `UsdsPsmWrapper`
+- **Function:** `buyGem(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `usr`     | equal to `AVATAR` |
+  | `gemAmt`  | -                 |
+
+#### `PsmUsdcSusds · swapAndDeposit`
+
+Deposit `USDC` and receive `sUSDS` tokens in exchange.
+
+- **Contract:** `PsmUsdcSusds`
+- **Function:** `swapAndDeposit(address,uint256,uint256)`
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `receiver`     | equal to `AVATAR` |
+  | `amountIn`     | -                 |
+  | `minAmountOut` | -                 |
+
+#### `PsmUsdcSusds · withdrawAndSwap`
+
+Redeem `sUSDS` and withdraw `USDC`.
+
+- **Contract:** `PsmUsdcSusds`
+- **Function:** `withdrawAndSwap(address,uint256,uint256)`
+
+  | Parameter     | Constraint        |
+  | :------------ | :---------------- |
+  | `receiver`    | equal to `AVATAR` |
+  | `amountOut`   | -                 |
+  | `maxAmountIn` | -                 |
+
+#### `PsmUsdcSusds · redeemAndSwap`
+
+Redeem `sUSDS` and withdraw `USDC`.
+
+- **Contract:** `PsmUsdcSusds`
+- **Function:** `redeemAndSwap(address,uint256,uint256)`
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `receiver`     | equal to `AVATAR` |
+  | `shares`       | -                 |
+  | `minAmountOut` | -                 |
+
+### Target: SKY_USDC
+
+#### `USDC · approve - sUSDC as spender`
+
+Approve `sUSDC` to spend `USDC` tokens on behalf of the avatar.
+
+- **Contract:** `USDC`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `spender` | equal to `sUSDC` |
+  | `amount`  | -                |
+
+#### `sUSDC · deposit`
+
+Deposit `USDC` and receive `sUSDC` tokens in exchange.
+
+- **Contract:** `sUSDC`
+- **Function:** `deposit(uint256,address,uint256,uint16)`
+
+  | Parameter   | Constraint        |
+  | :---------- | :---------------- |
+  | `assets`    | -                 |
+  | `receiver`  | equal to `AVATAR` |
+  | `minShares` | -                 |
+  | `referral`  | -                 |
+
+#### `sUSDC · withdraw`
+
+Redeem `sUSDC` and withdraw `USDC` tokens.
+
+- **Contract:** `sUSDC`
+- **Function:** `withdraw(uint256,address,address,uint256)`
+
+  | Parameter   | Constraint        |
+  | :---------- | :---------------- |
+  | `assets`    | -                 |
+  | `receiver`  | equal to `AVATAR` |
+  | `owner`     | equal to `AVATAR` |
+  | `maxShares` | -                 |
+
+#### `sUSDC · redeem`
+
+Redeem `sUSDC` and withdraw `USDC` tokens.
+
+- **Contract:** `sUSDC`
+- **Function:** `redeem(uint256,address,address,uint256)`
+
+  | Parameter   | Constraint        |
+  | :---------- | :---------------- |
+  | `shares`    | -                 |
+  | `receiver`  | equal to `AVATAR` |
+  | `owner`     | equal to `AVATAR` |
+  | `minAssets` | -                 |
+
+## Action: `borrow`
+
+**Parameters:**
+
+| Name      | Type                  | Description                                 |
+| :-------- | :-------------------- | :------------------------------------------ |
+| `targets` | _string[] (required)_ | ETH \| `Token` symbols \| `Token` addresses |
+
+### Target: ERC-20
+
+For targets that are ERC-20 tokens, the following functions are allowed:
+
+<Callout type="info">
+  `TARGET` below refers to the ERC-20 token address of each element given in
+  `targets`.
+</Callout>
+
+#### `TARGET · approve`
+
+Approve `SparkLendingPoolV3` to spend `TARGET` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                    |
+  | :-------- | :---------------------------- |
+  | `spender` | equal to `SparkLendingPoolV3` |
+  | `amount`  | -                             |
+
+#### `SparkLendingPoolV3 · borrow`
+
+Receive `TARGET` and receive `debtToken` tokens.
+
+- **Contract:** `SparkLendingPoolV3`
+- **Function:** `borrow(address,uint256,uint256,uint16,address)`
+
+  | Parameter          | Constraint        |
+  | :----------------- | :---------------- |
+  | `asset`            | equal to `TARGET` |
+  | `amount`           | -                 |
+  | `interestRateMode` | -                 |
+  | `referralCode`     | -                 |
+  | `onBehalfOf`       | equal to `AVATAR` |
+
+#### `SparkLendingPoolV3 · repay`
+
+Repay borrowed `TARGET` tokens.
+
+- **Contract:** `SparkLendingPoolV3`
+- **Function:** `repay(address,uint256,uint256,address)`
+
+  | Parameter    | Constraint        |
+  | :----------- | :---------------- |
+  | `asset`      | equal to `TARGET` |
+  | `amount`     | -                 |
+  | `rateMode`   | -                 |
+  | `onBehalfOf` | equal to `AVATAR` |
+
+### Target: ETH
+
+For ETH as an element of `targets`, the following functions are allowed:
+
+#### `variableDebtWETH · approveDelegation`
+
+Set the amount of allowance for `WrappedTokenGatewayV3` to borrow `variableDebtWETH` tokens.
+
+- **Contract:** `variableDebtWETH`
+- **Function:** `approveDelegation(address,uint256)`
+
+  | Parameter   | Constraint                       |
+  | :---------- | :------------------------------- |
+  | `delegatee` | equal to `WrappedTokenGatewayV3` |
+  | `amount`    | -                                |
+
+#### `WrappedTokenGatewayV3 · borrowETH`
+
+Receive ETH and `variableDebtWETH` tokens.
+
+- **Contract:** `WrappedTokenGatewayV3`
+- **Function:** `borrowETH(address,uint256,uint256,uint16)`
+
+  | Parameter          | Constraint                   |
+  | :----------------- | :--------------------------- |
+  | `address`          | equal to `AaveLendingPoolV3` |
+  | `amount`           | -                            |
+  | `interestRateMode` | -                            |
+  | `referralCode`     | -                            |
+
+#### `WrappedTokenGatewayV3 · repayETH`
+
+Repay borrowed ETH.
+
+- **Contract:** `WrappedTokenGatewayV3`
+- **Function:** `repayETH(address,uint256,uint256,address)` Ξ _allow sending ETH_
+
+  | Parameter    | Constraint                   |
+  | :----------- | :--------------------------- |
+  | `address`    | equal to `AaveLendingPoolV3` |
+  | `amount`     | -                            |
+  | `rateMode`   | -                            |
+  | `onBehalfOf` | equal to `AVATAR`            |
+
+## Action: `stake`
+
+**Parameters:**
+
+N/A.
+
+#### `USDS · approve - StakingRewards as spender`
+
+Approve `StakingRewards` to spend `USDS` tokens on behalf of the avatar.
+
+- **Contract:** `USDS`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                |
+  | :-------- | :------------------------ |
+  | `spender` | equal to `StakingRewards` |
+  | `amount`  | -                         |
+
+#### `StakingRewards · stake`
+
+Stake `USDS` tokens in the `SKY Farm`.
+
+- **Contract:** `StakingRewards`
+- **Function:** `stake(uint256,uint16)`
+
+  | Parameter  | Constraint |
+  | :--------- | :--------- |
+  | `amount`   | -          |
+  | `referral` | -          |
+
+#### `StakingRewards · withdraw`
+
+Unstake `USDS` tokens from the `SKY Farm`.
+
+- **Contract:** `StakingRewards`
+- **Function:** `withdraw(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `StakingRewards · exit`
+
+Unstake `USDS` tokens from the `SKY Farm` and claim `SKY` token rewards.
+
+- **Contract:** `StakingRewards`
+- **Function:** `exit()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `StakingRewards · getReward`
+
+Claim `SKY` token rewards.
+
+- **Contract:** `StakingRewards`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |

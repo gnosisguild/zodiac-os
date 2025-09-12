@@ -1,0 +1,191 @@
+import { Callout } from "nextra/components"
+
+# Aave v3 Repertoire on Arbitrum
+
+**Deployments**
+
+| Name                    | Address                                                                                                              |
+| :---------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| `PoolV3`                | [0x794a61358D6845594F94dc1DB02A252b5b4814aD](https://arbiscan.io/address/0x794a61358D6845594F94dc1DB02A252b5b4814aD) |
+| `WrappedTokenGatewayV3` | [0x5760E34c4003752329bC77790B1De44C2799F8C3](https://arbiscan.io/address/0x5760E34c4003752329bC77790B1De44C2799F8C3) |
+| `aArbWETH`              | [0xe50fA9b3c56FfB159cB0FCA61F5c9D750e8128c8](https://arbiscan.io/address/0xe50fA9b3c56FfB159cB0FCA61F5c9D750e8128c8) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name    | Type                | Description                                 |
+| :------ | :------------------ | :------------------------------------------ |
+| `token` | _string (required)_ | ETH \| `Token` symbols \| `Token` addresses |
+
+Deposit `token` tokens into Aave v3.
+
+### Permissions:
+
+#### Target: ERC-20
+
+For ERC-20 tokens, the following functions are allowed:
+
+<Callout type="error">
+  If the `token` provided is not supported, an error will be thrown.
+</Callout>
+
+##### `token · approve`
+
+Approve `PoolV3` to spend `token` tokens on behalf of the avatar.
+
+- **Contract:** `token`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `spender` | equal to `PoolV3` |
+  | `amount`  | -                 |
+
+##### `PoolV3 · supply`
+
+Deposit `token` and receive `aToken` tokens in exchange.
+
+- **Contract:** `PoolV3`
+- **Function:** `supply(address,uint256,address,uint16)`
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `asset`        | equal to `token`  |
+  | `amount`       | -                 |
+  | `onBehalfOf`   | equal to `AVATAR` |
+  | `referralCode` | -                 |
+
+#### Target: ETH
+
+When `token` is ETH, the following functions are allowed:
+
+##### `WrappedTokenGatewayV3 · depositETH`
+
+Deposit ETH and receive `aArbWETH` tokens in exchange.
+
+- **Contract:** `WrappedTokenGatewayV3`
+- **Function:** `depositETH(address,address,uint16)` Ξ _allow sending ETH_
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `address`      | equal to `PoolV3` |
+  | `onBehalfOf`   | equal to `AVATAR` |
+  | `referralCode` | -                 |
+
+## Action: `withdraw`
+
+**Parameters**
+
+| Name    | Type                | Description                                 |
+| :------ | :------------------ | :------------------------------------------ |
+| `token` | _string (required)_ | ETH \| `Token` symbols \| `Token` addresses |
+
+Withdraw `token` tokens from the specified `market` in Aave v3.
+
+### Permissions:
+
+#### Target: ERC-20
+
+For ERC-20 tokens, the following functions are allowed:
+
+<Callout type="error">
+  If the `token` provided is not supported, an error will be thrown.
+</Callout>
+
+##### `PoolV3 · withdraw`
+
+Redeem `aToken` and withdraw `token` tokens.
+
+- **Contract:** `PoolV3`
+- **Function:** `withdraw(address,uint256,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `asset`   | equal to `token`  |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+#### `PoolV3 · withdraw(bytes32)`
+
+Calldata efficient wrapper of the withdraw function.<br/>
+Redeem `aToken` and withdraw `token` tokens.
+
+- **Contract:** `PoolV3`
+- **Function:** `withdraw(bytes32)`
+
+  | Parameter | Constraint                    |
+  | :-------- | :---------------------------- |
+  | `args`    | Scoped by assetId (see below) |
+
+<Callout type="info">
+  The `args` is a 32 bytes parameter, where the first 30 bytes represent
+  `amount`, and the last 2 bytes represent `assetId`. Only the last 2 bytes are
+  scoped to ensure the correct `assetId` is used.
+  <br />
+  For example:
+  `0x0000000000000000000000000000000000000000000000000000000f4240000c`.
+  <br />
+  &nbsp;&nbsp;`amount`: 1000000 (represented by
+  `0x0000000000000000000000000000000000000000000000000000000f4240`).
+  <br />
+  &nbsp;&nbsp;`assetId`: 12 (represented by `0x000c`).
+</Callout>
+
+#### Target: ETH
+
+When `token` is ETH, the following functions are allowed:
+
+##### `aArbWETH · approve`
+
+Approve `WrappedTokenGatewayV3` to spend `aArbWETH` tokens on behalf of the avatar.
+
+- **Contract:** `aArbWETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                       |
+  | :-------- | :------------------------------- |
+  | `spender` | equal to `WrappedTokenGatewayV3` |
+  | `amount`  | -                                |
+
+##### `WrappedTokenGatewayV3 · withdrawETH`
+
+Redeem `aArbWETH` and withdraw ETH tokens.
+
+- **Contract:** `WrappedTokenGatewayV3`
+- **Function:** `withdrawETH(address,uint256,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `address` | equal to `PoolV3` |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+## Action: `set_collateralisation`
+
+**Parameters**
+
+| Name              | Type                 | Description                                 |
+| :---------------- | :------------------- | :------------------------------------------ |
+| `token`           | _string (required)_  | ETH \| `Token` symbols \| `Token` addresses |
+| `useAsCollateral` | _boolean (required)_ | `true` \| `false`                           |
+
+Enable or disable `token` as collateral.
+
+### Permissions:
+
+<Callout type="error">
+  If the `token` provided is not supported, an error will be thrown.
+</Callout>
+
+#### `PoolV3 · setUserUseReserveAsCollateral`
+
+Enable or disable `token` as collateral.
+
+- **Contract:** `PoolV3`
+- **Function:** `setUserUseReserveAsCollateral(address,bool)`
+
+  | Parameter         | Constraint                 |
+  | :---------------- | :------------------------- |
+  | `asset`           | equal to `token`           |
+  | `useAsCollateral` | equal to `useAsCollateral` |

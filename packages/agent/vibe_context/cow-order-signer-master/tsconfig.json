@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2020"
+  },
+  "include": ["./test", "./deploy", "./typechain-types"],
+  "files": ["./hardhat.config.ts"]
+}

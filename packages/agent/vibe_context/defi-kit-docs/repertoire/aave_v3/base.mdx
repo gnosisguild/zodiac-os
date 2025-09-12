@@ -1,0 +1,165 @@
+import { Callout } from "nextra/components"
+
+# Aave v3 Repertoire on Base
+
+**Deployments**
+
+| Name                    | Address                                                                                                               |
+| :---------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `PoolV3`                | [0xA238Dd80C259a72e81d7e4664a9801593F98d1c5](https://basescan.org/address/0xA238Dd80C259a72e81d7e4664a9801593F98d1c5) |
+| `WrappedTokenGatewayV3` | [0x729b3EA8C005AbC58c9150fb57Ec161296F06766](https://basescan.org/address/0x729b3EA8C005AbC58c9150fb57Ec161296F06766) |
+| `aBasWETH`              | [0xD4a0e0b9149BCee3C920d2E00b5dE09138fd8bb7](https://basescan.org/address/0xD4a0e0b9149BCee3C920d2E00b5dE09138fd8bb7) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name    | Type                | Description                                 |
+| :------ | :------------------ | :------------------------------------------ |
+| `token` | _string (required)_ | ETH \| `Token` symbols \| `Token` addresses |
+
+Deposit `token` tokens into Aave v3.
+
+### Permissions:
+
+#### Target: ERC-20
+
+For ERC-20 tokens, the following functions are allowed:
+
+<Callout type="error">
+  If the `token` provided is not supported, an error will be thrown.
+</Callout>
+
+##### `token · approve`
+
+Approve `PoolV3` to spend `token` tokens on behalf of the avatar.
+
+- **Contract:** `token`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `spender` | equal to `PoolV3` |
+  | `amount`  | -                 |
+
+##### `PoolV3 · supply`
+
+Deposit `token` and receive `aToken` tokens in exchange.
+
+- **Contract:** `PoolV3`
+- **Function:** `supply(address,uint256,address,uint16)`
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `asset`        | equal to `token`  |
+  | `amount`       | -                 |
+  | `onBehalfOf`   | equal to `AVATAR` |
+  | `referralCode` | -                 |
+
+#### Target: ETH
+
+When `token` is ETH, the following functions are allowed:
+
+##### `WrappedTokenGatewayV3 · depositETH`
+
+Deposit ETH and receive `aBasWETH` tokens in exchange.
+
+- **Contract:** `WrappedTokenGatewayV3`
+- **Function:** `depositETH(address,address,uint16)` Ξ _allow sending ETH_
+
+  | Parameter      | Constraint        |
+  | :------------- | :---------------- |
+  | `address`      | equal to `PoolV3` |
+  | `onBehalfOf`   | equal to `AVATAR` |
+  | `referralCode` | -                 |
+
+## Action: `withdraw`
+
+**Parameters**
+
+| Name    | Type                | Description                                 |
+| :------ | :------------------ | :------------------------------------------ |
+| `token` | _string (required)_ | ETH \| `Token` symbols \| `Token` addresses |
+
+Withdraw `token` tokens from the specified `market` in Aave v3.
+
+### Permissions:
+
+#### Target: ERC-20
+
+For ERC-20 tokens, the following functions are allowed:
+
+<Callout type="error">
+  If the `token` provided is not supported, an error will be thrown.
+</Callout>
+
+##### `PoolV3 · withdraw`
+
+Redeem `aToken` and withdraw `token` tokens.
+
+- **Contract:** `PoolV3`
+- **Function:** `withdraw(address,uint256,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `asset`   | equal to `token`  |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+#### Target: ETH
+
+When `token` is ETH, the following functions are allowed:
+
+##### `aBasWETH · approve`
+
+Approve `WrappedTokenGatewayV3` to spend `aBasWETH` tokens on behalf of the avatar.
+
+- **Contract:** `aBasWETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                       |
+  | :-------- | :------------------------------- |
+  | `spender` | equal to `WrappedTokenGatewayV3` |
+  | `amount`  | -                                |
+
+##### `WrappedTokenGatewayV3 · withdrawETH`
+
+Redeem `aBasWETH` and withdraw ETH tokens.
+
+- **Contract:** `WrappedTokenGatewayV3`
+- **Function:** `withdrawETH(address,uint256,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `address` | equal to `PoolV3` |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+## Action: `set_collateralisation`
+
+**Parameters**
+
+| Name              | Type                 | Description                                 |
+| :---------------- | :------------------- | :------------------------------------------ |
+| `token`           | _string (required)_  | ETH \| `Token` symbols \| `Token` addresses |
+| `useAsCollateral` | _boolean (required)_ | `true` \| `false`                           |
+
+Enable or disable `token` as collateral.
+
+### Permissions:
+
+<Callout type="error">
+  If the `token` provided is not supported, an error will be thrown.
+</Callout>
+
+#### `PoolV3 · setUserUseReserveAsCollateral`
+
+Enable or disable `token` as collateral.
+
+- **Contract:** `PoolV3`
+- **Function:** `setUserUseReserveAsCollateral(address,bool)`
+
+  | Parameter         | Constraint                 |
+  | :---------------- | :------------------------- |
+  | `asset`           | equal to `token`           |
+  | `useAsCollateral` | equal to `useAsCollateral` |

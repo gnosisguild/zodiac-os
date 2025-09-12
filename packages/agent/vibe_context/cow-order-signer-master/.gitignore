@@ -1,0 +1,8 @@
+node_modules
+.idea
+.env 
+
+#Hardhat files
+cache
+artifacts
+typechain-types

@@ -1,0 +1,209 @@
+import { Callout } from "nextra/components"
+
+# Uniswap v3 on Base
+
+**Deployments**
+
+| Name           | Address                                                                                                               |
+| :------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `PositionsNFT` | [0xC36442b4a4522E871399CD717aBDD847Ab11FE88](https://basescan.org/address/0xC36442b4a4522E871399CD717aBDD847Ab11FE88) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                       |
+| :-------- | :-------------------- | :-------------------------------- |
+| `targets` | _string[] (optional)_ | `NftId` position NFT Id           |
+| `tokens`  | _string[] (optional)_ | `Token` symbol \| `Token` address |
+| `fees`    | _string[] (optional)_ | `Fee` fee                         |
+
+<Callout type="info">
+  For safety reasons and to prevent potential ETH losses, sending ETH directly
+  is prohibited for any function. Instead, ETH must be wrapped into WETH
+  (Wrapped Ether) before interacting with the protocol.
+</Callout>
+
+<Callout type="info">
+  If `targets` is unspecified `tokens` must be passed. New positions in any pair
+  of these tokens can be minted. Existing positions in any pair of these tokens
+  can be managed.
+</Callout>
+
+<Callout type="warning">
+  If `tokens` is unspecified, minting of new positions won't be allowed.
+</Callout>
+
+<Callout type="warning">
+  If the avatar has approved the Uniswap v3 Positions NFT contract to spend
+  tokens other than the ones specified in `tokens`, the role will be able to
+  increase any existing positions' liquidity in these tokens as well.
+</Callout>
+
+<Callout type="info">
+  `TARGET` below refers to the ERC-721 token id (NFT Id) of each element given
+  in `targets`.
+</Callout>
+
+<Callout type="info">
+  `TARGET_TOKEN` below refers to the ERC-20 token address of each element given
+  in `targets`.
+</Callout>
+
+<Callout type="info">
+  `TOKEN` below refers to the ERC-20 token address of each element given in
+  `tokens`.
+</Callout>
+
+<Callout type="info">
+  `FEE` below refers to the fee percentage of each element given in `fees`.
+</Callout>
+
+### `TARGET_TOKEN · approve`
+
+Approve `PositionsNFT` to spend `TARGET_TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET_TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `PositionsNFT` |
+  | `amount`  | -                       |
+
+### `TOKEN · approve`
+
+Approve `PositionsNFT` to spend `TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `PositionsNFT` |
+  | `amount`  | -                       |
+
+### `mint · PositionsNFT`
+
+Deposit `TOKEN` tokens to the corresponding Uniswap v3 pool and receive an ERC-721 token (NFT) representing the newly minted liquidity position.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))` {/* Ξ _allow sending ETH_ */}
+
+  | Parameter               | Constraint       |
+  | :---------------------- | :--------------- |
+  | `params.token0`         | equal to `TOKEN` |
+  | `params.token1`         | equal to `TOKEN` |
+  | `params.fee`            | equal to `FEE`   |
+  | `params.tickLower`      | -                |
+  | `params.tickUpper`      | -                |
+  | `params.amount0Desired` | -                |
+  | `params.amount1Desired` | -                |
+  | `params.amount0Min`     | -                |
+  | `params.amount1Min`     | -                |
+  | `params.deadline`       | -                |
+
+### `increaseLiquidity · PositionsNFT`
+
+Increase the liquidity in a NFT position by adding the desired amounts of `token0` and `token1`.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))` {/* Ξ _allow sending ETH_ */}
+
+  | Parameter               | Constraint        |
+  | :---------------------- | :---------------- |
+  | `params.tokenId`        | equal to `TARGET` |
+  | `params.amount0Desired` | -                 |
+  | `params.amount1Desired` | -                 |
+  | `params.amount0Min`     | -                 |
+  | `params.amount1Min`     | -                 |
+  | `params.deadline`       | -                 |
+
+<Callout type="info">
+  If `targets` is not specified then all positions owned by the `avatar` will be
+  considered. Ownership is checked dynamically at condition evaluation time
+  through the
+  [AvatarIsOwnerOfERC721](https://github.com/gnosisguild/zodiac-modifier-roles/blob/main/packages/evm/contracts/adapters/AvatarIsOwnerOfERC721.sol)
+  custom condition applied to `params.tokenId`.
+</Callout>
+
+### `decreaseLiquidity · PositionsNFT`
+
+Decrease the liquidity in a NFT position by removing the desired liquidity amount.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))`
+
+  | Parameter           | Constraint        |
+  | :------------------ | :---------------- |
+  | `params.tokenId`    | equal to `TARGET` |
+  | `params.liquidity`  | -                 |
+  | `params.amount0Min` | -                 |
+  | `params.amount1Min` | -                 |
+  | `params.deadline`   | -                 |
+
+### `collect · PositionsNFT`
+
+Collect accumulated fees from a specific NFT position.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `collect((uint256,address,uint128,uint128))`
+
+  | Parameter           | Constraint        |
+  | :------------------ | :---------------- |
+  | `params.tokenId`    | equal to `TARGET` |
+  | `params.recipient`  | equal to `AVATAR` |
+  | `params.amount0Max` | -                 |
+  | `params.amount1Max` | -                 |
+
+{/* ### If WETH is involved:
+
+#### `collect · PositionsNFT`
+
+Collect accumulated fees from a specific NFT position.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `collect((uint256,address,uint128,uint128))`
+
+  | Parameter           | Constraint                                            |
+  | :------------------ | :---------------------------------------------------- |
+  | `params.tokenId`    | equal to `TARGET`                                     |
+  | `params.recipient`  | equal to `0x0000000000000000000000000000000000000000` |
+  | `params.amount0Max` | -                                                     |
+  | `params.amount1Max` | -                                                     |
+
+#### `refundETH · PositionsNFT`
+
+Refunds the unused ETH to the sender address.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `refundETH()` Ξ _allow sending ETH_
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `unwrapWETH9 · PositionsNFT`
+
+Unwraps a specified amount of `WETH` and transfers the corresponding ETH to the designated recipient address.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `unwrapWETH9(uint256,address)`
+
+  | Parameter       | Constraint        |
+  | :-------------- | :---------------- |
+  | `amountMinimum` | -                 |
+  | `recipient`     | equal to `AVATAR` |
+
+#### `sweepToken · PositionsNFT`
+
+Transfers the specified `token` amount from the `PositionsNFT` contract balance to the provided recipient address.
+
+- **Contract:** `PositionsNFT`
+- **Function:** `sweepToken(address,uint256,address)`
+
+  | Parameter       | Constraint        |
+  | :-------------- | :---------------- |
+  | `token`         | -                 |
+  | `amountMinimum` | -                 |
+  | `recipient`     | equal to `AVATAR` | */}

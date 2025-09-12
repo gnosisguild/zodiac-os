@@ -17,6 +17,7 @@ import {
   ArrowUpFromLine,
   BookmarkX,
   Landmark,
+  MessageCircle,
   Signature,
 } from 'lucide-react'
 import { href, Outlet } from 'react-router'
@@ -94,6 +95,15 @@ const OfflineLayout = ({ loaderData: { signInUrl } }: Route.ComponentProps) => {
                     icon={Signature}
                   >
                     Sign a transaction
+                  </Navigation.Link>
+                </Navigation.Section>
+
+                <Navigation.Section title="Agent">
+                  <Navigation.Link
+                    to={href('/offline/agent')}
+                    icon={MessageCircle}
+                  >
+                    Chat
                   </Navigation.Link>
                 </Navigation.Section>
               </Navigation>

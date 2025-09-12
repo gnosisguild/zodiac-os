@@ -1,9 +1,12 @@
 import 'react-toastify/ReactToastify.css'
 
+export { AgentMessageCopy } from './AgentMessageCopy'
 export * from './alerts'
+export * from './animations'
 export * from './buttons'
 export * from './catalyst'
 export { Strong, TextLink } from './catalyst'
+export * from './charts'
 export { defaultSize, type Size } from './common'
 export { CopyToClipboard } from './CopyToClipboard'
 export * from './features'

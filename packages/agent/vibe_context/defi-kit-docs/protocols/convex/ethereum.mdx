@@ -1,0 +1,319 @@
+import { Callout } from "nextra/components"
+
+# Convex on Ethereum
+
+**Deployments**
+
+| Name            | Address                                                                                                               |
+| :-------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `Booster`       | [0xF403C135812408BFbE8713b5A23a04b3D48AAE31](https://etherscan.io/address/0xF403C135812408BFbE8713b5A23a04b3D48AAE31) |
+| `CrvDepositor`  | [0x8014595F2AB54cD7c604B00E9fb932176fDc86Ae](https://etherscan.io/address/0x8014595F2AB54cD7c604B00E9fb932176fDc86Ae) |
+| `cvxCRV`        | [0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7](https://etherscan.io/address/0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7) |
+| `stkCvxCrv`     | [0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434](https://etherscan.io/address/0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434) |
+| `CVX`           | [0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b](https://etherscan.io/address/0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b) |
+| `CvxRewardPool` | [0xCF50b810E57Ac33B91dCF525C6ddd9881B139332](https://etherscan.io/address/0xCF50b810E57Ac33B91dCF525C6ddd9881B139332) |
+| `vlCVX`         | [0x72a19342e8F1838460eBFCCEf09F6585e32db86E](https://etherscan.io/address/0x72a19342e8F1838460eBFCCEf09F6585e32db86E) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                                   |
+| :-------- | :-------------------- | :-------------------------------------------- |
+| `targets` | _string[] (required)_ | `Pool` name \| `Pool` crvLPToken \| `Pool` id |
+
+Each Convex pool is connected to exactly one Curve Liquidity Provider Token (crvLPToken) and we allow specifying the deposit targets using any of the following identifiers:
+
+- crvLPToken symbol (`Pool` name).
+- crvLPToken address (`Pool` crvLPToken).
+- Convex pool ID (`Pool` id).
+
+<Callout type="info">
+  `TARGET_CRV_LP_TOKEN` below refers to the address of Convex pool's crvLPToken.
+</Callout>
+<Callout type="info">`TARGET_ID` below refers to the Convex pool ID.</Callout>
+<Callout type="info">
+  `TARGET_CVX_DEPOSIT_TOKEN` below refers to the `cvxDepositToken` contract
+  address for the target Convex pool.
+</Callout>
+<Callout type="info">
+  `TARGET_REWARDER` below refers to the `cvxBaseRewardPool` contract address for
+  the target Convex pool.
+</Callout>
+
+### `TARGET_CRV_LP_TOKEN · approve`
+
+Approve `Booster` to spend `TARGET_CRV_LP_TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET_CRV_LP_TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint         |
+  | :-------- | :----------------- |
+  | `spender` | equal to `Booster` |
+  | `amount`  | -                  |
+
+### `TARGET_CVX_DEPOSIT_TOKEN · approve`
+
+Approve `TARGET_REWARDER` to spend `TARGET_CVX_DEPOSIT_TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET_CVX_DEPOSIT_TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                 |
+  | :-------- | :------------------------- |
+  | `spender` | equal to `TARGET_REWARDER` |
+  | `amount`  | -                          |
+
+### `Booster · deposit`
+
+Deposit `TARGET_CRV_LP_TOKEN` tokens to the corresponding Convex pool and receive `TARGET_CVX_DEPOSIT_TOKEN` tokens in exchange.<br/>
+The `TARGET_CVX_DEPOSIT_TOKEN` can be staked using the `stake` parameter and receive `TARGET_REWARDER` tokens in exchange.
+
+- **Contract:** `Booster`
+- **Function:** `deposit(uint256,uint256,bool)`
+
+  | Parameter | Constraint           |
+  | :-------- | :------------------- |
+  | `pid`     | equal to `TARGET_ID` |
+  | `amount`  | -                    |
+  | `stake`   | -                    |
+
+### `Booster · depositAll`
+
+Deposit `TARGET_CRV_LP_TOKEN` tokens to the corresponding Convex pool and receive `TARGET_CVX_DEPOSIT_TOKEN` tokens in exchange (it is called when MAX amount is deposited).<br/>
+The `TARGET_CVX_DEPOSIT_TOKEN` can be staked using the `stake` parameter and receive `TARGET_REWARDER` tokens in exchange.
+
+- **Contract:** `Booster`
+- **Function:** `depositAll(uint256,bool)`
+
+  | Parameter | Constraint           |
+  | :-------- | :------------------- |
+  | `pid`     | equal to `TARGET_ID` |
+  | `stake`   | -                    |
+
+### `TARGET_REWARDER · withdraw`
+
+Redeem `TARGET_REWARDER` tokens and withdraw `TARGET_CVX_DEPOSIT_TOKEN` tokens.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `withdraw(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+### `TARGET_REWARDER · withdrawAndUnwrap`
+
+Redeem `TARGET_REWARDER` tokens and withdraw and unwrap `TARGET_CRV_LP_TOKEN` tokens.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `withdrawAndUnwrap(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+### `TARGET_REWARDER · getReward(address,bool)`
+
+Claim `Pool` rewards of a specific account.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `getReward(address,bool)`
+
+  | Parameter     | Constraint        |
+  | :------------ | :---------------- |
+  | `account`     | equal to `AVATAR` |
+  | `claimExtras` | -                 |
+
+## Action: `stake`
+
+**Parameters:**
+
+| Name      | Type                  | Constraint                                     |
+| :-------- | :-------------------- | :--------------------------------------------- |
+| `targets` | _string[] (required)_ | `StakeToken` symbols \| `StakeToken` addresses |
+
+### Target: `cvxCRV`
+
+If the `cvxCRV` token is given as an element of `targets`, the following functions will be allowed:
+
+#### `CRV · approve`
+
+Approve `CrvDepositor` to spend `CRV` tokens on behalf of avatar.
+
+- **Contract:** `CRV`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `CrvDepositor` |
+  | `amount`  | -                       |
+
+#### `cvxCRV · approve`
+
+Approve `stkCvxCrv` to spend `cvxCRV` tokens on behalf of avatar.
+
+- **Contract:** `cvxCRV`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint           |
+  | :-------- | :------------------- |
+  | `spender` | equal to `stkCvxCrv` |
+  | `amount`  | -                    |
+
+#### `CrvDepositor · deposit(uint256,bool)`
+
+Mint `cvxCRV` using `CRV`.
+
+- **Contract:** `CrvDepositor`
+- **Function:** `deposit(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `lock`    | -          |
+
+#### `CrvDepositor · deposit(uint256,bool,address)`
+
+Mint and optionally stake `cvxCRV` using `CRV`.
+
+- **Contract:** `CrvDepositor`
+- **Function:** `deposit(uint256,bool,address)`
+
+  | Parameter      | Constraint                                                             |
+  | :------------- | :--------------------------------------------------------------------- |
+  | `amount`       | -                                                                      |
+  | `lock`         | -                                                                      |
+  | `stakeAddress` | equal to (`0x0000000000000000000000000000000000000000` or `stkCvxCrv`) |
+
+- If the `stakeAddress` is:
+  - `0x0000000000000000000000000000000000000000`: mint `cvxCRV`.
+  - `stkCvxCrv`: mint `cvxCRV`, stake it and receive `stkCvxCrv` tokens in exchange.
+
+#### `stkCvxCrv · stake`
+
+Stake `cvxCRV` tokens and receive `stkCvxCrv` tokens in exchange.
+
+- **Contract:** `stkCvxCrv`
+- **Function:** `stake(uint256,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `amount`  | -                 |
+  | `to`      | equal to `AVATAR` |
+
+#### `stkCvxCrv · setRewardWeight`
+
+Set the reward weight in order to receive more governance tokens rewards, or more stablecoin rewards.
+
+- **Contract:** `stkCvxCrv`
+- **Function:** `setRewardWeight(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `weight`  | -          |
+
+#### `stkCvxCrv · getReward`
+
+Claim `cvxCRV` staking rewards.
+
+- **Contract:** `stkCvxCrv`
+- **Function:** `getReward(address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `account` | equal to `AVATAR` |
+
+### Target: `CVX`
+
+If the `CVX` token is given as an element of `targets`, the following functions will be allowed:
+
+#### `CVX · approve`
+
+Approve `CvxRewardPool` to spend `CVX` tokens on behalf of avatar.
+
+- **Contract:** `CRV`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint               |
+  | :-------- | :----------------------- |
+  | `spender` | equal to `CvxRewardPool` |
+  | `amount`  | -                        |
+
+#### `CvxRewardPool · stake`
+
+Stake `CVX` tokens and receive `CvxRewardPool` tokens in exchange.
+
+- **Contract:** `CvxRewardPool`
+- **Function:** `stake(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+
+#### `CvxRewardPool · getReward`
+
+Claim `CVX` staking rewards.
+
+- **Contract:** `CvxRewardPool`
+- **Function:** `getReward(bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `stake`   | -          |
+
+## Action: `lock`
+
+**Parameters:**
+
+N/A.
+
+### `CVX · approve`
+
+Approve `vlCVX` to spend `CVX` tokens on behalf of the avatar.
+
+- **Contract:** `CVX`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `spender` | equal to `vlCVX` |
+  | `amount`  | -                |
+
+### `vlCVX · lock`
+
+Lock `CVX` tokens and receive `vlCVX` tokens in exchange.
+
+- **Contract:** `vlCVX`
+- **Function:** `lock(address,unit256)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `account` | equal to `AVATAR` |
+  | `amount`  | -                 |
+
+### `vlCVX · processExpiredLocks`
+
+Process expired `CVX` locks.
+
+- **Contract:** `vlCVX`
+- **Function:** `processExpiredLocks(bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `relock`  | -          |
+
+### `vlCVX · getReward`
+
+Claim `CVX` locking rewards.
+
+- **Contract:** `vlCVX`
+- **Function:** `getReward(address,bool)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `account` | equal to `AVATAR` |
+  | `stake`   | -                 |

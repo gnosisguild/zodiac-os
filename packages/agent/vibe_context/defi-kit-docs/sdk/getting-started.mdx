@@ -1,0 +1,57 @@
+# Getting Started
+
+You can choose to use the TypeScript SDK right from your browser or install it as a node module for development in a local development environment.
+
+## Browser Playground
+
+The easiest way to get started with the SDK is to use the [browser playground](/sdk-playground).
+It allows you to interact with the SDK without having to install anything.
+
+Since the playground code is stored in the URL of the page you can save your work as a bookmark and easily share the link to it with others.
+With a single click, you can export your work to cloud-based development environments, such as [CodeSandbox](https://codesandbox.io/) and [StackBlitz](https://stackblitz.com/).
+
+## Local Installation
+
+The SDK is distributed via npm. For adding it to your project, run:
+
+```bash
+npm install --save defi-kit
+```
+
+To install it using yarn, run:
+
+```bash
+yarn add defi-kit
+```
+
+## Import Entrypoints
+
+The package is structured into multiple entrypoints, one for each of the supported blockchains and the base entrypoint.
+
+### `defi-kit/eth`
+
+For Ethereum mainnet, import the `defi-kit/eth` entrypoint:
+
+```typescript
+import { allow, apply } from "defi-kit/eth"
+```
+
+### `defi-kit/gno`
+
+For Gnosis Chain, import the `defi-kit/gno` entrypoint:
+
+```typescript
+import { allow, apply } from "defi-kit/gno"
+```
+
+### `defi-kit`
+
+The base entrypoint offers some generic utilities that are not specific to any blockchain.
+
+```typescript
+import { encodeBytes32String, decodeBytes32String } from "defi-kit"
+
+// Roles are referenced with bytes32 keys.
+// Use these helper functions to derive human-readable role identifiers.
+const roleKey = encodeBytes32String("my-role")
+```

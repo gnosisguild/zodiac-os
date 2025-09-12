@@ -1,0 +1,154 @@
+import { Callout } from "nextra/components"
+
+# Balancer v2 on Gnosis Chain
+
+**Deployments**
+
+| Name             | Address                                                                                                                |
+| :--------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `Vault`          | [0xBA12222222228d8Ba445958a75a0704d566BF2C8](https://gnosisscan.io/address/0xBA12222222228d8Ba445958a75a0704d566BF2C8) |
+| `BalancerMinter` | [0xA8920455934Da4D853faac1f94Fe7bEf72943eF1](https://gnosisscan.io/address/0xA8920455934Da4D853faac1f94Fe7bEf72943eF1) |
+| `BAL`            | [0x7eF541E2a22058048904fE5744f9c7E4C57AF717](https://gnosisscan.io/address/0x7eF541E2a22058048904fE5744f9c7E4C57AF717) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                            |
+| :-------- | :-------------------- | :------------------------------------- |
+| `targets` | _string[] (required)_ | `Pool` name \| `Pool` bpt \| `Pool` id |
+| `tokens`  | _string[] (optional)_ | `Token` symbol \| `Token` address      |
+
+For each Balancer pool we allow specifying the deposit targets using any of the following identifiers:
+
+- BPT symbol (`Pool` name).
+- BPT address (`Pool` bpt).
+- Balancer pool ID (`Pool` id).
+
+<Callout type="info">
+  `TARGET_BPT` below refers to the address of BPT (Balancer Pool Token).
+</Callout>
+<Callout type="info">`TARGET_ID` below refers to the Balancer pool ID.</Callout>
+<Callout type="info">
+  `TARGET_GAUGE` below refers to the `BalancerGaugeDeposit` contract address for
+  the target Balancer pool.
+</Callout>
+
+<Callout type="info">
+  `TOKEN` below refers to the ERC-20 token address of each element given in
+  `tokens`. If `tokens` is not specified then the pool tokens of each `TARGET`
+  are considered.
+</Callout>
+
+#### `TOKEN · approve`
+
+Approve `Vault` to spend `TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `spender` | equal to `Vault` |
+  | `amount`  | -                |
+
+#### `Vault · joinPool`
+
+Deposit `TOKEN` tokens to the corresponding Balancer pool and receive `TARGET_BPT` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `joinPool(bytes32,address,address,(address[],uint256[],bytes,bool))` Ξ _allow sending ETH_
+
+  | Parameter                     | Constraint           |
+  | :---------------------------- | :------------------- |
+  | `poolId`                      | equal to `TARGET_ID` |
+  | `sender`                      | equal to `AVATAR`    |
+  | `recipient`                   | equal to `AVATAR`    |
+  | `request.assets`              | -                    |
+  | `request.maxAmountsIn`        | -                    |
+  | `request.userData`            | -                    |
+  | `request.fromInternalBalance` | -                    |
+
+#### `Vault · exitPool`
+
+Redeem `TARGET_BPT` tokens to the corresponding Balancer pool and receive `TOKEN` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint           |
+  | :-------------------------- | :------------------- |
+  | `poolId`                    | equal to `TARGET_ID` |
+  | `sender`                    | equal to `AVATAR`    |
+  | `recipient`                 | equal to `AVATAR`    |
+  | `request.assets`            | -                    |
+  | `request.minAmountsOut`     | -                    |
+  | `request.userData`          | -                    |
+  | `request.toInternalBalance` | -                    |
+
+## Action: `stake`
+
+**Parameters:**
+
+| Name      | Type                  | Constraint                             |
+| :-------- | :-------------------- | :------------------------------------- |
+| `targets` | _string[] (required)_ | `Pool` name \| `Pool` bpt \| `Pool` id |
+
+For each Balancer pool we allow specifying the stake targets using any of the following identifiers:
+
+- BPT symbol (`Pool` name).
+- BPT address (`Pool` bpt).
+- Balancer pool ID (`Pool` id).
+
+<Callout type="info">
+  `TARGET_BPT` below refers to the address of BPT (Balancer Pool Token).
+</Callout>
+<Callout type="info">`TARGET_ID` below refers to the Balancer pool ID.</Callout>
+<Callout type="info">
+  `TARGET_GAUGE` below refers to the `BalancerGaugeDeposit` contract address for
+  the target Balancer pool.
+</Callout>
+
+#### `TARGET_GAUGE · deposit`
+
+Stake `TARGET_BPT` tokens and receive `TARGET_GAUGE` tokens in exchange.
+
+- **Contract:** `TARGET_GAUGE`
+- **Function:** `deposit(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `value`   | -          |
+
+#### `TARGET_GAUGE · withdraw`
+
+Redeem `TARGET_GAUGE` tokens and receive `TARGET_BPT` tokens in exchange.
+
+- **Contract:** `TARGET_GAUGE`
+- **Function:** `withdraw(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `value`   | -          |
+
+#### `TARGET_GAUGE · claim_rewards`
+
+Claim `Pool` rewards.
+
+- **Contract:** `TARGET_GAUGE`
+- **Function:** `claim_rewards()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `BalancerMinter · mint`
+
+Mint `BAL` rewards for `Pool`.
+
+- **Contract:** `BalancerMinter`
+- **Function:** `mint(address)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `gauge`   | equal to `TARGET_GAUGE` |

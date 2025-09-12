@@ -1,0 +1,73 @@
+# Stader on Ethereum
+
+**Deployments**
+
+| Name                  | Address                                                                                                               |
+| :-------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `StakingPoolManager`  | [0xcf5EA1b38380f6aF39068375516Daf40Ed70D299](https://etherscan.io/address/0xcf5EA1b38380f6aF39068375516Daf40Ed70D299) |
+| `UserWithdrawManager` | [0x9F0491B32DBce587c50c4C43AB303b06478193A7](https://etherscan.io/address/0x9F0491B32DBce587c50c4C43AB303b06478193A7) |
+| `ETHx`                | [0xA35b1B31Ce002FBF2058D22F30f95D405200A15b](https://etherscan.io/address/0xA35b1B31Ce002FBF2058D22F30f95D405200A15b) |
+
+## Action: `deposit`
+
+**Parameters**
+
+N/A.
+
+### `ETHx · approve (spender: UserWithdrawManager)`
+
+Approve `UserWithdrawManager` to spend `ETHx` tokens on behalf of the avatar.
+
+- **Contract:** `ETHx`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                     |
+  | :-------- | :----------------------------- |
+  | `spender` | equal to `UserWithdrawManager` |
+  | `amount`  | -                              |
+
+### `StakingPoolManager · deposit(address)`
+
+Deposit ETH and receive `ETHx` tokens.
+
+- **Contract:** `StakingPoolManager`
+- **Function:** `deposit(address)` Ξ _allow sending ETH_
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `receiver` | equal to `AVATAR` |
+
+### `StakingPoolManager · deposit(address,string)`
+
+Deposit ETH and receive `ETHx` tokens.
+
+- **Contract:** `StakingPoolManager`
+- **Function:** `deposit(address,string)` Ξ _allow sending ETH_
+
+  | Parameter    | Constraint        |
+  | :----------- | :---------------- |
+  | `receiver`   | equal to `AVATAR` |
+  | `referralId` | -                 |
+
+### `UserWithdrawManager · requestWithdraw`
+
+Redeem `ETHx` and receive ETH. The unstaked ETH will not be immediately added to your wallet as there is an unstaking period of 7-10 days subject to entry and exit queues on the Ethereum network.
+
+- **Contract:** `UserWithdrawManager`
+- **Function:** `requestWithdraw(uint256,address)`
+
+  | Parameter    | Constraint        |
+  | :----------- | :---------------- |
+  | `ethXAmount` | -                 |
+  | `owner`      | equal to `AVATAR` |
+
+### `UserWithdrawManager · claim`
+
+Claim active unstake request.
+
+- **Contract:** `UserWithdrawManager`
+- **Function:** `claim(uint256)`
+
+  | Parameter   | Constraint |
+  | :---------- | :--------- |
+  | `requestId` | -          |

@@ -1,0 +1,78 @@
+# Rocket Pool on Ethereum
+
+**Deployments**
+
+| Name          | Address                                                                                                               |
+| :------------ | :-------------------------------------------------------------------------------------------------------------------- |
+| `DepositPool` | [0xDD3f50F8A6CafbE9b31a427582963f465E745AF8](https://etherscan.io/address/0xDD3f50F8A6CafbE9b31a427582963f465E745AF8) |
+| `rETH`        | [0xae78736Cd615f374D3085123A210448E74Fc6393](https://etherscan.io/address/0xae78736Cd615f374D3085123A210448E74Fc6393) |
+| `SwapRouter`  | [0x16D5A408e807db8eF7c578279BEeEe6b228f1c1C](https://etherscan.io/address/0x16D5A408e807db8eF7c578279BEeEe6b228f1c1C) |
+
+## Action: `deposit`
+
+**Parameters**
+
+N/A.
+
+### `rETH · approve (spender: SwapRouter)`
+
+Approve `SwapRouter` to spend `rETH` tokens on behalf of the avatar.
+
+- **Contract:** `rETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint            |
+  | :-------- | :-------------------- |
+  | `spender` | equal to `SwapRouter` |
+  | `amount`  | -                     |
+
+### `DepositPool · deposit`
+
+Deposit ETH and receive `rETH` tokens.
+
+- **Contract:** `DepositPool`
+- **Function:** `deposit()` Ξ _allow sending ETH_
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+### `rETH · burn`
+
+Redeem `rETH` and receive ETH tokens.
+
+- **Contract:** `rETH`
+- **Function:** `burn(uint256)`
+
+  | Parameter    | Constraint |
+  | :----------- | :--------- |
+  | `rethAmount` | -          |
+
+### `SwapRouter · swapTo`
+
+When there is not enough `rETH` in the `DepositPool` in exchange for the ETH you are depositing, the `SwapRouter` swaps the ETH for `rETH` in secondary markets (Balancer and Uniswap).
+
+- **Contract:** `SwapRouter`
+- **Function:** `swapTo(uint256,uint256,uint256,uint256)` Ξ _allow sending ETH_
+
+  | Parameter         | Constraint |
+  | :---------------- | :--------- |
+  | `uniswapPortion`  | -          |
+  | `balancerPortion` | -          |
+  | `minTokensOut`    | -          |
+  | `idealTokensOut`  | -          |
+
+### `SwapRouter · swapFrom`
+
+When there is not enough ETH in the `DepositPool` in exchange for the `rETH` you are redeeming, the `SwapRouter` swaps the `rETH`for ETH in secondary markets (Balancer and Uniswap).
+
+- **Contract:** `SwapRouter`
+- **Function:** `swapFrom(uint256,uint256,uint256,uint256,uint256)`
+
+  | Parameter         | Constraint |
+  | :---------------- | :--------- |
+  | `uniswapPortion`  | -          |
+  | `balancerPortion` | -          |
+  | `minTokensOut`    | -          |
+  | `idealTokensOut`  | -          |
+  | `tokensIn`        | -          |

@@ -1,0 +1,29 @@
+# Getting Started
+
+The REST API is completely public, meaning you don't need an API key or send any authentication headers with requests.
+
+## Public Instance
+
+We host a public instance of the API that is free to use without any limits:
+
+[`https://kit.karpatkey.com/api/v1`](/api-v1)
+
+Explore all available API endpoints on the OpenAPI (Swagger) docs page:
+
+[`https://kit.karpatkey.com/api-docs`](/api-docs)
+
+## Make Requests
+
+All endpoints are accessible via HTTP GET requests. You can make requests right from your browser or use any HTTP client of your choice.
+
+**Example request:**
+
+[https://kit.karpatkey.com/api/v1/eth:0x6b175474e89094c44da98b954eedeac495271d0f/manager/allow/curve/deposit?targets=DAI/USDC/USDT](/api/v1/eth:0x6b175474e89094c44da98b954eedeac495271d0f/manager/allow/curve/deposit?targets=DAI/USDC/USDT)
+
+Same request in curl:
+
+```bash
+curl -X 'GET' \
+  'https://kit.karpatkey.com/api/v1/eth:0x6b175474e89094c44da98b954eedeac495271d0f/manager/allow/curve/deposit?targets=DAI/USDC/USDT' \
+  -H 'accept: application/json'
+```

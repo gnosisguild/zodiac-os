@@ -1,0 +1,49 @@
+{
+  "name": "@zodiac/agent",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": false,
+  "packageManager": "pnpm@10.15.1",
+  "scripts": {
+    "test": "vitest",
+    "lint": "eslint . --max-warnings=0",
+    "check-types": "tsc"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "require": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "@epic-web/invariant": "1.0.0",
+    "@zodiac/chains": "workspace:*",
+    "@zodiac/env": "workspace:*",
+    "@zodiac/schema": "workspace:*",
+    "axios": "^1.6.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^3.3.1",
+    "unist-util-visit": "^5.0.0",
+    "viem": "2.37.5",
+    "zod": "4.1.8"
+  },
+  "devDependencies": {
+    "@types/node": "22.14.1",
+    "@zodiac/eslint-config": "workspace:*",
+    "@zodiac/typescript-config": "workspace:*",
+    "eslint": "9.35.0",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}

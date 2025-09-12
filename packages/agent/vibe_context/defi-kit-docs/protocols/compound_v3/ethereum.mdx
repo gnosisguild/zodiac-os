@@ -1,0 +1,186 @@
+import { Callout } from "nextra/components"
+
+# Compound v3 on Ethereum
+
+**Deployments**
+
+| Name        | Address                                                                                                               |
+| :---------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `cUSDCv3`   | [0xc3d688B66703497DAA19211EEdff47f25384cdc3](https://etherscan.io/address/0xc3d688B66703497DAA19211EEdff47f25384cdc3) |
+| `cWETHv3`   | [0xA17581A9E3356d9A858b789D68B4d866e593aE94](https://etherscan.io/address/0xA17581A9E3356d9A858b789D68B4d866e593aE94) |
+| `cUSDTv3`   | [0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840](https://etherscan.io/address/0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840) |
+| `cWstETHv3` | [0x3D0bb1ccaB520A66e607822fC55BC921738fAFE3](https://etherscan.io/address/0x3D0bb1ccaB520A66e607822fC55BC921738fAFE3) |
+| `cUSDSv3`   | [0x5d409e56d886231adaf00c8775665ad0f9897b56](https://etherscan.io/address/0x5d409e56d886231adaf00c8775665ad0f9897b56) |
+| `cWBTCv3`   | [0xe85Dc543813B8c2CFEaAc371517b925a166a9293](https://etherscan.io/address/0xe85Dc543813B8c2CFEaAc371517b925a166a9293) |
+
+<Callout type="warning">
+  **ETH is not supported directly through DeFi Kit actions**
+
+The permissions listed for the actions do not support the use of ETH. Use `WETH` instead.
+This is why the actions include the permission to wrap ETH into `WETH` and unwrap `WETH` into ETH when needed.
+
+ETH usage in Compound v3 requires the [MainnetBulker](https://etherscan.io/address/0xa397a8C2086C554B531c02E29f3291c9704B00c7),
+which handles ETH by using the `invoke(bytes32[] actions, bytes[] data)` function.
+
+However, this function cannot be included in permission policies at the moment  
+due to a current limitation in the `zodiac-sdk`.
+
+</Callout>
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                          |
+| :-------- | :-------------------- | :----------------------------------- |
+| `targets` | _string[] (required)_ | `Comet` symbols \| `Comet` addresses |
+| `tokens`  | _string[] (optional)_ | `Token` symbols \| `Token` addresses |
+
+<Callout type="info">
+  `TARGET_COMET` below refers to the address of the `Comet`.
+</Callout>
+
+<Callout type="info">
+  `TOKEN` refers to the ERC-20 token address of each element in `tokens`. If
+  `tokens` is not provided, all collateral tokens and the base token of the
+  corresponding `TARGET_COMET` will be considered.
+</Callout>
+
+### `TOKEN · approve`
+
+Approve `TARGET_COMET` to spend `TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `TARGET_COMET` |
+  | `amount`  | -                       |
+
+### If `WETH` is `TOKEN`:
+
+#### `WETH · deposit`
+
+Deposit ETH and receive `WETH` tokens.
+
+- **Contract:** `WETH`
+- **Function:** `deposit()` Ξ _allow sending ETH_
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `WETH · withdraw`
+
+Unwrap `WETH` and receive ETH tokens.
+
+- **Contract:** `WETH`
+- **Function:** `withdraw(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `wad`     | -          |
+
+### `TARGET_COMET · supply`
+
+Deposit `TOKEN` tokens into the corresponding `TARGET_COMET`.
+
+- **Contract:** `TARGET_COMET`
+- **Function:** `supply(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `asset`   | equal to `TOKEN` |
+  | `amount`  | -                |
+
+### `TARGET_COMET · withdraw`
+
+Withdraw `TOKEN` tokens from the corresponding `TARGET_COMET`.
+
+- **Contract:** `TARGET_COMET`
+- **Function:** `withdraw(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `asset`   | equal to `TOKEN` |
+  | `amount`  | -                |
+
+## Action: `borrow`
+
+**Parameters**
+
+| Name      | Type                  | Description                          |
+| :-------- | :-------------------- | :----------------------------------- |
+| `targets` | _string[] (required)_ | `Token` symbols \| `Token` addresses |
+
+<Callout type="info">
+  `TARGET_COMET` below refers to the address of the `Comet`. It is automatically
+  determined based on the base token provided in each element of `targets`.
+</Callout>
+
+<Callout type="info">
+  `TARGET_TOKEN` refers to the ERC-20 address of each token in `targets`.
+  `targets` must be a subset of the base tokens of the available Comets. For
+  example, for `cUSDCv3` the base token is `USDC`.
+</Callout>
+
+### `TARGET_TOKEN · approve`
+
+Approve `TARGET_COMET` to spend `TARGET_TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET_TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `TARGET_COMET` |
+  | `amount`  | -                       |
+
+### If `WETH` is `TARGET_TOKEN`:
+
+#### `WETH · deposit`
+
+Deposit ETH and receive `WETH` tokens.
+
+- **Contract:** `WETH`
+- **Function:** `deposit()` Ξ _allow sending ETH_
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `WETH · withdraw`
+
+Unwrap `WETH` and receive ETH tokens.
+
+- **Contract:** `WETH`
+- **Function:** `withdraw(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `wad`     | -          |
+
+### `TARGET_COMET · supply`
+
+Deposit `TARGET_TOKEN` tokens into the corresponding `TARGET_COMET`.
+
+- **Contract:** `TARGET_COMET`
+- **Function:** `supply(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `asset`   | equal to `TARGET_TOKEN` |
+  | `amount`  | -                       |
+
+### `TARGET_COMET · withdraw`
+
+Withdraw `TARGET_TOKEN` tokens from the corresponding `TARGET_COMET`.
+
+- **Contract:** `TARGET_COMET`
+- **Function:** `withdraw(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `asset`   | equal to `TARGET_TOKEN` |
+  | `amount`  | -                       |

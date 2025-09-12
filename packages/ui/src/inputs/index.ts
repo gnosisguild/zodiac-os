@@ -1,3 +1,4 @@
+export { ChatInput } from './ChatInput'
 export { Checkbox } from './Checkbox'
 export { EmailInput } from './EmailInput'
 export { Input, type ComposableInputProps } from './Input'

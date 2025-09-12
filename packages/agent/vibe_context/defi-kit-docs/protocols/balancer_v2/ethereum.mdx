@@ -1,0 +1,323 @@
+import { Callout } from "nextra/components"
+
+# Balancer v2 on Ethereum
+
+**Deployments**
+
+| Name             | Address                                                                                                               |
+| :--------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `Vault`          | [0xBA12222222228d8Ba445958a75a0704d566BF2C8](https://etherscan.io/address/0xBA12222222228d8Ba445958a75a0704d566BF2C8) |
+| `BalancerMinter` | [0x239e55F427D44C3cc793f49bFB507ebe76638a2b](https://etherscan.io/address/0x239e55F427D44C3cc793f49bFB507ebe76638a2b) |
+| `BAL`            | [0xba100000625a3754423978a60c9317c58a424e3D](https://etherscan.io/address/0xba100000625a3754423978a60c9317c58a424e3D) |
+| `B-80BAL-20WETH` | [0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56](https://etherscan.io/address/0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56) |
+| `veBAL`          | [0xC128a9954e6c874eA3d62ce62B468bA073093F25](https://etherscan.io/address/0xC128a9954e6c874eA3d62ce62B468bA073093F25) |
+| `FeeDistributor` | [0xD3cf852898b21fc233251427c2DC93d3d604F3BB](https://etherscan.io/address/0xD3cf852898b21fc233251427c2DC93d3d604F3BB) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                            |
+| :-------- | :-------------------- | :------------------------------------- |
+| `targets` | _string[] (required)_ | `Pool` name \| `Pool` bpt \| `Pool` id |
+| `tokens`  | _string[] (optional)_ | `Token` symbol \| `Token` address      |
+
+For each Balancer pool we allow specifying the deposit targets using any of the following identifiers:
+
+- BPT symbol (`Pool` name).
+- BPT address (`Pool` bpt).
+- Balancer pool ID (`Pool` id).
+
+<Callout type="info">
+  `TARGET_BPT` below refers to the address of the BPT (Balancer Pool Token).
+</Callout>
+<Callout type="info">`TARGET_ID` below refers to the Balancer pool ID.</Callout>
+<Callout type="info">
+  `TARGET_GAUGE` below refers to the `BalancerGaugeDeposit` contract address for
+  the target Balancer pool.
+</Callout>
+
+<Callout type="info">
+  `TOKEN` below refers to the ERC-20 token address of each element given in
+  `tokens`. If `tokens` is not specified then the pool tokens of each `TARGET`
+  are considered.
+</Callout>
+
+#### `TOKEN · approve`
+
+Approve `Vault` to spend `TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `spender` | equal to `Vault` |
+  | `amount`  | -                |
+
+#### `Vault · joinPool`
+
+Deposit `TOKEN` tokens to the corresponding Balancer pool and receive `TARGET_BPT` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `joinPool(bytes32,address,address,(address[],uint256[],bytes,bool))` Ξ _allow sending ETH_
+
+  | Parameter                     | Constraint           |
+  | :---------------------------- | :------------------- |
+  | `poolId`                      | equal to `TARGET_ID` |
+  | `sender`                      | equal to `AVATAR`    |
+  | `recipient`                   | equal to `AVATAR`    |
+  | `request.assets`              | -                    |
+  | `request.maxAmountsIn`        | -                    |
+  | `request.userData`            | -                    |
+  | `request.fromInternalBalance` | -                    |
+
+#### `Vault · exitPool`
+
+Redeem `TARGET_BPT` tokens to the corresponding Balancer pool and receive `TOKEN` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint           |
+  | :-------------------------- | :------------------- |
+  | `poolId`                    | equal to `TARGET_ID` |
+  | `sender`                    | equal to `AVATAR`    |
+  | `recipient`                 | equal to `AVATAR`    |
+  | `request.assets`            | -                    |
+  | `request.minAmountsOut`     | -                    |
+  | `request.userData`          | -                    |
+  | `request.toInternalBalance` | -                    |
+
+## Action: `stake`
+
+**Parameters:**
+
+| Name      | Type                  | Constraint                             |
+| :-------- | :-------------------- | :------------------------------------- |
+| `targets` | _string[] (required)_ | `Pool` name \| `Pool` bpt \| `Pool` id |
+
+For each Balancer pool we allow specifying the stake targets using any of the following identifiers:
+
+- BPT symbol (`Pool` name).
+- BPT address (`Pool` bpt).
+- Balancer pool ID (`Pool` id).
+
+<Callout type="info">
+  `TARGET_BPT` below refers to the address of BPT (Balancer Pool Token).
+</Callout>
+<Callout type="info">`TARGET_ID` below refers to the Balancer pool ID.</Callout>
+<Callout type="info">
+  `TARGET_GAUGE` below refers to the `BalancerGaugeDeposit` contract address for
+  the target Balancer pool.
+</Callout>
+
+#### `TARGET_GAUGE · deposit`
+
+Stake `TARGET_BPT` tokens and receive `TARGET_GAUGE` tokens in exchange.
+
+- **Contract:** `TARGET_GAUGE`
+- **Function:** `deposit(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `value`   | -          |
+
+#### `TARGET_GAUGE · withdraw`
+
+Redeem `TARGET_GAUGE` tokens and receive `TARGET_BPT` tokens in exchange.
+
+- **Contract:** `TARGET_GAUGE`
+- **Function:** `withdraw(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `value`   | -          |
+
+#### `TARGET_GAUGE · claim_rewards`
+
+Claim `Pool` rewards.
+
+- **Contract:** `TARGET_GAUGE`
+- **Function:** `claim_rewards()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+#### `BalancerMinter · mint`
+
+Mint `BAL` rewards for `Pool`.
+
+- **Contract:** `BalancerMinter`
+- **Function:** `mint(address)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `gauge`   | equal to `TARGET_GAUGE` |
+
+## Action: `lock`
+
+**Parameters:**
+
+N/A.
+
+<Callout type="info">
+  `B_80BAL_20WETH_PID` below refers to the Balancer `80BAL-20WETH` pool ID
+  ("0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014").
+</Callout>
+
+<Callout type="info">
+  `TOKEN` below refers to the Balancer `80BAL-20WETH` pool underlying token
+  addresses (`BAL` and `WETH`).
+</Callout>
+
+### `BAL · approve`
+
+Approve `Vault` to spend `BAL` tokens on behalf of the avatar.
+
+- **Contract:** `BAL`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `spender` | equal to `Vault` |
+  | `amount`  | -                |
+
+### `WETH · approve`
+
+Approve `Vault` to spend `WETH` tokens on behalf of the avatar.
+
+- **Contract:** `WETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `spender` | equal to `Vault` |
+  | `amount`  | -                |
+
+### `B-80BAL-20WETH · approve`
+
+Approve `veBAL` to spend `B-80BAL-20WETH` tokens on behalf of the avatar.
+
+- **Contract:** `B-80BAL-20WETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint       |
+  | :-------- | :--------------- |
+  | `spender` | equal to `veBAL` |
+  | `amount`  | -                |
+
+### `Vault · joinPool`
+
+Deposit `TOKEN` tokens to the corresponding Balancer pool and receive `B-80BAL-20WETH` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `joinPool(bytes32,address,address,(address[],uint256[],bytes,bool))` Ξ _allow sending ETH_
+
+  | Parameter                     | Constraint                    |
+  | :---------------------------- | :---------------------------- |
+  | `poolId`                      | equal to `B_80BAL_20WETH_PID` |
+  | `sender`                      | equal to `AVATAR`             |
+  | `recipient`                   | equal to `AVATAR`             |
+  | `request.assets`              | -                             |
+  | `request.maxAmountsIn`        | -                             |
+  | `request.userData`            | -                             |
+  | `request.fromInternalBalance` | -                             |
+
+### `Vault · exitPool`
+
+Redeem `B-80BAL-20WETH` tokens to the corresponding Balancer pool and receive `TOKEN` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint                    |
+  | :-------------------------- | :---------------------------- |
+  | `poolId`                    | equal to `B_80BAL_20WETH_PID` |
+  | `sender`                    | equal to `AVATAR`             |
+  | `recipient`                 | equal to `AVATAR`             |
+  | `request.assets`            | -                             |
+  | `request.minAmountsOut`     | -                             |
+  | `request.userData`          | -                             |
+  | `request.toInternalBalance` | -                             |
+
+### `B-80BAL-20WETH · increaseApproval`
+Increase the allowance of `B-80BAL-20WETH` tokens for `veBAL` as the spender.
+
+- **Contract:** `B-80BAL-20WETH`
+- **Function:** `increaseApproval(address,uint256)`
+
+  | Parameter | Constraint                    |
+  | :-------- | :---------------------------- |
+  | `spender` | equal to `veBAL`              |
+  | `amount`  | -                             |
+
+### `B-80BAL-20WETH · decreaseApproval`
+Decrease the allowance of `B-80BAL-20WETH` tokens for `veBAL` as the spender.
+
+- **Contract:** `B-80BAL-20WETH`
+- **Function:** `decreaseApproval(address,uint256)`
+
+  | Parameter | Constraint                    |
+  | :-------- | :---------------------------- |
+  | `spender` | equal to `veBAL`              |
+  | `amount`  | -                             |
+
+### `veBAL · create_lock`
+
+Lock `B-80BAL-20WETH` tokens for a given period of time and receive `veBAL` tokens in exchange.
+
+- **Contract:** `veBAL`
+- **Function:** `create_lock(uint256,uint256)`
+
+  | Parameter     | Constraint |
+  | :------------ | :--------- |
+  | `value`       | -          |
+  | `unlock_time` | -          |
+
+### `veBAL · increase_amount`
+
+Increase the amount of `B-80BAL-20WETH` tokens locked and receive `veBAL` tokens in exchange.
+
+- **Contract:** `veBAL`
+- **Function:** `increase_amount(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `value`   | -          |
+
+### `veBAL · increase_unlock_time`
+
+Increase the time to unlock the `B-80BAL-20WETH` tokens.
+
+- **Contract:** `veBAL`
+- **Function:** `increase_unlock_time(uint256)`
+
+  | Parameter     | Constraint |
+  | :------------ | :--------- |
+  | `unlock_time` | -          |
+
+### `FeeDistributor · claimToken`
+
+Claim a specific reward token from `veBAL` incentives.
+
+- **Contract:** `FeeDistributor`
+- **Function:** `claimToken(address,address)`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `user`    | equal to `AVATAR` |
+  | `token`   | -                 |
+
+### `FeeDistributor · claimTokens`
+
+Claim all reward tokens from `veBAL` incentives.
+
+- **Contract:** `FeeDistributor`
+- **Function:** `claimTokens(address,address[])`
+
+  | Parameter | Constraint        |
+  | :-------- | :---------------- |
+  | `user`    | equal to `AVATAR` |
+  | `token`   | -                 |

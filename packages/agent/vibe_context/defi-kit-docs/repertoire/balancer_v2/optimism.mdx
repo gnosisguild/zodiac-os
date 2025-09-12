@@ -1,0 +1,235 @@
+import { Callout } from "nextra/components"
+
+# Balancer v2 Repertoire on Optimism
+
+**Deployments**
+
+| Name    | Address                                                                                                                          |
+| :------ | :------------------------------------------------------------------------------------------------------------------------------- |
+| `Vault` | [0xBA12222222228d8Ba445958a75a0704d566BF2C8](https://optimistic.etherscan.io/address/0xBA12222222228d8Ba445958a75a0704d566BF2C8) |
+
+## Action: `withdraw_proportional`
+
+**Parameters**
+
+| Name  | Type                | Description   |
+| :---- | :------------------ | :------------ |
+| `bpt` | _string (required)_ | `Address` bpt |
+
+Withdraw funds from the Balancer pool, receiving all assets proportionally.
+
+### Permissions:
+
+<Callout type="info">
+  `BPT` below refers to the address of the BPT (Balancer Pool Token).
+</Callout>
+<Callout type="info">
+  `TOKEN` below refers to the ERC-20 token address of the corresponding pool.
+</Callout>
+<Callout type="info">`PID` below refers to the Balancer pool ID.</Callout>
+
+#### `Vault · exitPool`
+
+Redeem `BPT` tokens from the corresponding Balancer pool and receive proportional amounts of `TOKEN` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint                      |
+  | :-------------------------- | :------------------------------ |
+  | `poolId`                    | equal to `PID`                  |
+  | `sender`                    | equal to `AVATAR`               |
+  | `recipient`                 | equal to `AVATAR`               |
+  | `request.assets`            | -                               |
+  | `request.minAmountsOut`     | -                               |
+  | `request.userData`          | See the note below for details. |
+  | `request.toInternalBalance` | -                               |
+
+<Callout type="info">
+  **Note on `userData`:**  
+  - `userData` is a **bytes-like** parameter that must be **ABI-encoded**.  
+  - Scoping details:  
+    - For `ComposableStable` Pools: `userData` is scoped as **[2]**, encoded as **["uint256"]**.  
+    - For all other pool types: `userData` is scoped as **[1]**, encoded as **["uint256"]**.
+</Callout>
+<Callout type="info">
+ **Additional Resources:** 
+  - [Balancer subgraphs](https://docs.balancer.fi/reference/subgraph/) for obtaining `PoolType`.  
+  - [Balancer documentation](https://docs.balancer.fi/reference/joins-and-exits/pool-exits.html#userdata) for `userData` structure.  
+</Callout>
+
+## Action: `withdraw_single_token`
+
+**Parameters**
+
+| Name               | Type                | Description                |
+| :----------------- | :------------------ | :------------------------- |
+| `bpt`              | _string (required)_ | `Address` bpt              |
+| `exitTokenAddress` | _string (required)_ | `Address` exitTokenAddress |
+
+Withdraw funds from the Balancer pool, receiving a single asset specified by the `exitTokenAddress`.
+
+### Permissions:
+
+<Callout type="info">
+  `BPT` below refers to the address of the BPT (Balancer Pool Token).
+</Callout>
+<Callout type="info">`PID` below refers to the Balancer pool ID.</Callout>
+
+#### `Vault · exitPool`
+
+Redeem `BPT` tokens from the corresponding Balancer pool and receive `exitTokenAddress` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint                      |
+  | :-------------------------- | :------------------------------ |
+  | `poolId`                    | equal to `PID`                  |
+  | `sender`                    | equal to `AVATAR`               |
+  | `recipient`                 | equal to `AVATAR`               |
+  | `request.assets`            | -                               |
+  | `request.minAmountsOut`     | -                               |
+  | `request.userData`          | See the note below for details. |
+  | `request.toInternalBalance` | -                               |
+
+<Callout type="info">
+  **Note on `userData`:**  
+  - `userData` is a **bytes-like** parameter that must be **ABI-encoded**.  
+  - Scoping details:  
+    - For all pool types, `userData` is scoped as `[0, undefined, exitTokenIndex]`, encoded as `["uint256", "uint256", "uint256"]`.
+    - Where `exitTokenIndex` is determined by the position of `exitTokenAddress` within the pool's tokens.
+</Callout>
+<Callout type="info">
+ **Additional Resources:** 
+  - [Balancer subgraphs](https://docs.balancer.fi/reference/subgraph/) for obtaining `PoolType`.  
+  - [Balancer documentation](https://docs.balancer.fi/reference/joins-and-exits/pool-exits.html#userdata) for `userData` structure.  
+</Callout>
+
+## Action: `unstake_withdraw_proportional`
+
+**Parameters**
+
+| Name    | Type                | Description     |
+| :------ | :------------------ | :-------------- |
+| `gauge` | _string (required)_ | `Address` gauge |
+
+Unstake from the gauge and withdraw funds from the Balancer pool, receiving all assets proportionally.
+
+### Permissions:
+
+<Callout type="info">
+  `BPT` below refers to the address of the BPT (Balancer Pool Token).
+</Callout>
+<Callout type="info">
+  `TOKEN` below refers to the ERC-20 token address of the corresponding pool.
+</Callout>
+<Callout type="info">
+  `GAUGE` below refers to the `BalancerGaugeDeposit` contract address for
+  the target Balancer pool.
+</Callout>
+<Callout type="info">`PID` below refers to the Balancer pool ID.</Callout>
+
+#### `GAUGE · withdraw`
+
+Redeem `GAUGE` tokens to receive `BPT` tokens in exchange.
+
+- **Contract:** `GAUGE`
+- **Function:** `withdraw(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `value`   | -          |
+
+#### `Vault · exitPool`
+
+Redeem `BPT` tokens from the corresponding Balancer pool and receive proportional amounts of `TOKEN` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint                      |
+  | :-------------------------- | :------------------------------ |
+  | `poolId`                    | equal to `PID`                  |
+  | `sender`                    | equal to `AVATAR`               |
+  | `recipient`                 | equal to `AVATAR`               |
+  | `request.assets`            | -                               |
+  | `request.minAmountsOut`     | -                               |
+  | `request.userData`          | See the note below for details. |
+  | `request.toInternalBalance` | -                               |
+
+<Callout type="info">
+  **Note on `userData`:**  
+  - `userData` is a **bytes-like** parameter that must be **ABI-encoded**.  
+  - Scoping details:  
+    - For `ComposableStable` Pools: `userData` is scoped as **[2]**, encoded as **["uint256"]**.  
+    - For all other pool types: `userData` is scoped as **[1]**, encoded as **["uint256"]**.
+</Callout>
+<Callout type="info">
+ **Additional Resources:** 
+  - [Balancer subgraphs](https://docs.balancer.fi/reference/subgraph/) for obtaining `PoolType`.  
+  - [Balancer documentation](https://docs.balancer.fi/reference/joins-and-exits/pool-exits.html#userdata) for `userData` structure.  
+</Callout>
+
+## Action: `unstake_withdraw_single`
+
+**Parameters**
+
+| Name               | Type                | Description                |
+| :----------------- | :------------------ | :------------------------- |
+| `gauge`            | _string (required)_ | `Address` gauge            |
+| `exitTokenAddress` | _string (required)_ | `Address` exitTokenAddress |
+
+Unstake from the gauge, then withdraw funds from the Balancer pool, receiving a single asset specified by the `exitTokenAddress`.
+
+### Permissions:
+
+<Callout type="info">
+  `BPT` below refers to the address of the BPT (Balancer Pool Token).
+</Callout>
+<Callout type="info">
+  `GAUGE` below refers to the `BalancerGaugeDeposit` contract address for
+  the target Balancer pool.
+</Callout>
+<Callout type="info">`PID` below refers to the Balancer pool ID.</Callout>
+
+#### `GAUGE · withdraw`
+
+Redeem `GAUGE` tokens and receive `BPT` tokens in exchange.
+
+- **Contract:** `GAUGE`
+- **Function:** `withdraw(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `value`   | -          |
+
+#### `Vault · exitPool`
+
+Redeem `BPT` tokens from the corresponding Balancer pool and receive `exitTokenAddress` tokens in exchange.
+
+- **Contract:** `Vault`
+- **Function:** `exitPool(bytes32,address,address,(address[],uint256[],bytes,bool))`
+
+  | Parameter                   | Constraint                      |
+  | :-------------------------- | :------------------------------ |
+  | `poolId`                    | equal to `PID`                  |
+  | `sender`                    | equal to `AVATAR`               |
+  | `recipient`                 | equal to `AVATAR`               |
+  | `request.assets`            | -                               |
+  | `request.minAmountsOut`     | -                               |
+  | `request.userData`          | See the note below for details. |
+  | `request.toInternalBalance` | -                               |
+
+<Callout type="info">
+  **Note on `userData`:**  
+  - `userData` is a **bytes-like** parameter that must be **ABI-encoded**.  
+  - Scoping details:  
+    - For all pool types, `userData` is scoped as `[0, undefined, exitTokenIndex]`, encoded as `["uint256", "uint256", "uint256"]`.
+    - Where `exitTokenIndex` is determined by the position of `exitTokenAddress` within the pool's tokens.
+</Callout>
+<Callout type="info">
+ **Additional Resources:** 
+  - [Balancer subgraphs](https://docs.balancer.fi/reference/subgraph/) for obtaining `PoolType`.  
+  - [Balancer documentation](https://docs.balancer.fi/reference/joins-and-exits/pool-exits.html#userdata) for `userData` structure.  
+</Callout>

@@ -32,6 +32,7 @@ import {
   Cog,
   Drama,
   Landmark,
+  MessageCircle,
   Shield,
   Signature,
   User,
@@ -250,6 +251,17 @@ const PageLayout = ({
                       icon={Signature}
                     >
                       Sign a transaction
+                    </Navigation.Link>
+                  </Navigation.Section>
+
+                  <Navigation.Section title="Agent">
+                    <Navigation.Link
+                      to={href('/workspace/:workspaceId/agent', {
+                        workspaceId,
+                      })}
+                      icon={MessageCircle}
+                    >
+                      Chat
                     </Navigation.Link>
                   </Navigation.Section>
 

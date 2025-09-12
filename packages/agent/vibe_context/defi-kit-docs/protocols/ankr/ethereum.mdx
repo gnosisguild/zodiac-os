@@ -1,0 +1,65 @@
+# Ankr on Ethereum
+
+**Deployments**
+
+| Name           | Address                                                                                                               |
+| :------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `ETH2_Staking` | [0x84db6ee82b7cf3b47e8f19270abde5718b936670](https://etherscan.io/address/0x84db6ee82b7cf3b47e8f19270abde5718b936670) |
+| `FlashUnstake` | [0xf047f23ACFdB1315cF63Ad8aB5146d5fDa4267Af](https://etherscan.io/address/0xf047f23ACFdB1315cF63Ad8aB5146d5fDa4267Af) |
+| `ankrETH`      | [0xE95A203B1a91a908F9B9CE46459d101078c2c3cb](https://etherscan.io/address/0xE95A203B1a91a908F9B9CE46459d101078c2c3cb) |
+
+## Action: `deposit`
+
+**Parameters**
+
+N/A.
+
+### `ankrETH · approve (spender: SwapRouter)`
+
+Approve `FlashUnstake` to spend `ankrETH` tokens on behalf of the avatar.
+
+- **Contract:** `ankrETH`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint              |
+  | :-------- | :---------------------- |
+  | `spender` | equal to `FlashUnstake` |
+  | `amount`  | -                       |
+
+### `ETH2_Staking · stakeAndClaimAethC`
+
+Deposit ETH and receive `ankrETH` tokens in exchange.
+
+- **Contract:** `ETH2_Staking`
+- **Function:** `stakeAndClaimAethC()` Ξ _allow sending ETH_
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+### `ETH2_Staking · unstakeAETH`
+
+The `ankrETH` tokens are burnt. Then once per day the `distributeRewards()` function is called and transfers different amounts of ETH to the users on the Ethereum unstake queue, until it completes the total unstaked amount of each (within the 6 day window).
+
+- **Contract:** `ETH2_Staking`
+- **Function:** `unstakeAETH(uint256)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `shares`  | -          |
+
+### `FlashUnstake · swapEth`
+
+Flash unstake uses a pool to swap your Liquid Staking tokens for your original assets, which means instant release of your funds.
+While it offers instant release of your funds, it poses a few limitations:
+
+1. You have to pay a technical service fee for a flash unstake - 0.5% of the unstaked amount.
+1. Your unstake is limited by the current capacity of the flash-unstake pool. If you exceed it, the interface switches to the standard unstake with its regular release time.
+
+- **Contract:** `FlashUnstake`
+- **Function:** `swapEth(uint256,address)`
+
+  | Parameter  | Constraint        |
+  | :--------- | :---------------- |
+  | `amountIn` | -                 |
+  | `receiver` | equal to `AVATAR` |

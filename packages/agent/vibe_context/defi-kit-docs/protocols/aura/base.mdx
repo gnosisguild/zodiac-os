@@ -1,0 +1,130 @@
+import { Callout } from "nextra/components"
+
+# Aura on Base
+
+**Deployments**
+
+| Name                       | Address                                                                                                               |
+| :------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `Booster`                  | [0x98Ef32edd24e2c92525E59afc4475C1242a30184](https://basescan.org/address/0x98Ef32edd24e2c92525E59afc4475C1242a30184) |
+| `RewardPoolDepositWrapper` | [0xa9952C914D86f896c53Bf17125c4104Cc058008E](https://basescan.org/address/0xa9952C914D86f896c53Bf17125c4104Cc058008E) |
+
+## Action: `deposit`
+
+**Parameters**
+
+| Name      | Type                  | Description                            |
+| :-------- | :-------------------- | :------------------------------------- |
+| `targets` | _string[] (required)_ | `Pool` name \| `Pool` bpt \| `Pool` id |
+| `tokens`  | _string[] (optional)_ | `Token` symbol \| `Token` address      |
+
+Each Aura pool is connected to exactly one Balancer Pool token (BPT) and we allow specifying the deposit targets using any of the following identifiers:
+
+- BPT symbol (`Pool` name).
+- BPT address (`Pool` bpt).
+- Aura pool ID (`Pool` id).
+
+<Callout type="info">
+  `TARGET_BPT` below refers to the address of Aura pool's BPT.
+</Callout>
+<Callout type="info">`TARGET_ID` below refers to the Aura pool ID.</Callout>
+<Callout type="info">
+  `TARGET_REWARDER` below refers to the `auraBaseRewardPool` contract address
+  for the target Aura pool.
+</Callout>
+
+<Callout type="info">
+  `TOKEN` below refers to the ERC-20 token address of each element given in
+  `tokens`. If `tokens` is not specified then the pool tokens of each `TARGET`
+  are considered.
+</Callout>
+
+### `TARGET_BPT · approve`
+
+Approve `Booster` to spend `TARGET_BPT` tokens on behalf of the avatar.
+
+- **Contract:** `TARGET_BPT`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint         |
+  | :-------- | :----------------- |
+  | `spender` | equal to `Booster` |
+  | `amount`  | -                  |
+
+### `TOKEN · approve`
+
+Approve `RewardPoolDepositWrapper` to spend `TOKEN` tokens on behalf of the avatar.
+
+- **Contract:** `TOKEN`
+- **Function:** `approve(address,uint256)`
+
+  | Parameter | Constraint                          |
+  | :-------- | :---------------------------------- |
+  | `spender` | equal to `RewardPoolDepositWrapper` |
+  | `amount`  | -                                   |
+
+### `Booster · deposit`
+
+Deposit `TARGET_BPT` tokens to the corresponding Aura pool and receive `TARGET_REWARDER` tokens in exchange.
+
+- **Contract:** `Booster`
+- **Function:** `deposit(uint256,uint256,bool)`
+
+  | Parameter | Constraint           |
+  | :-------- | :------------------- |
+  | `pid`     | equal to `TARGET_ID` |
+  | `amount`  | -                    |
+  | `stake`   | -                    |
+
+### `RewardPoolDepositWrapper · depositSingle`
+
+Deposit `TOKEN` tokens to the corresponding Aura pool and receive `TARGET_REWARDER` tokens in exchange.
+
+- **Contract:** `RewardPoolDepositWrapper`
+- **Function:** `depositSingle(address,address,uint256,bytes32,(address[],uint256[],bytes,bool))`
+
+  | Parameter                     | Constraint                 |
+  | :---------------------------- | :------------------------- |
+  | `rewardPoolAddress`           | equal to `TARGET_REWARDER` |
+  | `inputToken`                  | equal to `TOKEN`           |
+  | `inputAmount`                 | -                          |
+  | `balancerPoolId`              | equal to `balancerPoolId`  |
+  | `request.assets`              | -                          |
+  | `request.maxAmountsIn`        | -                          |
+  | `request.userData`            | -                          |
+  | `request.fromInternalBalance` | -                          |
+
+### `TARGET_REWARDER · withdrawAndUnwrap`
+
+Redeem `TARGET_REWARDER` tokens and withdraw and unwrap `TARGET_BPT` tokens.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `withdrawAndUnwrap(uint256,bool)`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | `amount`  | -          |
+  | `claim`   | -          |
+
+### `TARGET_REWARDER · getReward`
+
+Claim `Pool` rewards.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `getReward()`
+
+  | Parameter | Constraint |
+  | :-------- | :--------- |
+  | N/A       | N/A        |
+
+### `TARGET_REWARDER · getReward(address,bool)`
+
+Claim `Pool` rewards of a specific account.
+
+- **Contract:** `TARGET_REWARDER`
+- **Function:** `getReward(address,bool)`
+
+  | Parameter     | Constraint        |
+  | :------------ | :---------------- |
+  | `account`     | equal to `AVATAR` |
+  | `claimExtras` | -                 |

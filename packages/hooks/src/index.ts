@@ -1,3 +1,5 @@
 export { useAfterSubmit } from './useAfterSubmit'
+export { useAnimatedText } from './useAnimatedText'
+export { useAutoScroll } from './useAutoScroll'
 export { useIsPending } from './useIsPending'
 export { useStableHandler } from './useStableHandler'
