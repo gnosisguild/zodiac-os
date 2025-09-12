@@ -49,7 +49,7 @@ describe('Managed roles', () => {
   beforeEach(() => {
     mockPlanRoleUpdate.mockResolvedValue({
       issues: [],
-      slices: [],
+      slices: new Map(),
     })
 
     vi.setSystemTime(new Date())
@@ -64,12 +64,23 @@ describe('Managed roles', () => {
 
       mockPlanRoleUpdate.mockResolvedValue({
         issues: [],
-        slices: [
-          {
-            from: randomAddress(),
-            steps: [{ account: createMockSafeAccount(), steps: [] }],
-          },
-        ],
+        slices: new Map([
+          [
+            Chain.ETH,
+            [
+              {
+                from: randomAddress(),
+                accountBuilderResult: [
+                  {
+                    account: createMockSafeAccount(),
+                    steps: [],
+                    from: undefined,
+                  },
+                ],
+              },
+            ],
+          ],
+        ]),
       })
 
       await render(
@@ -103,12 +114,12 @@ describe('Managed roles', () => {
 
       const slice = {
         from: randomAddress(),
-        steps: [createMockStepsByAccount()],
+        accountBuilderResult: [createMockStepsByAccount()],
       }
 
       mockPlanRoleUpdate.mockResolvedValue({
         issues: [],
-        slices: [slice],
+        slices: new Map([[Chain.ETH, [slice]]]),
       })
 
       await render(
@@ -130,7 +141,8 @@ describe('Managed roles', () => {
       expect(slices).toMatchObject([
         {
           index: 0,
-          ...slice,
+          from: slice.from,
+          steps: slice.accountBuilderResult,
         },
       ])
     })
@@ -146,7 +158,7 @@ describe('Managed roles', () => {
 
           mockPlanRoleUpdate.mockResolvedValue({
             issues: [RoleDeploymentIssue.MissingDefaultWallet],
-            slices: [],
+            slices: new Map(),
           })
 
           await render(
@@ -180,7 +192,7 @@ describe('Managed roles', () => {
 
         mockPlanRoleUpdate.mockResolvedValue({
           issues: [RoleDeploymentIssue.MissingDefaultWallet],
-          slices: [],
+          slices: new Map(),
         })
 
         await render(
