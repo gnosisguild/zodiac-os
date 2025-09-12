@@ -6,7 +6,7 @@ import {
   DeploymentTable,
   User,
 } from '@zodiac/db/schema'
-import { eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { DBClient } from '../../dbClient'
 
 export const cancelDeployment = async (
@@ -35,7 +35,12 @@ export const cancelDeployment = async (
     await tx
       .update(DeploymentSliceTable)
       .set({ cancelledAt, cancelledById })
-      .where(eq(DeploymentSliceTable.deploymentId, activeDeployment.id))
+      .where(
+        and(
+          eq(DeploymentSliceTable.deploymentId, activeDeployment.id),
+          isNull(DeploymentSliceTable.completedAt),
+        ),
+      )
 
     return { cancelledAt, cancelledById, completedAt, ...deployment }
   })

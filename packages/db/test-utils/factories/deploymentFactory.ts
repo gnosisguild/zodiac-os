@@ -1,4 +1,3 @@
-import { invariant } from '@epic-web/invariant'
 import { assertDeployment } from '@zodiac/db'
 import {
   Deployment,
@@ -34,43 +33,8 @@ export const deploymentFactory = createFactory<
 
     return deployment
   },
-  createWithoutDb({ completedAt, cancelledAt, cancelledById, ...input }) {
-    if (completedAt != null) {
-      return {
-        id: randomUUID(),
-
-        cancelledAt: null,
-        cancelledById: null,
-        completedAt,
-        createdAt: new Date(),
-        updatedAt: null,
-        issues: [],
-
-        ...input,
-      }
-    }
-
-    if (cancelledAt != null) {
-      invariant(
-        cancelledById != null,
-        'Cancelled deployments must specify who cancelled them',
-      )
-
-      return {
-        id: randomUUID(),
-
-        cancelledAt,
-        cancelledById,
-        completedAt: null,
-        createdAt: new Date(),
-        updatedAt: null,
-        issues: [],
-
-        ...input,
-      }
-    }
-
-    return {
+  createWithoutDb(data) {
+    const deployment = {
       id: randomUUID(),
 
       cancelledAt: null,
@@ -78,8 +42,13 @@ export const deploymentFactory = createFactory<
       completedAt: null,
       createdAt: new Date(),
       updatedAt: null,
+      issues: [],
 
-      ...input,
-    } satisfies Deployment
+      ...data,
+    }
+
+    assertDeployment(deployment)
+
+    return deployment
   },
 })

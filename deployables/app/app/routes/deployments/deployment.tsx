@@ -284,11 +284,7 @@ const Deployment = ({
       ) : (
         <div className="flex flex-col gap-8">
           {slices.map((slice) => (
-            <Slice
-              key={slice.from}
-              slice={slice}
-              deploymentCancelled={cancelledAt != null}
-            />
+            <Slice key={slice.from} slice={slice} />
           ))}
         </div>
       )}

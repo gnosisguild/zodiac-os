@@ -2,6 +2,7 @@ import { jsonParse } from '@zodiac/schema'
 import { UUID } from 'crypto'
 import { StepsByAccount } from '../../../schema'
 import { DBClient } from '../../dbClient'
+import { assertDeploymentSlice } from './assertDeploymentSlice'
 
 export const getDeploymentSlices = async (db: DBClient, deploymentId: UUID) => {
   const slices = await db.query.deploymentSlice.findMany({
@@ -13,10 +14,12 @@ export const getDeploymentSlices = async (db: DBClient, deploymentId: UUID) => {
     },
   })
 
-  return slices.map(({ steps, ...slice }) => {
+  return slices.map((slice) => {
+    assertDeploymentSlice(slice)
+
     return {
       ...slice,
-      steps: jsonParse<StepsByAccount[]>(steps),
+      steps: jsonParse<StepsByAccount[]>(slice.steps),
     }
   })
 }

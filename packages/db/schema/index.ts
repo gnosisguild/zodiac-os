@@ -798,6 +798,26 @@ const deploymentReference = {
 export type BaseDeployment = typeof DeploymentTable.$inferSelect
 export type DeploymentCreateInput = typeof DeploymentTable.$inferInsert
 
+export type ActiveDeployment = NullProperties<
+  BaseDeployment,
+  'cancelledAt' | 'cancelledById' | 'completedAt'
+>
+
+export type CompletedDeployment = NonNullableProperties<
+  NullProperties<BaseDeployment, 'cancelledAt' | 'cancelledById'>,
+  'completedAt'
+>
+
+export type CancelledDeployment = NonNullableProperties<
+  NullProperties<BaseDeployment, 'completedAt'>,
+  'cancelledAt' | 'cancelledById'
+>
+
+export type Deployment =
+  | ActiveDeployment
+  | CompletedDeployment
+  | CancelledDeployment
+
 export enum RoleDeploymentIssue {
   NoActiveAccounts = 'NoActiveAccounts',
   NoActiveMembers = 'NoActiveMembers',
@@ -822,26 +842,6 @@ export const RoleDeploymentTable = pgTable(
 
 export type RoleDeployment = typeof RoleDeploymentTable.$inferSelect
 export type RoleDeploymentCreateInput = typeof RoleDeploymentTable.$inferInsert
-
-export type ActiveDeployment = NullProperties<
-  BaseDeployment,
-  'cancelledAt' | 'cancelledById' | 'completedAt'
->
-
-export type CompletedDeployment = NonNullableProperties<
-  NullProperties<BaseDeployment, 'cancelledAt' | 'cancelledById'>,
-  'completedAt'
->
-
-export type CancelledDeployment = NonNullableProperties<
-  NullProperties<BaseDeployment, 'completedAt'>,
-  'cancelledAt' | 'cancelledById'
->
-
-export type Deployment =
-  | ActiveDeployment
-  | CompletedDeployment
-  | CancelledDeployment
 
 export type StepsByAccount = {
   /** The account that is being created/updated by the steps */
@@ -903,9 +903,33 @@ export const DeploymentSliceTable = pgTable(
   ],
 )
 
-export type DeploymentSlice = typeof DeploymentSliceTable.$inferSelect
+export type BaseDeploymentSlice = typeof DeploymentSliceTable.$inferSelect
 export type DeploymentSliceCreateInput =
   typeof DeploymentSliceTable.$inferInsert
+
+export type ActiveDeploymentSlice = NullProperties<
+  BaseDeploymentSlice,
+  | 'cancelledAt'
+  | 'cancelledById'
+  | 'completedAt'
+  | 'transactionHash'
+  | 'signedTransactionId'
+>
+
+export type CompletedDeploymentSlice = NonNullableProperties<
+  NullProperties<BaseDeploymentSlice, 'cancelledAt' | 'cancelledById'>,
+  'completedAt' | 'transactionHash' | 'signedTransactionId'
+>
+
+export type CancelledDeploymentSlice = NonNullableProperties<
+  NullProperties<BaseDeploymentSlice, 'completedAt'>,
+  'cancelledAt' | 'cancelledById'
+>
+
+export type DeploymentSlice =
+  | ActiveDeploymentSlice
+  | CompletedDeploymentSlice
+  | CancelledDeploymentSlice
 
 export const schema = {
   tenant: TenantTable,

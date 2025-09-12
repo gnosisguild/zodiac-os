@@ -18,10 +18,9 @@ import { Intent } from './intents'
 
 type SliceProps = {
   slice: DeploymentSlice
-  deploymentCancelled: boolean
 }
 
-export const Slice = ({ slice, deploymentCancelled }: SliceProps) => {
+export const Slice = ({ slice }: SliceProps) => {
   const pending = useIsPending(
     Intent.ExecuteTransaction,
     (data) => data.get('deploymentSliceId') === slice.id,
@@ -61,34 +60,41 @@ export const Slice = ({ slice, deploymentCancelled }: SliceProps) => {
             </TransactionStatus>
           )}
 
-          <InlineForm
-            context={{
-              deploymentSliceId: slice.id,
-              from: prefixAddress(slice.chainId, slice.from),
-            }}
-          >
-            <SecondaryButton
-              submit
-              size="small"
-              disabled={deploymentCancelled || slice.transactionHash != null}
-              intent={Intent.ExecuteTransaction}
-              busy={pending}
-              onClick={(event) => event.stopPropagation()}
-            >
-              Deploy
-            </SecondaryButton>
-          </InlineForm>
+          {slice.cancelledAt == null && slice.completedAt == null && (
+            <>
+              {slice.proposedTransactionId && (
+                <PrimaryLinkButton
+                  size="small"
+                  to={href(
+                    '/workspace/:workspaceId/submit/proposal/:proposalId',
+                    {
+                      workspaceId: slice.workspaceId,
+                      proposalId: slice.proposedTransactionId,
+                    },
+                  )}
+                >
+                  Show transaction
+                </PrimaryLinkButton>
+              )}
 
-          {slice.proposedTransactionId && slice.cancelledAt == null && (
-            <PrimaryLinkButton
-              size="small"
-              to={href('/workspace/:workspaceId/submit/proposal/:proposalId', {
-                workspaceId: slice.workspaceId,
-                proposalId: slice.proposedTransactionId,
-              })}
-            >
-              Show transaction
-            </PrimaryLinkButton>
+              {slice.transactionHash == null && (
+                <InlineForm
+                  context={{
+                    deploymentSliceId: slice.id,
+                    from: prefixAddress(slice.chainId, slice.from),
+                  }}
+                >
+                  <SecondaryButton
+                    submit
+                    size="small"
+                    intent={Intent.ExecuteTransaction}
+                    busy={pending}
+                  >
+                    Deploy
+                  </SecondaryButton>
+                </InlineForm>
+              )}
+            </>
           )}
         </div>
       </div>

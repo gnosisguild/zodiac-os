@@ -1,6 +1,7 @@
 import { authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
 import {
+  assertActiveDeploymentSlice,
   completeDeploymentIfNeeded,
   completeDeploymentSlice,
   dbClient,
@@ -8,7 +9,6 @@ import {
   getDeploymentSlice,
   getProposedTransaction,
   getSignedTransaction,
-  getUser,
 } from '@zodiac/db'
 import { getHexString, getUUID } from '@zodiac/form-data'
 import { isUUID } from '@zodiac/schema'
@@ -44,12 +44,19 @@ export const action = (args: Route.LoaderArgs) =>
         dbClient(),
         proposal.signedTransactionId,
       )
-      const user = await getUser(dbClient(), transaction.userId)
+
+      const deploymentSlice = await getDeploymentSlice(
+        dbClient(),
+        deploymentSliceId,
+      )
+
+      assertActiveDeploymentSlice(deploymentSlice)
 
       await dbClient().transaction(async (tx) => {
-        await completeDeploymentSlice(tx, user, {
-          deploymentSliceId: deploymentSliceId,
+        await completeDeploymentSlice(tx, deploymentSlice, {
+          userId: transaction.userId,
           transactionHash: getHexString(data, 'transactionHash'),
+          signedTransactionId: transaction.id,
         })
 
         await completeDeploymentIfNeeded(tx, deploymentId)
