@@ -145,7 +145,7 @@ export const action = (args: Route.ActionArgs) =>
           })
 
           return redirect(
-            href('/workspace/:workspaceId/role-deployment/:deploymentId', {
+            href('/workspace/:workspaceId/role-deployments/:deploymentId', {
               deploymentId: deployment.id,
               workspaceId: deployment.workspaceId,
             }),
@@ -409,7 +409,7 @@ const PendingDeploymentModal = ({ workspaceId }: { workspaceId: string }) => {
     >
       <Modal.Actions>
         <PrimaryLinkButton
-          to={href('/workspace/:workspaceId/role-deployment/:deploymentId', {
+          to={href('/workspace/:workspaceId/role-deployments/:deploymentId', {
             workspaceId,
             deploymentId: actionData.pendingDeploymentId,
           })}

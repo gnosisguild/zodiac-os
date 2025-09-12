@@ -60,8 +60,8 @@ export const action = (args: Route.LoaderArgs) =>
       return Response.json({
         redirectTo: href(
           roleDeployment != null
-            ? '/workspace/:workspaceId/role-deployment/:deploymentId'
-            : '/workspace/:workspaceId/deployment/:deploymentId',
+            ? '/workspace/:workspaceId/role-deployments/:deploymentId'
+            : '/workspace/:workspaceId/deployments/:deploymentId',
           {
             workspaceId,
             deploymentId,

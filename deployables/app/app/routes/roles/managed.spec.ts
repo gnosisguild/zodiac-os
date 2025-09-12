@@ -88,7 +88,7 @@ describe('Managed roles', () => {
       const [{ deploymentId }] = await getRoleDeployments(dbClient(), role.id)
 
       await expectRouteToBe(
-        href('/workspace/:workspaceId/role-deployment/:deploymentId', {
+        href('/workspace/:workspaceId/role-deployments/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId,
         }),
@@ -236,7 +236,7 @@ describe('Managed roles', () => {
         )
 
         await expectRouteToBe(
-          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployments/:deploymentId', {
             deploymentId: roleDeployment.deploymentId,
             workspaceId: tenant.defaultWorkspaceId,
           }),

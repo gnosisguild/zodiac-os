@@ -132,7 +132,7 @@ describe('Generic Deployment', () => {
           })
 
           await render(
-            href('/workspace/:workspaceId/deployment/:deploymentId', {
+            href('/workspace/:workspaceId/deployments/:deploymentId', {
               workspaceId: tenant.defaultWorkspaceId,
               deploymentId: deployment.id,
             }),
@@ -196,7 +196,7 @@ describe('Generic Deployment', () => {
           )
 
           await render(
-            href('/workspace/:workspaceId/deployment/:deploymentId', {
+            href('/workspace/:workspaceId/deployments/:deploymentId', {
               workspaceId: tenant.defaultWorkspaceId,
               deploymentId: deployment.id,
             }),
@@ -250,7 +250,7 @@ describe('Generic Deployment', () => {
         })
 
         await render(
-          href('/workspace/:workspaceId/deployment/:deploymentId', {
+          href('/workspace/:workspaceId/deployments/:deploymentId', {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
           }),
@@ -271,7 +271,7 @@ describe('Generic Deployment', () => {
 
         expect(transactionProposal).toHaveProperty(
           'callbackUrl',
-          `http://localhost${href('/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback', { workspaceId: tenant.defaultWorkspaceId, deploymentId: deployment.id, deploymentSliceId: step.id })}`,
+          `http://localhost${href('/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback', { workspaceId: tenant.defaultWorkspaceId, deploymentId: deployment.id, deploymentSliceId: step.id })}`,
         )
       })
 
@@ -307,7 +307,7 @@ describe('Generic Deployment', () => {
           })
 
           await render(
-            href('/workspace/:workspaceId/deployment/:deploymentId', {
+            href('/workspace/:workspaceId/deployments/:deploymentId', {
               workspaceId: tenant.defaultWorkspaceId,
               deploymentId: deployment.id,
             }),
@@ -371,7 +371,7 @@ describe('Generic Deployment', () => {
           })
 
           await render(
-            href('/workspace/:workspaceId/deployment/:deploymentId', {
+            href('/workspace/:workspaceId/deployments/:deploymentId', {
               workspaceId: tenant.defaultWorkspaceId,
               deploymentId: deployment.id,
             }),
@@ -401,7 +401,7 @@ describe('Generic Deployment', () => {
       )
 
       await render(
-        href('/workspace/:workspaceId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/deployments/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
         }),
@@ -428,7 +428,7 @@ describe('Generic Deployment', () => {
       await cancelDeployment(dbClient(), user, deployment)
 
       await render(
-        href('/workspace/:workspaceId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/deployments/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
         }),
@@ -462,7 +462,7 @@ describe('Generic Deployment', () => {
       await cancelDeployment(dbClient(), user, deployment)
 
       await render(
-        href('/workspace/:workspaceId/deployment/:deploymentId', {
+        href('/workspace/:workspaceId/deployments/:deploymentId', {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
         }),

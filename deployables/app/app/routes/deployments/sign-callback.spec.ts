@@ -57,7 +57,7 @@ describe('Sign callback', () => {
 
     await post(
       href(
-        '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+        '/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
@@ -102,7 +102,7 @@ describe('Sign callback', () => {
 
     await post(
       href(
-        '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+        '/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
@@ -153,7 +153,7 @@ describe('Sign callback', () => {
 
       await post(
         href(
-          '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+          '/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback',
           {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
@@ -202,7 +202,7 @@ describe('Sign callback', () => {
 
     const response = await post(
       href(
-        '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+        '/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,
@@ -250,7 +250,7 @@ describe('Sign callback', () => {
 
     const response = await post(
       href(
-        '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+        '/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback',
         {
           workspaceId: tenant.defaultWorkspaceId,
           deploymentId: deployment.id,

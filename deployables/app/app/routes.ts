@@ -175,12 +175,20 @@ export default [
         route(
           'deployments/:deploymentId',
           'routes/deployments/generic-deployment.tsx',
-          [index('routes/deployments/deployment.tsx')],
+          [
+            index('routes/deployments/deployment.tsx', {
+              id: 'generic-deployment',
+            }),
+          ],
         ),
         route(
           'role-deployments/:deploymentId',
           'routes/deployments/role-deployment.tsx',
-          [index('routes/deployments/deployment.tsx')],
+          [
+            index('routes/deployments/deployment.tsx', {
+              id: 'role-deployment',
+            }),
+          ],
         ),
 
         ...prefix('roles', [
@@ -277,7 +285,7 @@ export default [
   ]),
 
   route(
-    '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+    '/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback',
     'routes/deployments/sign-callback.ts',
   ),
 

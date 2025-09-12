@@ -126,7 +126,7 @@ export const action = (args: Route.ActionArgs) =>
       const transactionProposal = await dbClient().transaction(async (tx) => {
         const callbackUrl = new URL(
           href(
-            '/workspace/:workspaceId/deployment/:deploymentId/slice/:deploymentSliceId/sign-callback',
+            '/workspace/:workspaceId/deployments/:deploymentId/slice/:deploymentSliceId/sign-callback',
             {
               workspaceId,
               deploymentId,

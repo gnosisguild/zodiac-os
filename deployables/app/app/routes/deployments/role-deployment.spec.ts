@@ -84,7 +84,7 @@ describe('Role Deployment', () => {
         })
 
         await render(
-          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployments/:deploymentId', {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
           }),
@@ -113,7 +113,7 @@ describe('Role Deployment', () => {
         await setRoleMembers(dbClient(), role, [user.id])
 
         await render(
-          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployments/:deploymentId', {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
           }),
@@ -140,7 +140,7 @@ describe('Role Deployment', () => {
         })
 
         await render(
-          href('/workspace/:workspaceId/role-deployment/:deploymentId', {
+          href('/workspace/:workspaceId/role-deployments/:deploymentId', {
             workspaceId: tenant.defaultWorkspaceId,
             deploymentId: deployment.id,
           }),
