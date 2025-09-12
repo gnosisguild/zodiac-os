@@ -8,9 +8,10 @@ import {
   PrimaryLinkButton,
   SecondaryButton,
 } from '@zodiac/ui'
-import { Address, TransactionStatus } from '@zodiac/web3'
+import { TransactionStatus } from '@zodiac/web3'
 import { href } from 'react-router'
 import { prefixAddress } from 'ser-kit'
+import { LabeledAddress } from './AddressLabelContext'
 import { Call } from './Call'
 import { Description } from './FeedEntry'
 import { Intent } from './intents'
@@ -51,7 +52,7 @@ export const Slice = ({ slice, deploymentCancelled }: SliceProps) => {
       ))}
       <Divider />
       <div className="flex flex-1 items-center justify-between gap-8">
-        <Address>{slice.from}</Address>
+        <LabeledAddress>{slice.from}</LabeledAddress>
 
         <div className="flex items-center gap-2">
           {slice.transactionHash != null && (

@@ -5,23 +5,18 @@ import {
   dbClient,
   getActivatedAccounts,
   getDefaultWalletLabels,
-  getDeployment,
-  getDeploymentSlices,
   getRoleActionAssets,
   getRoleDeployment,
   getRoleMembers,
-  getUser,
 } from '@zodiac/db'
 import { Role } from '@zodiac/db/schema'
 import { isUUID } from '@zodiac/schema'
-import { DateValue, Info } from '@zodiac/ui'
 import { ConnectWalletButton } from '@zodiac/web3'
-import { Issues } from '../roles/issues'
+import { Outlet } from 'react-router'
+import { Issues as RoleIssues } from '../roles/issues'
 import { Route } from './+types/role-deployment'
 import { Labels, ProvideAddressLabels } from './AddressLabelContext'
 import { ProvideRoleLabels } from './RoleLabelContext'
-import { Slice } from './Slice'
-import { action as deploymentAction } from './deployment'
 
 const contractLabels: Labels = {
   ['0x23da9ade38e4477b23770ded512fd37b12381fab']: 'Cow Swap',
@@ -59,56 +54,32 @@ export const loader = (args: Route.LoaderArgs) =>
     args,
     async ({ params: { deploymentId } }) => {
       invariantResponse(isUUID(deploymentId), '"deploymentId" is not a UUID')
-
-      const deployment = await getDeployment(dbClient(), deploymentId)
-      const slices = await getDeploymentSlices(dbClient(), deploymentId)
-
       const { role, issues } = await getRoleDeployment(dbClient(), deploymentId)
       const roleAddressLabels = await assembleRoleAddressLabels(role)
 
       return {
-        slices,
+        issues,
         addressLabels: {
           ...roleAddressLabels,
           ...contractLabels,
         },
         roleLabels: { [role.key]: role.label },
-        issues,
-        ...(deployment.cancelledAt == null
-          ? { cancelledAt: null, cancelledBy: null }
-          : {
-              cancelledAt: deployment.cancelledAt,
-              cancelledBy: await getUser(dbClient(), deployment.cancelledById),
-            }),
       }
     },
+    // TODO: not sure if this is really needed, as we have an auth check already on the parent route loader
     {
       ensureSignedIn: true,
       async hasAccess({ params: { workspaceId, deploymentId }, tenant }) {
         invariantResponse(isUUID(deploymentId), '"deploymentId" is no UUID')
+        const { role } = await getRoleDeployment(dbClient(), deploymentId)
 
-        const deployment = await getDeployment(dbClient(), deploymentId)
-
-        return (
-          deployment.tenantId === tenant.id &&
-          deployment.workspaceId === workspaceId
-        )
+        return role.tenantId === tenant.id && role.workspaceId === workspaceId
       },
     },
   )
 
-// the action is the same as for generic deployments, so we can reuse it
-export const action = deploymentAction
-
 const RoleDeployment = ({
-  loaderData: {
-    slices,
-    addressLabels,
-    roleLabels,
-    issues,
-    cancelledAt,
-    cancelledBy,
-  },
+  loaderData: { addressLabels, roleLabels, issues },
 }: Route.ComponentProps) => {
   return (
     <Page>
@@ -123,36 +94,11 @@ const RoleDeployment = ({
       </Page.Header>
 
       <Page.Main>
-        <Issues issues={issues} />
-
-        {cancelledAt != null && (
-          <Info title="Deployment cancelled">
-            {cancelledBy.fullName} cancelled this deployment on{' '}
-            <DateValue>{cancelledAt}</DateValue>
-          </Info>
-        )}
+        <RoleIssues issues={issues} />
 
         <ProvideRoleLabels labels={roleLabels}>
           <ProvideAddressLabels labels={addressLabels}>
-            {slices.length === 0 ? (
-              <Info title="Nothing to deploy">
-                All updates have been applied onchain.
-              </Info>
-            ) : (
-              <div className="flex flex-col gap-8">
-                <Info>
-                  The following changes need to be applied to deploy this role.
-                </Info>
-
-                {slices.map((slice) => (
-                  <Slice
-                    key={slice.from}
-                    slice={slice}
-                    deploymentCancelled={cancelledAt != null}
-                  />
-                ))}
-              </div>
-            )}
+            <Outlet />
           </ProvideAddressLabels>
         </ProvideRoleLabels>
       </Page.Main>

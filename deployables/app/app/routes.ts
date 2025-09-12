@@ -172,12 +172,16 @@ export default [
           route('on-chain', 'routes/roles/on-chain.tsx'),
         ]),
 
-        ...prefix('deployment/:deploymentId', [
-          index('routes/deployments/deployment.tsx'),
-        ]),
-        ...prefix('role-deployment/:deploymentId', [
-          index('routes/deployments/role-deployment.tsx'),
-        ]),
+        route(
+          'deployments/:deploymentId',
+          'routes/deployments/generic-deployment.tsx',
+          [index('routes/deployments/deployment.tsx')],
+        ),
+        route(
+          'role-deployments/:deploymentId',
+          'routes/deployments/role-deployment.tsx',
+          [index('routes/deployments/deployment.tsx')],
+        ),
 
         ...prefix('roles', [
           route('create', 'routes/roles/create.tsx'),

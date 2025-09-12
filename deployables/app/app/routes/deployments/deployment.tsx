@@ -1,24 +1,36 @@
 import { authorizedAction, authorizedLoader } from '@/auth-server'
-import { Page } from '@/components'
 import { invariantResponse } from '@epic-web/invariant'
 import {
   dbClient,
   getAccountByAddress,
+  getDefaultRoute,
   getDeployment,
   getDeploymentSlice,
   getDeploymentSlices,
+  getRoutes,
   getUser,
   proposeTransaction,
   updateDeploymentSlice,
 } from '@zodiac/db'
-import { getPrefixedAddress, getUUID } from '@zodiac/form-data'
+import { getOptionalUUID, getPrefixedAddress, getUUID } from '@zodiac/form-data'
+import { useAfterSubmit } from '@zodiac/hooks'
 import { isUUID } from '@zodiac/schema'
-import { DateValue, Info } from '@zodiac/ui'
-import { ConnectWalletButton } from '@zodiac/web3'
+import {
+  DateValue,
+  Form,
+  Info,
+  Modal,
+  PrimaryButton,
+  PrimaryLinkButton,
+  Select,
+} from '@zodiac/ui'
 import { randomUUID } from 'crypto'
+import { useState } from 'react'
 import { href, redirect } from 'react-router'
+import { prefixAddress } from 'ser-kit'
 import { Route } from './+types/deployment'
 import { Slice } from './Slice'
+import { Intent } from './intents'
 
 export const loader = (args: Route.LoaderArgs) =>
   authorizedLoader(
@@ -72,11 +84,44 @@ export const action = (args: Route.ActionArgs) =>
         tenantId: tenant.id,
         prefixedAddress: getPrefixedAddress(data, 'from'),
       })
-
       const deploymentSlice = await getDeploymentSlice(
         dbClient(),
         getUUID(data, 'deploymentSliceId'),
       )
+
+      const routes = await getRoutes(dbClient(), tenant.id, {
+        accountId: account.id,
+        userId: user.id,
+      })
+
+      if (routes.length === 0) {
+        return {
+          issue: DeployIssue.NoRouteToAccount,
+          accountId: account.id,
+        } as const
+      }
+
+      const selectedRouteId = getOptionalUUID(data, 'route')
+
+      if (routes.length > 1 && selectedRouteId == null) {
+        const defaultRoute = await getDefaultRoute(
+          dbClient(),
+          tenant,
+          user,
+          account.id,
+        )
+
+        return {
+          issue: DeployIssue.MultipleRoutes,
+          routes,
+          defaultRouteId: defaultRoute.routeId,
+
+          context: {
+            roleDeploymentSliceId: deploymentSlice.id,
+            from: prefixAddress(account.chainId, account.address),
+          },
+        } as const
+      }
 
       const transactionProposal = await dbClient().transaction(async (tx) => {
         const callbackUrl = new URL(
@@ -104,6 +149,7 @@ export const action = (args: Route.ActionArgs) =>
           transaction: transactionBundle,
           callbackUrl,
           callbackState: randomUUID(),
+          routeId: selectedRouteId,
         })
 
         await updateDeploymentSlice(tx, deploymentSlice.id, {
@@ -144,48 +190,100 @@ export const action = (args: Route.ActionArgs) =>
   )
 
 const Deployment = ({
-  loaderData: { slices, addressLabels, cancelledAt, cancelledBy },
+  loaderData: { slices, cancelledAt, cancelledBy },
+  actionData,
+  params: { workspaceId },
 }: Route.ComponentProps) => {
+  const [dismissedRouteWarning, setDismissedRouteWarning] = useState(false)
+
+  useAfterSubmit(Intent.ExecuteTransaction, () =>
+    setDismissedRouteWarning(false),
+  )
+
   return (
-    <Page>
-      <Page.Header
-        action={
-          <ConnectWalletButton addressLabels={addressLabels}>
-            Connect signer wallet
-          </ConnectWalletButton>
-        }
-      >
-        Deploy account updates
-      </Page.Header>
+    <>
+      {actionData != null && (
+        <>
+          {actionData.issue === DeployIssue.NoRouteToAccount && (
+            <Modal
+              open={!dismissedRouteWarning}
+              onClose={() => setDismissedRouteWarning(true)}
+              title="Missing route to account"
+              description="You have not set up a route to this account. After you have set up a route for this account you can come back here and continue with this step."
+            >
+              <Modal.Actions>
+                <PrimaryLinkButton
+                  to={href('/workspace/:workspaceId/accounts/:accountId', {
+                    workspaceId,
+                    accountId: actionData.accountId,
+                  })}
+                >
+                  Open account
+                </PrimaryLinkButton>
 
-      <Page.Main>
-        {cancelledAt != null && (
-          <Info title="Deployment cancelled">
-            {cancelledBy.fullName} cancelled this deployment on{' '}
-            <DateValue>{cancelledAt}</DateValue>
-          </Info>
-        )}
+                <Modal.CloseAction>Cancel</Modal.CloseAction>
+              </Modal.Actions>
+            </Modal>
+          )}
 
-        {slices.length === 0 ? (
-          <Info title="Nothing to deploy">
-            All updates have been applied onchain.
-          </Info>
-        ) : (
-          <div className="flex flex-col gap-8">
-            <Info>The following changes are going to be applied.</Info>
+          {actionData.issue === DeployIssue.MultipleRoutes && (
+            <Modal
+              open={!dismissedRouteWarning}
+              onClose={() => setDismissedRouteWarning(true)}
+              title="Multiple routes available"
+              description="Please choose the route you want to use. The default one has been pre-selected."
+            >
+              <Form context={actionData.context}>
+                <Select
+                  name="route"
+                  label="Route"
+                  options={actionData.routes.map((route) => ({
+                    value: route.id,
+                    label: route.label,
+                  }))}
+                  defaultValue={actionData.defaultRouteId}
+                />
+                <Modal.Actions>
+                  <PrimaryButton submit intent={Intent.ExecuteTransaction}>
+                    Use route
+                  </PrimaryButton>
+                  <Modal.CloseAction>Cancel</Modal.CloseAction>
+                </Modal.Actions>
+              </Form>
+            </Modal>
+          )}
+        </>
+      )}
 
-            {slices.map((slice) => (
-              <Slice
-                key={slice.from}
-                slice={slice}
-                deploymentCancelled={cancelledAt != null}
-              />
-            ))}
-          </div>
-        )}
-      </Page.Main>
-    </Page>
+      {cancelledAt != null && (
+        <Info title="Deployment cancelled">
+          {cancelledBy.fullName} cancelled this deployment on{' '}
+          <DateValue>{cancelledAt}</DateValue>
+        </Info>
+      )}
+
+      {slices.length === 0 ? (
+        <Info title="Nothing to deploy">
+          All updates have been applied onchain.
+        </Info>
+      ) : (
+        <div className="flex flex-col gap-8">
+          {slices.map((slice) => (
+            <Slice
+              key={slice.from}
+              slice={slice}
+              deploymentCancelled={cancelledAt != null}
+            />
+          ))}
+        </div>
+      )}
+    </>
   )
 }
 
 export default Deployment
+
+enum DeployIssue {
+  NoRouteToAccount = 'NoRouteToAccount',
+  MultipleRoutes = 'MultipleRoutes',
+}
