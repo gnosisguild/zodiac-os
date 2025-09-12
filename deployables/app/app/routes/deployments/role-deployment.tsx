@@ -66,7 +66,6 @@ export const loader = (args: Route.LoaderArgs) =>
         roleLabels: { [role.key]: role.label },
       }
     },
-    // TODO: not sure if this is really needed, as we have an auth check already on the parent route loader
     {
       ensureSignedIn: true,
       async hasAccess({ params: { workspaceId, deploymentId }, tenant }) {
