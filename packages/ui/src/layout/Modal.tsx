@@ -5,14 +5,14 @@ import {
   useContext,
   type PropsWithChildren,
 } from 'react'
-import { GhostButton } from './buttons'
+import { GhostButton } from '../buttons'
 import {
   Alert,
   AlertActions,
   AlertBody,
   AlertDescription,
   AlertTitle,
-} from './catalyst'
+} from '../catalyst'
 
 type Context = {
   onClose: () => void

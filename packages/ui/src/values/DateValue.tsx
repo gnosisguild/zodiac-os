@@ -1,4 +1,4 @@
-import { Empty } from '../Empty'
+import { Empty } from '../layout'
 
 type DateValueProps = {
   children: Date | number | null | undefined

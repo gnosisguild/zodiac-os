@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Empty } from '../Empty'
+import { Empty } from '../layout'
 import { Popover } from '../overlays'
 import { Delta } from './Delta'
 
