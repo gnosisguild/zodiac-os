@@ -7,7 +7,6 @@ import {
 import { beforeEach, describe, expect, vi } from 'vitest'
 import { dbClient } from '../../dbClient'
 import { assertActiveDeployment } from './assertActiveDeployment'
-import { cancelDeployment } from './cancelDeployment'
 import { completeDeploymentIfNeeded } from './completeDeploymentIfNeeded'
 import { getDeployment } from './getDeployment'
 
@@ -21,26 +20,12 @@ describe('completeDeploymentIfNeeded', () => {
     const tenant = await tenantFactory.create(user)
     const deployment = await deploymentFactory.create(tenant, user)
 
-    await completeDeploymentIfNeeded(dbClient(), deployment.id)
+    assertActiveDeployment(deployment)
+
+    await completeDeploymentIfNeeded(dbClient(), deployment)
 
     await expect(
       getDeployment(dbClient(), deployment.id),
     ).resolves.toHaveProperty('completedAt', new Date())
-  })
-
-  dbIt('does not complete the deployment if it was cancelled', async () => {
-    const user = await userFactory.create()
-    const tenant = await tenantFactory.create(user)
-    const deployment = await deploymentFactory.create(tenant, user)
-
-    assertActiveDeployment(deployment)
-
-    await cancelDeployment(dbClient(), user, deployment)
-
-    await completeDeploymentIfNeeded(dbClient(), deployment.id)
-
-    await expect(
-      getDeployment(dbClient(), deployment.id),
-    ).resolves.toHaveProperty('completedAt', null)
   })
 })

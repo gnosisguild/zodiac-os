@@ -1,11 +1,13 @@
 import { authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
 import {
+  assertActiveDeployment,
   assertActiveDeploymentSlice,
   completeDeploymentIfNeeded,
   completeDeploymentSlice,
   dbClient,
   findRoleDeployment,
+  getDeployment,
   getDeploymentSlice,
   getProposedTransaction,
   getSignedTransaction,
@@ -45,6 +47,10 @@ export const action = (args: Route.LoaderArgs) =>
         proposal.signedTransactionId,
       )
 
+      const deployment = await getDeployment(dbClient(), deploymentId)
+
+      assertActiveDeployment(deployment)
+
       const deploymentSlice = await getDeploymentSlice(
         dbClient(),
         deploymentSliceId,
@@ -59,7 +65,7 @@ export const action = (args: Route.LoaderArgs) =>
           signedTransactionId: transaction.id,
         })
 
-        await completeDeploymentIfNeeded(tx, deploymentId)
+        await completeDeploymentIfNeeded(tx, deployment)
       })
 
       const roleDeployment = await findRoleDeployment(dbClient(), deploymentId)
