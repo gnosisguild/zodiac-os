@@ -16,7 +16,7 @@ export const planRoleUpdate = async (
   const { safes, issues: memberIssues } = await getMemberSafes(role)
   const resolvedSafes = await resolveAccounts({
     updatesOrCreations: safes,
-    accountForSetup,
+    accountForSetup: setupSafes,
   })
 
   const { rolesMods, issues: roleIssues } = await getRolesMods(role, {
