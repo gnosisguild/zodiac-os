@@ -1,5 +1,5 @@
 import { type PropsWithChildren, type Ref } from 'react'
-import { Divider } from './Divider'
+import { Divider } from './layout'
 
 export const Page = ({ children }: PropsWithChildren) => (
   <div className="flex flex-1 flex-col overflow-hidden">{children}</div>

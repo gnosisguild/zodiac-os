@@ -5,7 +5,7 @@ import {
 } from '@headlessui/react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { PropsWithChildren, type ReactNode } from 'react'
-import { GhostButton } from './buttons'
+import { GhostButton } from '../buttons'
 
 type CollapsibleProps = PropsWithChildren<{
   header: ReactNode

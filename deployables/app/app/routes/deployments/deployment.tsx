@@ -9,6 +9,7 @@ import {
   getDeploymentSlices,
   getRoutes,
   getUser,
+  getUsersWithRouteToAccount,
   proposeTransaction,
   updateDeploymentSlice,
 } from '@zodiac/db'
@@ -19,6 +20,8 @@ import {
   DateValue,
   Form,
   Info,
+  List,
+  ListItem,
   Modal,
   PrimaryButton,
   PrimaryLinkButton,
@@ -98,6 +101,10 @@ export const action = (args: Route.ActionArgs) =>
         return {
           issue: DeployIssue.NoRouteToAccount,
           accountId: account.id,
+          usersWhoCanExecute: await getUsersWithRouteToAccount(
+            dbClient(),
+            account.id,
+          ),
         } as const
       }
 
@@ -211,6 +218,14 @@ const Deployment = ({
               title="Missing route to account"
               description="You have not set up a route to this account. After you have set up a route for this account you can come back here and continue with this step."
             >
+              {actionData.usersWhoCanExecute.length > 0 && (
+                <List label="Users who can execute">
+                  {actionData.usersWhoCanExecute.map((user) => (
+                    <ListItem key={user.id}>{user.fullName}</ListItem>
+                  ))}
+                </List>
+              )}
+
               <Modal.Actions>
                 <PrimaryLinkButton
                   to={href('/workspace/:workspaceId/accounts/:accountId', {
