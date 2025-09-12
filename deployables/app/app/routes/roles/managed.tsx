@@ -1,6 +1,5 @@
 import { authorizedAction, authorizedLoader } from '@/auth-server'
 import { invariantResponse } from '@epic-web/invariant'
-import { ZERO_ADDRESS } from '@zodiac/chains'
 import {
   assertActiveRoleDeployment,
   cancelRoleDeployment,
@@ -113,7 +112,7 @@ export const action = (args: Route.ActionArgs) =>
             Array.from(chainIds),
           )
 
-          if (setupSafes.length !== chainIds.size) {
+          if (setupSafes.size !== chainIds.size) {
             return redirect(
               href(
                 '/workspace/:workspaceId/roles/managed/:roleId/create-setup-safes',
@@ -122,13 +121,13 @@ export const action = (args: Route.ActionArgs) =>
             )
           }
 
-          const { slices, issues } = await planRoleUpdate(roleId, ZERO_ADDRESS) // TODO: pass the user's personal safe instead of ZERO_ADDRESS to enable setting up circular account topologies
+          const { slices, issues } = await planRoleUpdate(roleId, setupSafes)
 
           if (issues.length > 0 && intent !== Intent.AcceptWarnings) {
             return { issues, roleId }
           }
 
-          if (slices.length === 0 && intent !== Intent.AcceptWarnings) {
+          if (slices.size === 0 && intent !== Intent.AcceptWarnings) {
             return { emptyDeployment: true }
           }
 
@@ -137,8 +136,13 @@ export const action = (args: Route.ActionArgs) =>
               issues,
             })
 
-            for (const slice of slices) {
-              await createRoleDeploymentSlice(tx, deployment, slice)
+            const allSlices = slices.values().flatMap((value) => value)
+
+            for (const slice of allSlices) {
+              await createRoleDeploymentSlice(tx, deployment, {
+                from: slice.from,
+                steps: slice.accountBuilderResult,
+              })
             }
 
             return deployment

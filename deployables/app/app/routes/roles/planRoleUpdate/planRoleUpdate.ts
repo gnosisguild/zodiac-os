@@ -1,3 +1,4 @@
+import { Chain } from '@zodiac/chains'
 import { dbClient, getRole } from '@zodiac/db'
 import { HexAddress } from '@zodiac/schema'
 import { UUID } from 'crypto'
@@ -8,14 +9,14 @@ import { groupByFrom } from './groupByFrom'
 
 export const planRoleUpdate = async (
   roleId: UUID,
-  accountForSetup: HexAddress,
+  setupSafes: Map<Chain, HexAddress>,
 ) => {
   const role = await getRole(dbClient(), roleId)
 
   const { safes, issues: memberIssues } = await getMemberSafes(role)
   const resolvedSafes = await resolveAccounts({
     updatesOrCreations: safes,
-    accountForSetup,
+    accountForSetup: setupSafes,
   })
 
   const { rolesMods, issues: roleIssues } = await getRolesMods(role, {
@@ -29,11 +30,11 @@ export const planRoleUpdate = async (
   const result = await planApplyAccounts({
     current: [...resolvedSafes.current, ...resolvedRolesMods.current],
     desired: [...resolvedSafes.desired, ...resolvedRolesMods.desired],
-    accountForSetup,
+    accountForSetup: setupSafes,
   })
 
   return {
     issues: [...roleIssues, ...memberIssues],
-    slices: groupByFrom(result, accountForSetup),
+    slices: groupByFrom(result, setupSafes),
   }
 }

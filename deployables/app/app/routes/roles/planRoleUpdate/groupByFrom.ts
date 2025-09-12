@@ -1,34 +1,69 @@
+import { invariant } from '@epic-web/invariant'
+import { Chain } from '@zodiac/chains'
 import { StepsByAccount } from '@zodiac/db/schema'
 import { HexAddress } from '@zodiac/schema'
 import { AccountBuilderResult } from 'ser-kit'
 
+type GroupByFromResult = Map<
+  Chain,
+  { from: HexAddress; accountBuilderResult: StepsByAccount[] }[]
+>
+
 export const groupByFrom = (
-  accountBuilderResults: AccountBuilderResult,
-  accountForSetup: HexAddress,
-): { from: HexAddress; steps: StepsByAccount[] }[] => {
-  const ANYONE = 'ANYONE'
-  const { [ANYONE]: stepsFromAnyone, ...stepsByFrom } = groupBy(
-    accountBuilderResults,
-    (step) => step.from ?? ANYONE,
-  )
-  // include steps without a `from` in the first group
-  const firstGroup = Object.values(stepsByFrom)[0]
+  ungroupedResult: AccountBuilderResult,
+  accountForSetup: Map<Chain, HexAddress>,
+): GroupByFromResult => {
+  const stepsByChain = groupBy(ungroupedResult, (step) => step.account.chain)
 
-  if (firstGroup == null) {
-    // all steps can be executed by anyone – use specified accountForSetup
-    return [
-      {
-        from: accountForSetup,
-        steps: stepsFromAnyone,
-      },
-    ]
-  }
+  return stepsByChain
+    .entries()
+    .reduce<GroupByFromResult>((result, [chainId, accountBuilderResults]) => {
+      const ANYONE = 'ANYONE'
+      const groups = groupBy(
+        accountBuilderResults,
+        (step) => step.from ?? ANYONE,
+      )
 
-  firstGroup.unshift(...stepsFromAnyone)
-  return Object.entries(stepsByFrom).map(([from, steps]) => ({
-    from: from as HexAddress,
-    steps,
-  }))
+      const stepsFromAnyone = groups.get(ANYONE)
+
+      groups.delete(ANYONE)
+
+      const firstGroup = groups.values().next().value
+
+      if (firstGroup == null) {
+        const from = accountForSetup.get(chainId)
+
+        invariant(
+          from != null,
+          `Could not find a setup safe for chain "${chainId}"`,
+        )
+
+        invariant(stepsFromAnyone != null, 'No steps defined to be executed')
+
+        // all steps can be executed by anyone – use specified accountForSetup
+        return result.set(chainId, [
+          {
+            from,
+            accountBuilderResult: stepsFromAnyone,
+          },
+        ])
+      }
+
+      if (stepsFromAnyone != null) {
+        firstGroup.unshift(...stepsFromAnyone)
+      }
+
+      return result.set(
+        chainId,
+        groups
+          .entries()
+          .map(([from, steps]) => ({
+            from: from as HexAddress,
+            accountBuilderResult: steps,
+          }))
+          .toArray(),
+      )
+    }, new Map())
 }
 
 /**
@@ -40,17 +75,18 @@ export const groupByFrom = (
 export function groupBy<T, K extends string | number | symbol>(
   array: T[],
   keySelector: (item: T) => K,
-): Record<K, T[]> {
-  return array.reduce(
-    (groups, item) => {
-      const key = keySelector(item)
-      if (!groups[key]) {
-        groups[key] = []
-      }
-      groups[key].push(item)
+): Map<K, T[]> {
+  const result = new Map<K, T[]>()
 
-      return groups
-    },
-    {} as Record<K, T[]>,
-  )
+  for (const item of array) {
+    const key = keySelector(item)
+
+    if (!result.has(key)) {
+      result.set(key, [])
+    }
+
+    result.get(key)?.push(item)
+  }
+
+  return result
 }
