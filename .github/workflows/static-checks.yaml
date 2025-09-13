@@ -14,7 +14,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
-          node-version: 22.14.0
+          node-version: 22.19.0
           cache: 'pnpm'
           cache-dependency-path: '**/pnpm-lock.yaml'
       - run: pnpm install --prefer-offline
@@ -28,7 +28,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
-          node-version: 22.14.0
+          node-version: 22.19.0
           cache: 'pnpm'
           cache-dependency-path: '**/pnpm-lock.yaml'
       - run: pnpm install --prefer-offline
@@ -42,7 +42,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
-          node-version: 22.14.0
+          node-version: 22.19.0
           cache: 'pnpm'
           cache-dependency-path: '**/pnpm-lock.yaml'
       - run: pnpm install --prefer-offline
@@ -56,7 +56,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
-          node-version: 22.14.0
+          node-version: 22.19.0
           cache: 'pnpm'
           cache-dependency-path: '**/pnpm-lock.yaml'
       - run: pnpm install --prefer-offline

@@ -23,7 +23,7 @@
     "@cloudflare/workers-types": "4.20250913.0",
     "@react-router/dev": "7.8.2",
     "@tailwindcss/vite": "4.1.13",
-    "@types/node": "22.14.1",
+    "@types/node": "22.18.3",
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
     "@vitejs/plugin-react": "5.0.2",
