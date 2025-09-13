@@ -69,7 +69,7 @@
     "@testing-library/user-event": "14.6.1",
     "@types/chrome": "0.1.11",
     "@types/node": "22.14.1",
-    "@types/react": "19.1.12",
+    "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
     "@vercel/react-router": "1.2.3",
     "@vitest/runner": "3.2.4",
