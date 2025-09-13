@@ -80,11 +80,11 @@ importers:
   deployables/app:
     dependencies:
       '@cowprotocol/widget-lib':
-        specifier: 0.18.0
-        version: 0.18.0
+        specifier: 0.20.0
+        version: 0.20.0
       '@cowprotocol/widget-react':
-        specifier: 0.13.0
-        version: 0.13.0
+        specifier: 0.14.0
+        version: 0.14.0
       '@epic-web/invariant':
         specifier: 1.0.0
         version: 1.0.0
@@ -1425,11 +1425,11 @@ packages:
   '@cowprotocol/types@1.2.0':
     resolution: {integrity: sha512-K/jOyLtffgEFs52hRKX7tyDHtIA3asnsB9So6lINCPfNetr1GhM818+kf+f3sPtOHWsBpL3pTkjJphzDVCQntQ==}
 
-  '@cowprotocol/widget-lib@0.18.0':
-    resolution: {integrity: sha512-uv4FBAqnoTEPwF7x7g1X65owuMRKfSoFSiDx3BRPvBBCIN3tvRMeOC9ZFlBEiJT677YnS4JWLItOIwQbwKxFrg==}
+  '@cowprotocol/widget-lib@0.20.0':
+    resolution: {integrity: sha512-+iRFm8YeKP0qIjK0D08yfinRRHUNc/h0A0sRopIeJCRiKsIJR2legwD02BuzhNv3EiwxwH7aRmqdYpILYJzGUw==}
 
-  '@cowprotocol/widget-react@0.13.0':
-    resolution: {integrity: sha512-kYyio+nF0kjK5CZzM5GesFeZLbbV87wz1JgnCtzcMSf7iDDK/buyw5kQQloyz5Xkli6J8yayO1g11yH5ZuFk8Q==}
+  '@cowprotocol/widget-react@0.14.0':
+    resolution: {integrity: sha512-6oPbGu8MXQJuq88fjehCTwsp3LAMWyyGS3WiJCqHXrQVSryjsbtcsZF+Wgcf1SeNMXb7CPtVRln5BTlvgILrsg==}
 
   '@cspell/cspell-bundled-dicts@9.2.1':
     resolution: {integrity: sha512-85gHoZh3rgZ/EqrHIr1/I4OLO53fWNp6JZCqCdgaT7e3sMDaOOG6HoSxCvOnVspXNIf/1ZbfTCDMx9x79Xq0AQ==}
@@ -10943,14 +10943,14 @@ snapshots:
 
   '@cowprotocol/types@1.2.0': {}
 
-  '@cowprotocol/widget-lib@0.18.0':
+  '@cowprotocol/widget-lib@0.20.0':
     dependencies:
       '@cowprotocol/events': 1.6.1
       '@cowprotocol/iframe-transport': 1.1.1
 
-  '@cowprotocol/widget-react@0.13.0':
+  '@cowprotocol/widget-react@0.14.0':
     dependencies:
-      '@cowprotocol/widget-lib': 0.18.0
+      '@cowprotocol/widget-lib': 0.20.0
 
   '@cspell/cspell-bundled-dicts@9.2.1':
     dependencies:
