@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/node": "22.14.1",
-    "@types/react": "19.1.12",
+    "@types/react": "19.1.13",
     "@zodiac/eslint-config": "workspace:*",
     "@zodiac/test-utils": "workspace:*",
     "@zodiac/typescript-config": "workspace:*",
