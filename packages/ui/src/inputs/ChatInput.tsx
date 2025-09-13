@@ -37,14 +37,14 @@ export const ChatInput = ({
     onModeChange?.(mode)
   }
 
-  // Auto-resize when placeholder changes
+  // Auto-resize when placeholder or input changes
   useLayoutEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
       const newHeight = Math.min(textareaRef.current.scrollHeight, 200) // Max 200px height
       textareaRef.current.style.height = newHeight + 'px'
     }
-  }, [placeholder])
+  }, [placeholder, input])
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -71,7 +71,7 @@ export const ChatInput = ({
             placeholder ||
             'Ask about DeFi protocols, market analysis, or portfolio insights...'
           }
-          className="w-full resize-none border-none bg-transparent px-5 pb-4 pt-4 text-sm placeholder:text-gray-500 focus:outline-none"
+          className="w-full resize-none border-none bg-transparent px-5 pb-4 pt-4 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none"
           disabled={isLoading}
           rows={1}
           style={{
@@ -116,7 +116,7 @@ export const ChatInput = ({
                       </span>
                     </div>
                     <DropdownMenu.ItemIndicator>
-                      <CheckIcon className="h-5 w-5" />
+                      <CheckIcon className="h-5 w-5 text-gray-900" />
                     </DropdownMenu.ItemIndicator>
                   </DropdownMenu.RadioItem>
 
@@ -131,7 +131,7 @@ export const ChatInput = ({
                       </span>
                     </div>
                     <DropdownMenu.ItemIndicator>
-                      <CheckIcon className="h-5 w-5" />
+                      <CheckIcon className="h-5 w-5 text-gray-900" />
                     </DropdownMenu.ItemIndicator>
                   </DropdownMenu.RadioItem>
                 </DropdownMenu.RadioGroup>
@@ -145,7 +145,7 @@ export const ChatInput = ({
             className={`flex h-8 w-8 items-center justify-center rounded-lg font-medium text-white transition-all ${
               !input.trim() || isLoading || isAnimating
                 ? 'cursor-not-allowed bg-gray-400'
-                : 'bg-black hover:bg-gray-700 active:scale-95'
+                : 'cursor-pointer bg-black hover:bg-gray-700 active:scale-95'
             }`}
           >
             {isLoading || isAnimating ? (
