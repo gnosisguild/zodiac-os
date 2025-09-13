@@ -15,8 +15,8 @@
     "lint": "eslint . --max-warnings=0"
   },
   "dependencies": {
-    "@cowprotocol/widget-lib": "0.18.0",
-    "@cowprotocol/widget-react": "0.13.0",
+    "@cowprotocol/widget-lib": "0.20.0",
+    "@cowprotocol/widget-react": "0.14.0",
     "@epic-web/invariant": "1.0.0",
     "@gnosis-guild/zodiac": "4.2.1",
     "@graphql-codegen/cli": "6.0.0",
