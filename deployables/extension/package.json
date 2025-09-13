@@ -68,7 +68,7 @@
   "dependencies": {
     "@epic-web/invariant": "1.0.0",
     "@gnosis-guild/zodiac": "4.2.1",
-    "@headlessui/react": "2.2.7",
+    "@headlessui/react": "2.2.8",
     "@sentry/browser": "10.11.0",
     "@zodiac/chains": "workspace:*",
     "@zodiac/db": "workspace:*",
