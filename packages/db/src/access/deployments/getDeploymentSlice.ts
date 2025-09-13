@@ -1,25 +1,28 @@
 import { invariant } from '@epic-web/invariant'
+import { DeploymentSlice, StepsByAccount } from '@zodiac/db/schema'
 import { jsonParse } from '@zodiac/schema'
 import { UUID } from 'crypto'
-import { StepsByAccount } from '../../../schema'
 import { DBClient } from '../../dbClient'
+import { assertDeploymentSlice } from './assertDeploymentSlice'
 
 export const getDeploymentSlice = async (
   db: DBClient,
   deploymentSliceId: UUID,
-) => {
-  const step = await db.query.deploymentSlice.findFirst({
+): Promise<DeploymentSlice> => {
+  const slice = await db.query.deploymentSlice.findFirst({
     where(fields, { eq }) {
       return eq(fields.id, deploymentSliceId)
     },
   })
 
   invariant(
-    step != null,
+    slice != null,
     `Could not find deployment slice with id "${deploymentSliceId}"`,
   )
 
-  const { steps, ...rest } = step
+  assertDeploymentSlice(slice)
+
+  const { steps, ...rest } = slice
 
   return {
     steps: jsonParse<StepsByAccount[]>(steps),

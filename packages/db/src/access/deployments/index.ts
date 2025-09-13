@@ -1,5 +1,7 @@
 export { assertActiveDeployment } from './assertActiveDeployment'
+export { assertActiveDeploymentSlice } from './assertActiveDeploymentSlice'
 export { assertDeployment } from './assertDeployment'
+export { assertDeploymentSlice } from './assertDeploymentSlice'
 export { cancelDeployment } from './cancelDeployment'
 export { completeDeploymentIfNeeded } from './completeDeploymentIfNeeded'
 export { completeDeploymentSlice } from './completeDeploymentSlice'

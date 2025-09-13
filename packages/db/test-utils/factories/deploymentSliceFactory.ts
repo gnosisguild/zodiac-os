@@ -9,6 +9,7 @@ import {
 import { safeJson } from '@zodiac/schema'
 import { randomAddress } from '@zodiac/test-utils'
 import { randomUUID } from 'crypto'
+import { assertDeploymentSlice } from '../../src'
 import { createFactory } from './createFactory'
 
 export const deploymentSliceFactory = createFactory<
@@ -40,10 +41,12 @@ export const deploymentSliceFactory = createFactory<
       .values(data)
       .returning()
 
+    assertDeploymentSlice(deploymentSlice)
+
     return deploymentSlice
   },
   createWithoutDb(data) {
-    return {
+    const deploymentSlice = {
       id: randomUUID(),
       createdAt: new Date(),
 
@@ -59,5 +62,9 @@ export const deploymentSliceFactory = createFactory<
 
       ...data,
     }
+
+    assertDeploymentSlice(deploymentSlice)
+
+    return deploymentSlice
   },
 })

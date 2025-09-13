@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event'
 import { Chain } from '@zodiac/chains'
 import {
   assertActiveDeployment,
+  assertActiveDeploymentSlice,
   cancelDeployment,
   completeDeploymentSlice,
   dbClient,
@@ -502,7 +503,7 @@ describe('Generic Deployment', () => {
       )
 
       dbIt(
-        'disables the deploy button when a transaction has been signed',
+        'hides the deploy button when a transaction has been signed',
         async () => {
           const user = await userFactory.create()
           const tenant = await tenantFactory.create(user)
@@ -535,14 +536,21 @@ describe('Generic Deployment', () => {
             { signedTransactionId: transaction.id },
           )
 
-          const step = await deploymentSliceFactory.create(user, deployment, {
-            proposedTransactionId: proposal.id,
-            signedTransactionId: transaction.id,
-          })
+          const deploymentSlice = await deploymentSliceFactory.create(
+            user,
+            deployment,
+            {
+              proposedTransactionId: proposal.id,
+              signedTransactionId: transaction.id,
+            },
+          )
 
-          await completeDeploymentSlice(dbClient(), user, {
-            deploymentSliceId: step.id,
+          assertActiveDeploymentSlice(deploymentSlice)
+
+          await completeDeploymentSlice(dbClient(), deploymentSlice, {
+            userId: user.id,
             transactionHash: randomHex(18),
+            signedTransactionId: transaction.id,
           })
 
           await render(
@@ -554,10 +562,60 @@ describe('Generic Deployment', () => {
           )
 
           expect(
-            await screen.findByRole('button', { name: 'Deploy' }),
-          ).toBeDisabled()
+            screen.queryByRole('button', { name: 'Deploy' }),
+          ).not.toBeInTheDocument()
         },
       )
+    })
+
+    describe('Completed transaction', () => {
+      dbIt('indicates completed transactions', async () => {
+        const user = await userFactory.create()
+        const tenant = await tenantFactory.create(user)
+
+        const account = await accountFactory.create(tenant, user)
+        const wallet = await walletFactory.create(user)
+
+        const route = await routeFactory.create(account, wallet)
+
+        const signedTransaction = await signedTransactionFactory.create(
+          tenant,
+          user,
+          route,
+        )
+
+        const deployment = await deploymentFactory.create(tenant, user)
+        const deploymentSlice = await deploymentSliceFactory.create(
+          user,
+          deployment,
+        )
+
+        assertActiveDeploymentSlice(deploymentSlice)
+
+        const { completedAt } = await completeDeploymentSlice(
+          dbClient(),
+          deploymentSlice,
+          {
+            userId: user.id,
+            transactionHash: randomHex(),
+            signedTransactionId: signedTransaction.id,
+          },
+        )
+
+        await render(
+          href('/workspace/:workspaceId/deployments/:deploymentId', {
+            workspaceId: tenant.defaultWorkspaceId,
+            deploymentId: deployment.id,
+          }),
+          { tenant, user },
+        )
+
+        expect(
+          await screen.findByText(
+            `Completed by ${user.fullName} on ${formatDate(completedAt)}`,
+          ),
+        )
+      })
     })
   })
 
@@ -590,7 +648,7 @@ describe('Generic Deployment', () => {
       )
     })
 
-    dbIt('disables deploy buttons', async () => {
+    dbIt('hides deploy buttons', async () => {
       const user = await userFactory.create()
       const tenant = await tenantFactory.create(user)
 
@@ -611,8 +669,8 @@ describe('Generic Deployment', () => {
       )
 
       expect(
-        await screen.findByRole('button', { name: 'Deploy' }),
-      ).toBeDisabled()
+        screen.queryByRole('button', { name: 'Deploy' }),
+      ).not.toBeInTheDocument()
     })
 
     dbIt('does not link to transaction proposals', async () => {
